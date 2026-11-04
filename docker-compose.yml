@@ -1,0 +1,29 @@
+services:
+  # The local site only accepts requests addressed to 127.0.0.1:8077 (it answers anything else with
+  # "Invalid host header"). This relay listens on 8077 and forwards the raw connection to the site on
+  # this machine. The tests container shares its network, so 127.0.0.1:8077 inside it reaches the
+  # site and the Host header still says 127.0.0.1:8077.
+  # Against a hosted test environment, drop this service and network_mode and set DOCKER_BASE_URL.
+  site-relay:
+    image: alpine/socat:1.8.1.1
+    command: tcp-listen:8077,fork,reuseaddr tcp-connect:host.docker.internal:8077
+    extra_hosts:
+      # Docker Desktop provides host.docker.internal already; this makes it work on a Linux engine too.
+      - "host.docker.internal:host-gateway"
+
+  tests:
+    build: .
+    network_mode: "service:site-relay"
+    depends_on:
+      - site-relay
+    # Recommended by Playwright: init reaps browser processes, host IPC stops Chromium running out of shared memory.
+    init: true
+    ipc: host
+    environment:
+      CI: "true"
+      BASE_URL: ${DOCKER_BASE_URL:-http://127.0.0.1:8077}
+      WORKERS: ${WORKERS:-}
+    volumes:
+      # Reports and traces land in this folder, where you can open them after the run.
+      - ./playwright-report:/app/playwright-report
+      - ./test-results:/app/test-results
