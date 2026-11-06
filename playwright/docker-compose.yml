@@ -1,0 +1,57 @@
+# Runs the tests in a container against the local environment, which must be running (the
+# docker-compose.yml in the repo root). A pipeline runs the image straight against a real
+# environment instead; it doesn't need this file or its relay. See README.md.
+#   docker compose build
+#   docker compose run --rm tests
+#   docker compose run --rm -e TEST_APP=super-portal tests
+#   docker compose down
+name: super-apps-tests
+
+services:
+  # Local only. The tests use the same addresses as outside Docker (localhost:3001, localhost:3002
+  # and Keycloak at localhost:8080), but inside a container localhost is the container itself. This
+  # relay listens on those ports and forwards them over the local environment's Docker network,
+  # and the tests container shares its network.
+  local-relay:
+    image: alpine/socat:1.8.1.1
+    entrypoint: ['/bin/sh', '-c']
+    command:
+      - >-
+        socat tcp-listen:3001,fork,reuseaddr tcp-connect:super-catalog:3001 &
+        socat tcp-listen:3002,fork,reuseaddr tcp-connect:super-portal:3002 &
+        socat tcp-listen:8080,fork,reuseaddr tcp-connect:keycloak:8080 &
+        wait
+    networks:
+      - local-environment
+
+  tests:
+    build: .
+    image: super-apps-tests:local
+    network_mode: 'service:local-relay'
+    depends_on:
+      - local-relay
+    # Recommended by Playwright: init reaps browser processes, and host IPC gives Chromium enough
+    # shared memory.
+    init: true
+    ipc: host
+    # The same .env as local runs. A variable set in the shell or with -e takes precedence.
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      - TEST_APP
+      - TEST_ENV
+      - TEST_BROWSER
+      - TEST_WORKERS
+      - TEST_SHARD
+      - TEST_GREP
+      - TEST_GREP_INVERT
+      - TEST_RETRIES
+    volumes:
+      # Reports and traces land here, on this machine.
+      - ./reports:/app/reports
+
+networks:
+  local-environment:
+    name: super-apps_default
+    external: true
