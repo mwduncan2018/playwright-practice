@@ -39,5 +39,11 @@ export function NotFoundMessage({ what, back, backLabel }: { what: string; back:
 const STATUS_COLORS: Record<string, string> = { Active: 'success', Draft: 'secondary', Discontinued: 'dark' };
 
 export function StatusBadge({ status }: { status: string }) {
-  return <Badge bg={STATUS_COLORS[status] ?? 'secondary'}>{status}</Badge>;
+  const color = STATUS_COLORS[status] ?? 'secondary';
+  // The near-black Discontinued badge needs an edge to stand out on the dark page.
+  return (
+    <Badge bg={color} className={color === 'dark' ? 'border' : undefined}>
+      {status}
+    </Badge>
+  );
 }

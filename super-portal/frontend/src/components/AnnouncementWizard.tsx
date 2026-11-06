@@ -206,7 +206,7 @@ export function AnnouncementWizard({ show, onClose, onCreated }: { show: boolean
       done={
         created && (
           <div className="text-center py-3">
-            <p className="display-6 text-success mb-2" aria-hidden="true">
+            <p className="display-6 text-success-emphasis mb-2" aria-hidden="true">
               ✓
             </p>
             <h2 className="h4">{created.scheduled ? 'Announcement scheduled' : 'Announcement published'}</h2>

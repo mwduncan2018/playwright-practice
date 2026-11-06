@@ -56,6 +56,9 @@ and the API refuses admin changes with a 403.
 ## How it's built
 
 - `frontend/`: React 19, React Bootstrap 2, React Router and keycloak-js, built with Vite.
+- The look: Bootstrap's dark mode in a dark brown theme with a copper accent, set in
+  `frontend/src/theme.css`. Its text colors have at least 4.5:1 contrast with their backgrounds,
+  and buttons and field borders at least 3:1 (WCAG AA).
 - `backend/`: FastAPI, SQLModel on SQLite, and PyJWT, which checks the Keycloak token on every
   API call.
 - One container serves both: the API under `/api`, and the React app for every other path. The

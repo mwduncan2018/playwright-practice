@@ -1,0 +1,207 @@
+/*
+ * Super Portal's dark blue theme. index.html turns on Bootstrap's dark mode (data-bs-theme="dark"),
+ * and this file swaps its grays for blues: the palette first, then the components that need
+ * pointing at it, including the few Bootstrap gives fixed colors meant for a white page. Text has
+ * at least 4.5:1 contrast with whatever it sits on, and buttons and field borders at least 3:1.
+ */
+[data-bs-theme='dark'] {
+  --app-bg: #0b1730;
+  --app-bg-rgb: 11, 23, 48;
+  --app-surface: #12244a;
+  --app-raised: #1a3160;
+  --app-raised-rgb: 26, 49, 96;
+  --app-border: #2b4777;
+  --app-field-border: #5b7cb3;
+  --app-text: #e5edfa;
+  --app-text-rgb: 229, 237, 250;
+  --app-muted: #a9bedf;
+  --app-muted-rgb: 169, 190, 223;
+  --app-link: #8db8ff;
+  --app-link-rgb: 141, 184, 255;
+  --app-link-hover: #b9d3ff;
+  --app-link-hover-rgb: 185, 211, 255;
+  --app-primary: #2563eb;
+  --app-primary-rgb: 37, 99, 235;
+  --app-primary-hover: #1d4ed8;
+  --app-primary-active: #1e40af;
+  --app-navbar: #123a85;
+
+  --bs-body-bg: var(--app-bg);
+  --bs-body-bg-rgb: var(--app-bg-rgb);
+  --bs-body-color: var(--app-text);
+  --bs-body-color-rgb: var(--app-text-rgb);
+  --bs-secondary-color: var(--app-muted);
+  --bs-secondary-color-rgb: var(--app-muted-rgb);
+  --bs-tertiary-color: var(--app-muted);
+  --bs-tertiary-color-rgb: var(--app-muted-rgb);
+  --bs-secondary-bg: var(--app-raised);
+  --bs-secondary-bg-rgb: var(--app-raised-rgb);
+  --bs-tertiary-bg: var(--app-raised);
+  --bs-tertiary-bg-rgb: var(--app-raised-rgb);
+  --bs-border-color: var(--app-border);
+  --bs-border-color-translucent: var(--app-border);
+  --bs-link-color: var(--app-link);
+  --bs-link-color-rgb: var(--app-link-rgb);
+  --bs-link-hover-color: var(--app-link-hover);
+  --bs-link-hover-color-rgb: var(--app-link-hover-rgb);
+  --bs-primary: var(--app-primary);
+  --bs-primary-rgb: var(--app-primary-rgb);
+  --bs-primary-text-emphasis: var(--app-link);
+  --bs-focus-ring-color: rgba(var(--app-primary-rgb), 0.5);
+}
+
+/* The top bar, with links bright enough to read on it. */
+.navbar.app-navbar {
+  --bs-navbar-color: rgba(255, 255, 255, 0.82);
+  --bs-navbar-hover-color: #fff;
+  --bs-navbar-active-color: #fff;
+  --bs-navbar-brand-color: #fff;
+  --bs-navbar-brand-hover-color: #fff;
+  background-color: var(--app-navbar);
+  border-bottom: 1px solid var(--app-border);
+}
+
+/* Cards, dialogs, menus and messages sit on a surface a little lighter than the page. */
+.card {
+  --bs-card-bg: var(--app-surface);
+  --bs-card-border-color: var(--app-border);
+  --bs-card-cap-bg: var(--app-raised);
+}
+
+.modal {
+  --bs-modal-bg: var(--app-surface);
+  --bs-modal-border-color: var(--app-border);
+  --bs-modal-header-border-color: var(--app-border);
+  --bs-modal-footer-border-color: var(--app-border);
+}
+
+.dropdown-menu {
+  --bs-dropdown-bg: var(--app-surface);
+  --bs-dropdown-border-color: var(--app-border);
+  --bs-dropdown-divider-bg: var(--app-border);
+  --bs-dropdown-link-hover-bg: var(--app-raised);
+  --bs-dropdown-link-active-bg: var(--app-primary);
+}
+
+.toast {
+  --bs-toast-bg: var(--app-surface);
+  --bs-toast-border-color: var(--app-border);
+  --bs-toast-header-bg: var(--app-raised);
+}
+
+/* Tables and lists take the color of whatever they sit on. */
+.table {
+  --bs-table-bg: transparent;
+  --bs-table-border-color: var(--app-border);
+}
+
+.list-group {
+  --bs-list-group-bg: transparent;
+  --bs-list-group-border-color: var(--app-border);
+  --bs-list-group-action-hover-bg: var(--app-raised);
+  --bs-list-group-action-active-bg: var(--app-raised);
+  --bs-list-group-active-bg: var(--app-primary);
+  --bs-list-group-active-border-color: var(--app-primary);
+}
+
+.pagination {
+  --bs-pagination-bg: var(--app-surface);
+  --bs-pagination-border-color: var(--app-border);
+  --bs-pagination-hover-bg: var(--app-raised);
+  --bs-pagination-hover-border-color: var(--app-border);
+  --bs-pagination-focus-bg: var(--app-raised);
+  --bs-pagination-focus-box-shadow: 0 0 0 0.25rem rgba(var(--app-primary-rgb), 0.5);
+  --bs-pagination-active-bg: var(--app-primary);
+  --bs-pagination-active-border-color: var(--app-primary);
+  --bs-pagination-disabled-bg: var(--app-surface);
+  --bs-pagination-disabled-border-color: var(--app-border);
+}
+
+.progress {
+  --bs-progress-bg: var(--app-raised);
+  --bs-progress-bar-bg: var(--app-primary);
+}
+
+/* Fields: borders strong enough to find, and focus in the theme's color. */
+.form-control,
+.form-select,
+.form-check-input {
+  border-color: var(--app-field-border);
+}
+
+.form-control:focus,
+.form-select:focus,
+.form-check-input:focus {
+  border-color: var(--app-link);
+  box-shadow: 0 0 0 0.25rem rgba(var(--app-primary-rgb), 0.5);
+}
+
+.form-check-input:checked {
+  background-color: var(--app-primary);
+  border-color: var(--app-primary);
+}
+
+/* Buttons in the theme's colors. Bootstrap's outline and secondary buttons are made for a white
+   page, so they get lighter text and theme-colored fills here. */
+.btn-primary {
+  --bs-btn-bg: var(--app-primary);
+  --bs-btn-border-color: var(--app-primary);
+  --bs-btn-hover-bg: var(--app-primary-hover);
+  --bs-btn-hover-border-color: var(--app-primary-hover);
+  --bs-btn-active-bg: var(--app-primary-active);
+  --bs-btn-active-border-color: var(--app-primary-active);
+  --bs-btn-disabled-bg: var(--app-primary);
+  --bs-btn-disabled-border-color: var(--app-primary);
+  --bs-btn-focus-shadow-rgb: var(--app-primary-rgb);
+}
+
+.btn-secondary {
+  --bs-btn-color: var(--app-text);
+  --bs-btn-bg: var(--app-raised);
+  --bs-btn-border-color: var(--app-field-border);
+  --bs-btn-hover-color: var(--app-text);
+  --bs-btn-hover-bg: var(--app-border);
+  --bs-btn-hover-border-color: var(--app-field-border);
+  --bs-btn-active-color: var(--app-text);
+  --bs-btn-active-bg: var(--app-border);
+  --bs-btn-active-border-color: var(--app-field-border);
+  --bs-btn-disabled-color: var(--app-text);
+  --bs-btn-disabled-bg: var(--app-raised);
+  --bs-btn-disabled-border-color: var(--app-field-border);
+  --bs-btn-focus-shadow-rgb: var(--app-muted-rgb);
+}
+
+.btn-outline-primary {
+  --bs-btn-color: var(--app-link);
+  --bs-btn-border-color: var(--app-link);
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: var(--app-primary);
+  --bs-btn-hover-border-color: var(--app-primary);
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: var(--app-primary-active);
+  --bs-btn-active-border-color: var(--app-primary-active);
+  --bs-btn-disabled-color: var(--app-link);
+  --bs-btn-disabled-border-color: var(--app-link);
+  --bs-btn-focus-shadow-rgb: var(--app-primary-rgb);
+}
+
+.btn-outline-secondary {
+  --bs-btn-color: var(--app-muted);
+  --bs-btn-border-color: var(--app-field-border);
+  --bs-btn-hover-color: var(--app-text);
+  --bs-btn-hover-bg: var(--app-raised);
+  --bs-btn-hover-border-color: var(--app-field-border);
+  --bs-btn-active-color: var(--app-text);
+  --bs-btn-active-bg: var(--app-raised);
+  --bs-btn-active-border-color: var(--app-field-border);
+  --bs-btn-disabled-color: var(--app-muted);
+  --bs-btn-disabled-border-color: var(--app-border);
+  --bs-btn-focus-shadow-rgb: var(--app-muted-rgb);
+}
+
+.btn-outline-danger {
+  --bs-btn-color: var(--bs-danger-text-emphasis);
+  --bs-btn-border-color: var(--bs-danger-text-emphasis);
+  --bs-btn-disabled-color: var(--bs-danger-text-emphasis);
+  --bs-btn-disabled-border-color: var(--bs-danger-text-emphasis);
+}

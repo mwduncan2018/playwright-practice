@@ -30,7 +30,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             <Toast.Header>
               <strong className="me-auto">Super Portal</strong>
             </Toast.Header>
-            <Toast.Body className={message.variant === 'warning' ? undefined : 'text-white'}>{message.text}</Toast.Body>
+            <Toast.Body className={message.variant === 'warning' ? 'text-dark' : 'text-white'}>{message.text}</Toast.Body>
           </Toast>
         ))}
       </ToastContainer>

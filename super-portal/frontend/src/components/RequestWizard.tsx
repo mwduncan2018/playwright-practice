@@ -437,7 +437,7 @@ export function RequestWizard({ type, show, defaultPriority, onClose }: Props) {
       done={
         created && (
           <div className="text-center py-3">
-            <p className="display-6 text-success mb-2" aria-hidden="true">
+            <p className="display-6 text-success-emphasis mb-2" aria-hidden="true">
               ✓
             </p>
             <h2 className="h4">Request submitted</h2>

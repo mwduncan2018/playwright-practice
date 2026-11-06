@@ -7,7 +7,7 @@ export function Layout() {
   const { user, signOut } = useAuth();
   return (
     <>
-      <Navbar bg="dark" data-bs-theme="dark" expand="md" className="mb-4" aria-label="Main">
+      <Navbar data-bs-theme="dark" expand="md" className="app-navbar mb-4" aria-label="Main">
         <Container>
           <Navbar.Brand as={Link} to="/">
             Super Catalog

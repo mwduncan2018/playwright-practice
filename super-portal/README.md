@@ -90,7 +90,9 @@ Publishing (now, or on a later date at 09:00 UTC, and whether to pin it) → Rev
 The same way as [Super Catalog](../super-catalog/README.md): `frontend/` is React 19, React
 Bootstrap 2, React Router and keycloak-js, built with Vite; `backend/` is FastAPI with SQLModel on
 SQLite, and PyJWT checks the Keycloak token on every API call. One container serves both on port
-3002, and the API's interactive documentation is at http://localhost:3002/docs.
+3002, and the API's interactive documentation is at http://localhost:3002/docs. Its look is
+Bootstrap's dark mode in a dark blue theme, set in `frontend/src/theme.css` the same way as Super
+Catalog's brown one.
 
 It reads the same environment variables as Super Catalog, with `KEYCLOAK_CLIENT_ID` set to
 `super-portal` and the database at `/app/data/super-portal.db`. After changing the app's code,
