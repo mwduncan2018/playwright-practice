@@ -1,0 +1,1 @@
+"""Super Catalog's API."""

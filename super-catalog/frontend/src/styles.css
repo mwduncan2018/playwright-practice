@@ -1,0 +1,18 @@
+.stat-value {
+  font-size: 2rem;
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.sort-button {
+  font-weight: 600;
+}
+
+/* Toasts don't block clicks on the page under them; only their close button takes clicks. */
+.toast-container .toast {
+  pointer-events: none;
+}
+
+.toast-container .btn-close {
+  pointer-events: auto;
+}
