@@ -1,29 +1,80 @@
-services:
-  # The local site only accepts requests addressed to 127.0.0.1:8077 (it answers anything else with
-  # "Invalid host header"). This relay listens on 8077 and forwards the raw connection to the site on
-  # this machine. The tests container shares its network, so 127.0.0.1:8077 inside it reaches the
-  # site and the Host header still says 127.0.0.1:8077.
-  # Against a hosted test environment, drop this service and network_mode and set DOCKER_BASE_URL.
-  site-relay:
-    image: alpine/socat:1.8.1.1
-    command: tcp-listen:8077,fork,reuseaddr tcp-connect:host.docker.internal:8077
-    extra_hosts:
-      # Docker Desktop provides host.docker.internal already; this makes it work on a Linux engine too.
-      - "host.docker.internal:host-gateway"
+# The local environment the Playwright tests run against: Keycloak, Super Catalog and Super Portal.
+#   Start:            docker compose up -d --build --wait
+#   Stop and reset:   docker compose down
+name: super-apps
 
-  tests:
-    build: .
-    network_mode: "service:site-relay"
-    depends_on:
-      - site-relay
-    # Recommended by Playwright: init reaps browser processes, host IPC stops Chromium running out of shared memory.
-    init: true
-    ipc: host
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.8.2
+    # start-dev serves plain HTTP and keeps its database inside the container, which is fine for a
+    # local environment. --import-realm loads keycloak-realm.json when the container is created.
+    command: start-dev --import-realm
     environment:
-      CI: "true"
-      BASE_URL: ${DOCKER_BASE_URL:-http://127.0.0.1:8077}
-      WORKERS: ${WORKERS:-}
+      # The account for the admin console at http://localhost:8080/admin. Local use only.
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN_USERNAME:-admin}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
+      # Browsers always reach Keycloak at this address, and it is the issuer in every token.
+      # Other containers (the app back ends) can still call it at http://keycloak:8080.
+      KC_HOSTNAME: http://localhost:8080
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
+      # Readiness checks on the management port (9000, inside the container only).
+      KC_HEALTH_ENABLED: "true"
+    ports:
+      # Bound to this machine only, so nothing else on the network can reach the admin console.
+      - "127.0.0.1:8080:8080"
     volumes:
-      # Reports and traces land in this folder, where you can open them after the run.
-      - ./playwright-report:/app/playwright-report
-      - ./test-results:/app/test-results
+      - ./keycloak-realm.json:/opt/keycloak/data/import/super-apps-realm.json:ro
+    healthcheck:
+      # The image has no curl, so bash asks the readiness endpoint itself and checks for HTTP 200.
+      test:
+        - CMD
+        - bash
+        - -c
+        - |-
+          exec 3<>/dev/tcp/127.0.0.1/9000 && printf 'GET /health/ready HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3 && read -r status <&3 && [[ $$status == *" 200 "* ]]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+
+  super-catalog:
+    build: ./super-catalog
+    image: super-catalog:local
+    environment:
+      # Browsers reach Keycloak here, and tokens name it as their issuer.
+      KEYCLOAK_URL: http://localhost:8080
+      # The back end fetches Keycloak's signing keys across the Docker network.
+      KEYCLOAK_INTERNAL_URL: http://keycloak:8080
+      KEYCLOAK_REALM: super-apps
+      KEYCLOAK_CLIENT_ID: super-catalog
+    ports:
+      - "127.0.0.1:3001:3001"
+    depends_on:
+      keycloak:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:3001/api/health', timeout=3)"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+  super-portal:
+    build: ./super-portal
+    image: super-portal:local
+    environment:
+      KEYCLOAK_URL: http://localhost:8080
+      KEYCLOAK_INTERNAL_URL: http://keycloak:8080
+      KEYCLOAK_REALM: super-apps
+      KEYCLOAK_CLIENT_ID: super-portal
+    ports:
+      - "127.0.0.1:3002:3002"
+    depends_on:
+      keycloak:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:3002/api/health', timeout=3)"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s

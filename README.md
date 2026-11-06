@@ -1,81 +1,84 @@
-# playwright-practice
+# Super Apps
 
-Playwright + TypeScript UI tests for the local Research site (`http://127.0.0.1:8077`).
-The tests are plain Playwright: no Page Object Model and no Gherkin. Each test carries the
-ID of the manual case it automates.
+A practice repo for Playwright test automation: a test project and two example apps to test, all
+signing in through Keycloak.
 
-## Layout
+| Folder | What it holds | Status |
+| --- | --- | --- |
+| `playwright/` | The test automation, with each app's manual test plan | Ready: 20 tests, see [playwright/README.md](playwright/README.md) |
+| `super-catalog/` | Super Catalog: React front end, FastAPI back end | Ready at http://localhost:3001 |
+| `super-portal/` | Super Portal: React front end, FastAPI back end | Ready at http://localhost:3002 |
 
-```
-test-plans/          manual test plans: the source of truth for what each test proves
-tests/               one spec file per feature area; test titles start with the case ID
-support/fixtures.ts  the `test` and `expect` every spec imports: shared setup lives here
-support/site-guard.ts the pages and requests tests are never allowed to make
-playwright.config.ts  parallelism, browsers, base URL, reporters
-Dockerfile, docker-compose.yml  run the suite in a container
-```
+The files at the root make up the local environment the tests run against:
 
-## Run locally
+- `docker-compose.yml` starts Keycloak, Super Catalog and Super Portal.
+- `keycloak-realm.json` defines the users, roles and app clients that Keycloak loads.
+- `.gitattributes` keeps Unix line endings, so files still work inside Linux containers when the
+  repo is checked out on Windows.
 
-The site must be running first.
+## Start and stop
+
+Docker Desktop must be running.
 
 ```bash
-npm ci
-npx playwright install
-npm test                 # all browsers, in parallel
-npm run test:chromium    # one browser
-npx playwright test -g "DATA-002"   # one manual case
+docker compose up -d --build --wait   # build the apps, start everything, wait until it's ready
+docker compose ps                     # what's running, and whether it's healthy
+docker compose logs super-portal      # one service's log: keycloak, super-catalog or super-portal
+docker compose down                   # stop, and throw away all data and sign-ins
 ```
 
-Reviewing a test:
+The first build takes a few minutes; later starts take about 30 seconds, mostly Keycloak.
 
-| Script | What it does |
+Keycloak loads `keycloak-realm.json` each time its container is created. Changes made in the admin
+console last until `docker compose down`; the next start begins again from the file. To change
+users, roles or clients for good, edit the file, then run `docker compose down` and
+`docker compose up -d --wait`.
+
+Each app reloads its sample data every time it starts, so `docker compose restart super-catalog`
+(or `super-portal`) resets that app without touching Keycloak.
+
+## Keycloak
+
+| | |
 | --- | --- |
-| `npm run test:headed` | Watch it run in a visible browser, one worker |
-| `npm run test:debug` | Step through it with the Playwright Inspector |
-| `npm run test:ui` | UI mode: time-travel through each step |
-| `npm run test:trace` | Record a trace for every test; open with `npm run report` |
-| `npm run test:repeat` | Run each test 10 times to shake out flakiness |
-| `npm run typecheck` | Type-check the specs and config |
+| Version | 26.8.2, pinned in `docker-compose.yml` |
+| Realm | `super-apps`, shown as "Super Apps" on the sign-in page |
+| Try a sign-in | http://localhost:8080/realms/super-apps/account |
+| Admin console | http://localhost:8080/admin, local account `admin` / `admin` |
+| Token issuer | `http://localhost:8080/realms/super-apps` |
 
-## Run in Docker
+Keycloak is bound to 127.0.0.1, so other machines on your network can't reach it. To use a
+different admin console account, set `KEYCLOAK_ADMIN_USERNAME` and `KEYCLOAK_ADMIN_PASSWORD` before
+the container is created.
 
-Docker Desktop must be running, and so must the site.
+### Users
 
-```bash
-npm run docker:build
-npm run docker:test      # exits with the tests' exit code, like a pipeline step
-npm run docker:down      # remove the stopped containers
-```
+Both apps share these users. Each password is the username followed by `-password`, so admin1's is
+`admin1-password`.
 
-The HTML report, `test-results/junit.xml` and any failure traces land in `playwright-report/` and
-`test-results/` on this machine.
+| Username | Name | Role |
+| --- | --- | --- |
+| admin1 | Admin One | admin |
+| admin2 | Admin Two | admin |
+| admin3 | Admin Three | admin |
+| admin4 | Admin Four | admin |
+| standard1 | Standard One | standard |
+| standard2 | Standard Two | standard |
+| standard3 | Standard Three | standard |
+| standard4 | Standard Four | standard |
 
-In a container, `127.0.0.1` means the container itself, and the local site rejects any request
-not addressed to `127.0.0.1:8077` ("Invalid host header"). So compose runs a small `site-relay`
-container (socat) that forwards port 8077 to this machine, and the tests container shares its
-network. Inside the container the tests use the same `http://127.0.0.1:8077` as they do locally.
+| Role | Can |
+| --- | --- |
+| admin | Create, change and delete records, and approve requests |
+| standard | View records and submit requests |
 
-Against a hosted test environment, remove `site-relay` and `network_mode` from
-`docker-compose.yml` and set `DOCKER_BASE_URL`. Set the number of parallel workers with `WORKERS`
-(a count like `4`, or `50%` of the cores).
+### App clients
 
-The image tag in the `Dockerfile` must match the `@playwright/test` version in `package.json`.
-Upgrade both together.
+| Client | App address |
+| --- | --- |
+| `super-catalog` | http://localhost:3001 |
+| `super-portal` | http://localhost:3002 |
 
-## Parallelism
-
-`fullyParallel: true` runs every test, in every file, in its own worker and browser context, so
-tests must never depend on each other or on order. Playwright's default worker count is half the
-CPU cores. Override it with `--workers=N` or the `WORKERS` variable. To split a pipeline run
-across machines, use `--shard=1/3`, `--shard=2/3` and so on.
-
-## Protected pages
-
-Tests must never open Selected Strategies, Strategies, Rejected Strategies, Selected After Cost &
-Tax, After Cost & Tax or Rejected After Cost & Tax. The site root redirects to Strategies, so no
-test starts at `/`. Every page also has a "Rebuild pages" button that regenerates those pages.
-
-`support/site-guard.ts` enforces this. The fixture it backs runs for every test automatically: it
-blocks any browser request to those pages and anything other than a read (such as the rebuild
-POST), then fails the test that tried.
+Both are public clients using the authorization code flow with PKCE, the usual setup for a React
+app. Keycloak only sends users back to each app's own address. Because both apps use the same realm,
+signing in to one signs you in to the other in the same browser.

@@ -1,0 +1,151 @@
+{
+  "realm": "super-apps",
+  "displayName": "Super Apps",
+  "enabled": true,
+  "sslRequired": "external",
+  "registrationAllowed": false,
+  "resetPasswordAllowed": false,
+  "rememberMe": false,
+  "roles": {
+    "realm": [
+      {
+        "name": "admin",
+        "description": "Can create, change and delete records, and approve requests"
+      },
+      {
+        "name": "standard",
+        "description": "Can view records and submit requests"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "super-catalog",
+      "name": "Super Catalog",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "rootUrl": "http://localhost:3001",
+      "baseUrl": "/",
+      "redirectUris": ["http://localhost:3001/*"],
+      "webOrigins": ["http://localhost:3001"],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "+"
+      }
+    },
+    {
+      "clientId": "super-portal",
+      "name": "Super Portal",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "rootUrl": "http://localhost:3002",
+      "baseUrl": "/",
+      "redirectUris": ["http://localhost:3002/*"],
+      "webOrigins": ["http://localhost:3002"],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "+"
+      }
+    }
+  ],
+  "users": [
+    {
+      "username": "admin1",
+      "firstName": "Admin",
+      "lastName": "One",
+      "email": "admin1@example.com",
+      "emailVerified": true,
+      "enabled": true,
+      "requiredActions": [],
+      "credentials": [{ "type": "password", "value": "admin1-password", "temporary": false }],
+      "realmRoles": ["default-roles-super-apps", "admin"]
+    },
+    {
+      "username": "admin2",
+      "firstName": "Admin",
+      "lastName": "Two",
+      "email": "admin2@example.com",
+      "emailVerified": true,
+      "enabled": true,
+      "requiredActions": [],
+      "credentials": [{ "type": "password", "value": "admin2-password", "temporary": false }],
+      "realmRoles": ["default-roles-super-apps", "admin"]
+    },
+    {
+      "username": "admin3",
+      "firstName": "Admin",
+      "lastName": "Three",
+      "email": "admin3@example.com",
+      "emailVerified": true,
+      "enabled": true,
+      "requiredActions": [],
+      "credentials": [{ "type": "password", "value": "admin3-password", "temporary": false }],
+      "realmRoles": ["default-roles-super-apps", "admin"]
+    },
+    {
+      "username": "admin4",
+      "firstName": "Admin",
+      "lastName": "Four",
+      "email": "admin4@example.com",
+      "emailVerified": true,
+      "enabled": true,
+      "requiredActions": [],
+      "credentials": [{ "type": "password", "value": "admin4-password", "temporary": false }],
+      "realmRoles": ["default-roles-super-apps", "admin"]
+    },
+    {
+      "username": "standard1",
+      "firstName": "Standard",
+      "lastName": "One",
+      "email": "standard1@example.com",
+      "emailVerified": true,
+      "enabled": true,
+      "requiredActions": [],
+      "credentials": [{ "type": "password", "value": "standard1-password", "temporary": false }],
+      "realmRoles": ["default-roles-super-apps", "standard"]
+    },
+    {
+      "username": "standard2",
+      "firstName": "Standard",
+      "lastName": "Two",
+      "email": "standard2@example.com",
+      "emailVerified": true,
+      "enabled": true,
+      "requiredActions": [],
+      "credentials": [{ "type": "password", "value": "standard2-password", "temporary": false }],
+      "realmRoles": ["default-roles-super-apps", "standard"]
+    },
+    {
+      "username": "standard3",
+      "firstName": "Standard",
+      "lastName": "Three",
+      "email": "standard3@example.com",
+      "emailVerified": true,
+      "enabled": true,
+      "requiredActions": [],
+      "credentials": [{ "type": "password", "value": "standard3-password", "temporary": false }],
+      "realmRoles": ["default-roles-super-apps", "standard"]
+    },
+    {
+      "username": "standard4",
+      "firstName": "Standard",
+      "lastName": "Four",
+      "email": "standard4@example.com",
+      "emailVerified": true,
+      "enabled": true,
+      "requiredActions": [],
+      "credentials": [{ "type": "password", "value": "standard4-password", "temporary": false }],
+      "realmRoles": ["default-roles-super-apps", "standard"]
+    }
+  ]
+}

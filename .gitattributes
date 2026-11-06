@@ -1,0 +1,4 @@
+# Keep Unix line endings in every text file, so files copied or mounted into Linux containers
+# work even when the repo is checked out on Windows.
+* text=auto eol=lf
+*.docx binary
