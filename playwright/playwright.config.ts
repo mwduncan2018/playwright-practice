@@ -1,12 +1,11 @@
 import { defineConfig, devices, type Project } from '@playwright/test';
 
-import { APPS } from './shared/apps';
-import { type BrowserName, settings } from './shared/settings';
+import { settings } from './shared/settings';
 
 // Everything here that changes between runs comes from shared/settings.ts, which reads the TEST_*
 // variables. README.md lists them all.
 
-const BROWSER_SETTINGS: Record<BrowserName, Project['use']> = {
+const BROWSER_SETTINGS: Record<string, Project['use']> = {
   chromium: { ...devices['Desktop Chrome'] },
   firefox: { ...devices['Desktop Firefox'] },
   webkit: { ...devices['Desktop Safari'] },
@@ -16,7 +15,7 @@ const BROWSER_SETTINGS: Record<BrowserName, Project['use']> = {
 };
 
 export default defineConfig({
-  testDir: APPS[settings.app].testDir,
+  testDir: `apps/${settings.app}/tests`,
   // Every test runs in parallel with every other, in its own browser context.
   fullyParallel: true,
   workers: settings.workers,

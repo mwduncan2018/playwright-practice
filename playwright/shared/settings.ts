@@ -2,104 +2,34 @@
  * Every setting the tests read, from environment variables. Locally, playwright/.env fills in what
  * isn't set. The same variables work on a laptop, in Docker and in a pipeline; README.md lists them.
  */
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync } from 'node:fs';
 import { availableParallelism } from 'node:os';
 import path from 'node:path';
-import { parseEnv } from 'node:util';
 
 import { ACCOUNTS } from './accounts';
-import { type AppName, APPS } from './apps';
 
-export const BROWSERS = ['chromium', 'firefox', 'webkit', 'chrome', 'msedge'] as const;
-export type BrowserName = (typeof BROWSERS)[number];
+const envFile = path.join(__dirname, '..', '.env');
+if (existsSync(envFile)) process.loadEnvFile(envFile);
 
-export interface Settings {
-  app: AppName;
-  appUrl: string;
-  browsers: BrowserName[];
-  workers: number | string;
-  retries: number;
-}
+const app = process.env.TEST_APP!;
 
-/** Values in playwright/.env fill in whatever the real environment doesn't set. */
-function loadDotEnv(): void {
-  const file = path.join(__dirname, '..', '.env');
-  if (!existsSync(file)) return;
-  for (const [key, value] of Object.entries(parseEnv(readFileSync(file, 'utf8')))) {
-    process.env[key] ??= value;
-  }
-}
+// An app's address is in a variable named after it: SUPER_PORTAL_URL for super-portal.
+const urlVariable = `${app.toUpperCase().replaceAll('-', '_')}_URL`;
 
-function fail(message: string): never {
-  throw new Error(`Test settings: ${message} See playwright/README.md.`);
-}
+// Half the CPU cores (Playwright's own default), but no more workers than a role has accounts, so no
+// two workers share one. A test that changes a user's settings, such as SP-010, would collide with a
+// copy of itself running at once on the same account.
+const accountsPerRole = Math.min(...Object.values(ACCOUNTS).map((accounts) => accounts.length));
+const defaultWorkers = Math.max(1, Math.min(accountsPerRole, Math.floor(availableParallelism() / 2)));
 
-function read(variable: string): string | undefined {
-  return process.env[variable]?.trim() || undefined;
-}
+// Playwright takes a number or a percentage, but not a number written as text.
+const workers = process.env.TEST_WORKERS;
 
-function choose<T extends string>(variable: string, allowed: readonly T[], fallback?: T): T {
-  const value = read(variable);
-  if (value === undefined) {
-    if (fallback !== undefined) return fallback;
-    fail(`set ${variable} to one of: ${allowed.join(', ')}.`);
-  }
-  if (!allowed.includes(value as T)) fail(`${variable} is "${value}", but it must be one of: ${allowed.join(', ')}.`);
-  return value as T;
-}
-
-function readBrowsers(): BrowserName[] {
-  const names = (read('TEST_BROWSER') ?? 'chromium').split(',').map((name) => name.trim());
-  for (const name of names) {
-    if (!BROWSERS.includes(name as BrowserName)) {
-      fail(`TEST_BROWSER has "${name}", but each browser must be one of: ${BROWSERS.join(', ')}.`);
-    }
-  }
-  return [...new Set(names)] as BrowserName[];
-}
-
-/**
- * TEST_WORKERS, or else half the CPU cores (Playwright's own default), but no more workers than a
- * role has accounts, so no two workers share one. A test that changes a user's settings, such as
- * SP-010, would collide with a copy of itself running at once on the same account, as happens when
- * one run tests several browsers.
- */
-function readWorkers(accountsPerRole: number): number | string {
-  const value = read('TEST_WORKERS');
-  if (value === undefined) return Math.max(1, Math.min(accountsPerRole, Math.floor(availableParallelism() / 2)));
-  if (/^\d+%$/.test(value)) return value;
-  if (/^\d+$/.test(value) && Number(value) > 0) return Number(value);
-  fail(`TEST_WORKERS is "${value}"; use a number such as 4, or a share of the CPU cores such as 50%.`);
-}
-
-function readRetries(): number {
-  const value = read('TEST_RETRIES');
-  if (value === undefined) return 0;
-  if (!/^\d+$/.test(value)) fail(`TEST_RETRIES is "${value}"; use a whole number such as 1.`);
-  return Number(value);
-}
-
-/** The address of the application under test, from its variable. Other apps' addresses aren't read. */
-function readAppUrl(app: AppName): string {
-  const { title, urlVariable } = APPS[app];
-  const address = read(urlVariable);
-  if (address === undefined) fail(`set ${urlVariable} to ${title}'s address.`);
-  if (!/^https?:\/\/\S+$/i.test(address)) {
-    fail(`${urlVariable} is "${address}"; use a full address such as https://server.example.com.`);
-  }
-  return address.replace(/\/+$/, '');
-}
-
-function readSettings(): Settings {
-  loadDotEnv();
-  const app = choose('TEST_APP', Object.keys(APPS) as AppName[]);
-  return {
-    app,
-    appUrl: readAppUrl(app),
-    browsers: readBrowsers(),
-    workers: readWorkers(Math.min(...Object.values(ACCOUNTS).map((accounts) => accounts.length))),
-    retries: readRetries(),
-  };
-}
-
-export const settings: Settings = readSettings();
+export const settings = {
+  app,
+  appUrl: process.env[urlVariable]!,
+  urlVariable,
+  browsers: (process.env.TEST_BROWSER || 'chromium').split(',').map((name) => name.trim()),
+  workers: workers?.endsWith('%') ? workers : Number(workers) || defaultWorkers,
+  retries: Number(process.env.TEST_RETRIES || 0),
+};

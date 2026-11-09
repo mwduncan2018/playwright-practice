@@ -1,4 +1,3 @@
-import { APPS } from './apps';
 import { settings } from './settings';
 
 /**
@@ -16,7 +15,6 @@ function reasonFor(error: unknown): string {
  * message instead of every test timing out.
  */
 export default async function globalSetup(): Promise<void> {
-  const { title, urlVariable } = APPS[settings.app];
   let problem: string | undefined;
   try {
     const response = await fetch(`${settings.appUrl}/`, { signal: AbortSignal.timeout(15_000) });
@@ -26,8 +24,8 @@ export default async function globalSetup(): Promise<void> {
   }
   if (problem !== undefined) {
     throw new Error(
-      `${title} isn't reachable at ${settings.appUrl} (${problem}). Check ${urlVariable}, and that the site is ` +
-        'running. For the local Docker environment, run "docker compose up -d --wait" in the repo root.',
+      `${settings.app} isn't reachable at ${settings.appUrl} (${problem}). Check ${settings.urlVariable}, and that ` +
+        'the site is running. For the local Docker environment, run "docker compose up -d --wait" in the repo root.',
     );
   }
 }

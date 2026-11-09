@@ -32,7 +32,6 @@ apps/
     tests/                         one spec file per area, one test per manual case
   super-portal/                    the same for Super Portal
 shared/
-  apps.ts                          the applications, and where their tests are
   settings.ts                      reads the TEST_* variables and the app's address
   accounts.ts                      roles, the test accounts, and which one each worker uses
   fixtures.ts                      signing in, and a second person in a test
@@ -99,7 +98,8 @@ shell), in Docker (`-e`) and in a pipeline (CI variables).
 | `TEST_PASSWORD_<USERNAME>`              | A test account's password, such as `TEST_PASSWORD_ADMIN1` | Secret                                                          | None                                                   |
 
 - `TEST_APP` has no default, so one application runs at a time and nobody runs everything by accident.
-- A setting that isn't valid stops the run with a message naming the variable and what it allows.
+- Settings aren't checked before they're used. A misspelled browser name, for example, runs the
+  tests in Chromium under that name.
 - Playwright's own options still work on top: `--grep`, `-g`, `--shard`, `--project`, `--headed`, a
   file path.
 - `chrome` and `msedge` use Chrome or Edge as installed on the machine. The Docker image doesn't have
@@ -230,8 +230,8 @@ up to 15. A test known to be slow can call `test.slow()` to get three times as l
 
 ## Adding an application
 
-1. Add it to `shared/apps.ts`: its name for `TEST_APP`, its tests' folder, and a variable for its
-   address.
+1. Choose its name for `TEST_APP`, such as `my-app`. Its tests go in `apps/my-app/tests`, and its
+   address goes in a variable named after it, `MY_APP_URL`.
 2. Add that variable, with the app's local address, to `.env.example`. Add its name to the
    `environment` list in `docker-compose.yml` too.
 3. Create `apps/<name>/` with its test plan, `pages/`, `fixtures.ts` and `tests/`. Its `fixtures.ts`
