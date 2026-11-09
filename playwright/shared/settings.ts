@@ -13,21 +13,12 @@ import { type AppName, APPS } from './apps';
 export const BROWSERS = ['chromium', 'firefox', 'webkit', 'chrome', 'msedge'] as const;
 export type BrowserName = (typeof BROWSERS)[number];
 
-export interface Shard {
-  current: number;
-  total: number;
-}
-
 export interface Settings {
   app: AppName;
   appUrl: string;
   browsers: BrowserName[];
   workers: number | string;
-  shard: Shard | null;
-  grep: string | undefined;
-  grepInvert: string | undefined;
   retries: number;
-  ci: boolean;
 }
 
 /** Values in playwright/.env fill in whatever the real environment doesn't set. */
@@ -81,30 +72,9 @@ function readWorkers(accountsPerRole: number): number | string {
   fail(`TEST_WORKERS is "${value}"; use a number such as 4, or a share of the CPU cores such as 50%.`);
 }
 
-/** TEST_SHARD=3/10, or a Kubernetes Indexed Job's JOB_COMPLETION_INDEX (from 0) with TEST_SHARD_TOTAL. */
-function readShard(): Shard | null {
-  const value = read('TEST_SHARD');
-  if (value !== undefined) {
-    const match = /^(\d+)\/(\d+)$/.exec(value);
-    const current = Number(match?.[1]);
-    const total = Number(match?.[2]);
-    if (!match || current < 1 || current > total) fail(`TEST_SHARD is "${value}"; use current/total, such as 3/10.`);
-    return { current, total };
-  }
-  const total = read('TEST_SHARD_TOTAL');
-  const index = read('JOB_COMPLETION_INDEX');
-  if (total === undefined || index === undefined) return null;
-  const shards = Number(total);
-  const position = Number(index);
-  if (!Number.isInteger(shards) || shards < 1 || !Number.isInteger(position) || position < 0 || position >= shards) {
-    fail(`JOB_COMPLETION_INDEX ${index} doesn't fit TEST_SHARD_TOTAL ${total}.`);
-  }
-  return { current: position + 1, total: shards };
-}
-
-function readRetries(ci: boolean): number {
+function readRetries(): number {
   const value = read('TEST_RETRIES');
-  if (value === undefined) return ci ? 1 : 0;
+  if (value === undefined) return 0;
   if (!/^\d+$/.test(value)) fail(`TEST_RETRIES is "${value}"; use a whole number such as 1.`);
   return Number(value);
 }
@@ -123,17 +93,12 @@ function readAppUrl(app: AppName): string {
 function readSettings(): Settings {
   loadDotEnv();
   const app = choose('TEST_APP', Object.keys(APPS) as AppName[]);
-  const ci = Boolean(read('CI'));
   return {
     app,
     appUrl: readAppUrl(app),
     browsers: readBrowsers(),
     workers: readWorkers(Math.min(...Object.values(ACCOUNTS).map((accounts) => accounts.length))),
-    shard: readShard(),
-    grep: read('TEST_GREP'),
-    grepInvert: read('TEST_GREP_INVERT'),
-    retries: readRetries(ci),
-    ci,
+    retries: readRetries(),
   };
 }
 

@@ -14,7 +14,5 @@ COPY package.json package-lock.json ./
 RUN npm ci --no-audit --no-fund
 COPY . .
 
-# CI=true: one retry, and a committed test.only fails the run instead of skipping everything else.
-ENV CI=true
-# Everything else is set with environment variables when the container runs (README.md).
+# Everything is set with environment variables when the container runs (README.md).
 CMD ["npx", "playwright", "test"]

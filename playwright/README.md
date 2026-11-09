@@ -77,8 +77,9 @@ test` runs every test for the app in `TEST_APP`, in parallel.
 | `npm run check`                                                 | Type-check, lint and check formatting                   |
 
 On Windows, Git Bash runs these as written. In PowerShell, copy the file with
-`Copy-Item .env.example .env`, and set a variable with `$env:TEST_APP = 'super-portal'` before
-running the tests (it stays set in that window).
+`Copy-Item .env.example .env`, set a variable with `$env:TEST_APP = 'super-portal'` before running
+the tests (it stays set in that window), and put quotes around a tag (`--grep '@smoke'`), because
+PowerShell treats `@` as its own syntax.
 
 VS Code's Playwright extension uses the same configuration and reads `TEST_APP` from `.env`, so it
 lists that app's tests.
@@ -88,23 +89,19 @@ lists that app's tests.
 Every setting is an environment variable, so the same names work on your machine (in `.env` or the
 shell), in Docker (`-e`) and in a pipeline (CI variables).
 
-| Variable                                | What it chooses                                                         | Values                                                          | Default                                                |
-| --------------------------------------- | ----------------------------------------------------------------------- | --------------------------------------------------------------- | ------------------------------------------------------ |
-| `TEST_APP`                              | The application                                                         | `super-catalog`, `super-portal`                                 | None: required                                         |
-| `TEST_BROWSER`                          | Browsers, comma-separated                                               | `chromium`, `firefox`, `webkit`, `chrome`, `msedge`             | `chromium`                                             |
-| `SUPER_CATALOG_URL`, `SUPER_PORTAL_URL` | The address of the app being tested                                     | A full URL                                                      | None: the tested app's is required                     |
-| `TEST_WORKERS`                          | Tests running at once in this run                                       | A number such as `4`, or a share of the CPU cores such as `50%` | Half the cores, but no more than a role's accounts (4) |
-| `TEST_SHARD`                            | This container's share of the tests                                     | `current/total`, such as `3/10`                                 | All the tests                                          |
-| `TEST_SHARD_TOTAL`                      | The number of shards, with Kubernetes' `JOB_COMPLETION_INDEX`           | A number                                                        | Not set                                                |
-| `TEST_GREP`                             | Only tests whose title or tags match                                    | A regular expression, such as `@smoke`                          | All tests                                              |
-| `TEST_GREP_INVERT`                      | Leave out tests whose title or tags match                               | A regular expression                                            | None                                                   |
-| `TEST_RETRIES`                          | Retries for a failing test                                              | A number                                                        | `1` in CI, `0` otherwise                               |
-| `TEST_PASSWORD_<USERNAME>`              | A test account's password, such as `TEST_PASSWORD_ADMIN1`               | Secret                                                          | None                                                   |
-| `CI`                                    | Pipeline behavior: one retry, and a committed `test.only` fails the run | Any value                                                       | Not set (set in the image)                             |
+| Variable                                | What it chooses                                           | Values                                                          | Default                                                |
+| --------------------------------------- | --------------------------------------------------------- | --------------------------------------------------------------- | ------------------------------------------------------ |
+| `TEST_APP`                              | The application                                           | `super-catalog`, `super-portal`                                 | None: required                                         |
+| `TEST_BROWSER`                          | Browsers, comma-separated                                 | `chromium`, `firefox`, `webkit`, `chrome`, `msedge`             | `chromium`                                             |
+| `SUPER_CATALOG_URL`, `SUPER_PORTAL_URL` | The address of the app being tested                       | A full URL                                                      | None: the tested app's is required                     |
+| `TEST_WORKERS`                          | Tests running at once in this run                         | A number such as `4`, or a share of the CPU cores such as `50%` | Half the cores, but no more than a role's accounts (4) |
+| `TEST_RETRIES`                          | Retries for a failing test                                | A number                                                        | `0`                                                    |
+| `TEST_PASSWORD_<USERNAME>`              | A test account's password, such as `TEST_PASSWORD_ADMIN1` | Secret                                                          | None                                                   |
 
 - `TEST_APP` has no default, so one application runs at a time and nobody runs everything by accident.
 - A setting that isn't valid stops the run with a message naming the variable and what it allows.
-- Playwright's own options still work on top: `--grep`, `-g`, `--project`, `--headed`, a file path.
+- Playwright's own options still work on top: `--grep`, `-g`, `--shard`, `--project`, `--headed`, a
+  file path.
 - `chrome` and `msedge` use Chrome or Edge as installed on the machine. The Docker image doesn't have
   them unless it adds them (`RUN npx playwright install --with-deps chrome msedge`).
 
@@ -123,8 +120,8 @@ SUPER_PORTAL_URL=https://super-portal.dev.example.com npx playwright test
 ```
 
 The tests don't know whether an address is dev, test or staging, so a run executes every test it's
-asked to. To run only part of the suite against a site, choose it with `TEST_GREP` or `--grep`. For
-example, a staging job that should run only the smoke tests sets `TEST_GREP=@smoke`.
+asked to. To run only part of the suite against a site, choose it with `--grep`. For example, a
+staging job that should run only the smoke tests runs `npx playwright test --grep @smoke`.
 
 Keycloak's address isn't set here. Browsers reach Keycloak by following the app's redirect, which is
 set where the app is deployed.
@@ -143,12 +140,12 @@ test.describe('Products', { tag: '@regression' }, () => {
 });
 ```
 
-| To run                  | Command                                              |
-| ----------------------- | ---------------------------------------------------- |
-| The smoke tests         | `--grep @smoke`, or `TEST_GREP=@smoke`               |
-| Everything except smoke | `--grep-invert @smoke`, or `TEST_GREP_INVERT=@smoke` |
-| Smoke or regression     | `--grep "@smoke\|@regression"`                       |
-| One case                | `-g SC-004`                                          |
+| To run                  | Command                        |
+| ----------------------- | ------------------------------ |
+| The smoke tests         | `--grep @smoke`                |
+| Everything except smoke | `--grep-invert @smoke`         |
+| Smoke or regression     | `--grep "@smoke\|@regression"` |
+| One case                | `-g SC-004`                    |
 
 Every test here is tagged `@smoke` or `@regression`, as its case is in the plan. Requiring two tags at
 once is awkward in a regular expression, so keep the tags few.
@@ -277,9 +274,10 @@ the same inside as outside. Real environments have real addresses and don't need
 | `reports/artifacts/` | Failed tests' screenshots, traces and page snapshots (`error-context.md`). `npx playwright show-trace <file>` opens a trace. |
 | `reports/blob/`      | A sharded run's report, waiting to be merged.                                                                                |
 
-A sharded run writes a blob report instead of the HTML and JUnit files. To merge, put every shard's
-`.zip` in `reports/blob` and run `npm run merge-reports`. Each run empties `reports/blob` first, so to
-try sharding on one machine, copy each shard's file out before running the next.
+A [sharded run](#sharding) writes a blob report instead of the HTML and JUnit files. To merge, put
+every shard's `.zip` in `reports/blob` and run `npm run merge-reports`. Each run empties
+`reports/blob` first, so to try sharding on one machine, copy each shard's file out before running
+the next.
 
 ## Code checks
 
@@ -289,6 +287,9 @@ try sharding on one machine, copy each shard's file out before running the next.
 | `npm run lint`      | ESLint with type information. `no-floating-promises` makes a forgotten `await` an error, and the Playwright plugin adds its rules for tests. |
 | `npm run format`    | Prettier formats every file. `npm run format:check` only checks.                                                                             |
 | `npm run check`     | All three, as a pipeline would run them before the tests.                                                                                    |
+
+A `test.only` left in the code fails `npm run lint`. Nothing else stops it, and it would run that one
+test and skip the rest, so a pipeline should run the checks before the tests.
 
 The project uses TypeScript 6 because typescript-eslint, which the type-aware rules come from,
 doesn't support TypeScript 7 yet.
@@ -319,12 +320,13 @@ Everything a pipeline needs to run these tests. Nothing here depends on GitLab o
 - Build it from this folder: `docker build -t super-apps-tests playwright`. It holds no secrets
   (`.env` is excluded).
 - It runs `npx playwright test`, and exits 0 when every test passes and 1 when any fails.
-- It's configured entirely by environment variables ([the table above](#choosing-what-runs)). A
-  pipeline sets at least `TEST_APP`, the app's [address](#addresses) and the `TEST_PASSWORD_*`
-  variables, masked.
-- It writes everything to `/app/reports`. A sharded run writes `reports/blob/shard-N-of-M.zip`;
-  otherwise `reports/html/` and `reports/junit.xml`. Failures' screenshots and traces go to
-  `reports/artifacts/`.
+- It's configured by environment variables ([the table above](#choosing-what-runs)). A pipeline sets
+  at least `TEST_APP`, the app's [address](#addresses) and the `TEST_PASSWORD_*` variables, masked.
+- To run only part of the suite, override its command and add Playwright's options, such as
+  `npx playwright test --grep @smoke`.
+- It writes everything to `/app/reports`. A [sharded run](#sharding) writes
+  `reports/blob/report-N.zip`; otherwise `reports/html/` and `reports/junit.xml`. Failures'
+  screenshots and traces go to `reports/artifacts/`.
 - Before any test, it checks that the app answers, so a site that's down fails in seconds with one
   message. If Keycloak is down, the tests that sign in fail with a message saying so.
 - Pipelines don't need the local relay or the compose file.
@@ -341,14 +343,17 @@ address from a variable, so changing an address means changing a CI variable, no
 
 A missing or malformed address stops the run at once, with a message naming the variable. Nothing
 in the tests depends on which environment an address belongs to, so a job that should run only part
-of the suite chooses it with `TEST_GREP`. For example, a staging job that runs only the smoke tests
-sets `TEST_GREP=@smoke`.
+of the suite chooses it with `--grep`. For example, a staging job that runs only the smoke tests
+runs `npx playwright test --grep @smoke`.
 
 ### Sharding
 
-- Every container runs the same image with the same variables except its shard: `TEST_SHARD=1/10` to
-  `10/10`. In a Kubernetes Indexed Job, set `TEST_SHARD_TOTAL=10` instead, and the image reads the
-  `JOB_COMPLETION_INDEX` Kubernetes gives each pod (0 to 9).
+- Every container runs the same image with the same variables, and its command sets its share with
+  Playwright's own options: `npx playwright test --shard=1/10 --reporter=blob`, up to `--shard=10/10`.
+  In a Kubernetes Indexed Job, the share comes from the `JOB_COMPLETION_INDEX` Kubernetes gives each
+  pod (0 to 9), as in the [example below](#example-a-kubernetes-indexed-job).
+- `--reporter=blob` writes a report for merging. Playwright's `PLAYWRIGHT_BLOB_OUTPUT_DIR=reports/blob`
+  puts it with the other reports, where `npm run merge-reports` looks.
 - Inside each container, `TEST_WORKERS` tests run at once.
 - Playwright divides tests between shards by count, not duration, so shards can finish at different
   times when tests vary a lot in length.
@@ -396,11 +401,11 @@ e2e:
     TEST_APP: super-portal
     SUPER_PORTAL_URL: https://super-portal.test.yourcompany.com
     TEST_WORKERS: '4'
+    PLAYWRIGHT_BLOB_OUTPUT_DIR: reports/blob
   script:
     - cd playwright
     - npm ci
-    - export TEST_SHARD="$CI_NODE_INDEX/$CI_NODE_TOTAL"
-    - npx playwright test
+    - npx playwright test --shard="$CI_NODE_INDEX/$CI_NODE_TOTAL" --reporter=blob
   artifacts:
     when: always
     paths: [playwright/reports/blob/]
@@ -443,11 +448,12 @@ spec:
       containers:
         - name: tests
           image: registry.example.com/super-apps-tests:1.0.0
+          command: ['sh', '-c', 'npx playwright test --shard=$((JOB_COMPLETION_INDEX + 1))/10 --reporter=blob']
           env:
             - { name: TEST_APP, value: super-portal }
             - { name: SUPER_PORTAL_URL, value: 'https://super-portal.test.yourcompany.com' }
-            - { name: TEST_SHARD_TOTAL, value: '10' }
             - { name: TEST_WORKERS, value: '4' }
+            - { name: PLAYWRIGHT_BLOB_OUTPUT_DIR, value: reports/blob }
           envFrom:
             - secretRef: { name: e2e-passwords }
           resources:

@@ -1,4 +1,4 @@
-import { defineConfig, devices, type Project, type ReporterDescription } from '@playwright/test';
+import { defineConfig, devices, type Project } from '@playwright/test';
 
 import { APPS } from './shared/apps';
 import { type BrowserName, settings } from './shared/settings';
@@ -15,37 +15,21 @@ const BROWSER_SETTINGS: Record<BrowserName, Project['use']> = {
   msedge: { ...devices['Desktop Edge'], channel: 'msedge' },
 };
 
-// A sharded run writes a blob report for merging later (npm run merge-reports); otherwise the
-// HTML and JUnit reports are written straight away.
-const reporters: ReporterDescription[] = settings.shard
-  ? [
-      ['list'],
-      [
-        'blob',
-        { outputDir: 'reports/blob', fileName: `shard-${settings.shard.current}-of-${settings.shard.total}.zip` },
-      ],
-    ]
-  : [
-      ['list'],
-      ['html', { outputFolder: 'reports/html', open: 'never' }],
-      ['junit', { outputFile: 'reports/junit.xml' }],
-    ];
-
 export default defineConfig({
   testDir: APPS[settings.app].testDir,
   // Every test runs in parallel with every other, in its own browser context.
   fullyParallel: true,
   workers: settings.workers,
-  shard: settings.shard,
-  grep: settings.grep ? new RegExp(settings.grep) : undefined,
-  grepInvert: settings.grepInvert ? new RegExp(settings.grepInvert) : undefined,
   retries: settings.retries,
-  forbidOnly: settings.ci,
   timeout: 60_000,
   expect: { timeout: 10_000 },
   globalSetup: './shared/global-setup.ts',
   outputDir: 'reports/artifacts',
-  reporter: reporters,
+  reporter: [
+    ['list'],
+    ['html', { outputFolder: 'reports/html', open: 'never' }],
+    ['junit', { outputFile: 'reports/junit.xml' }],
+  ],
   use: {
     baseURL: settings.appUrl,
     actionTimeout: 15_000,

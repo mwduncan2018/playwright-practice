@@ -44,9 +44,6 @@ services:
       - SUPER_PORTAL_URL
       - TEST_BROWSER
       - TEST_WORKERS
-      - TEST_SHARD
-      - TEST_GREP
-      - TEST_GREP_INVERT
       - TEST_RETRIES
     volumes:
       # Reports and traces land here, on this machine.
