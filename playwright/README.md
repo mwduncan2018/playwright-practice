@@ -59,11 +59,11 @@ npx playwright test
 
 `npx playwright install` downloads the browsers, once per Playwright version. `.env` holds the local
 settings: which app to test, the apps' addresses, and the test accounts' passwords. `npx playwright
-test` runs every test for the app in `TEST_APP`, in parallel.
+test` runs every test for the app in `TEST_APP_FOLDER`, in parallel.
 
 | Command                                                         | What it does                                            |
 | --------------------------------------------------------------- | ------------------------------------------------------- |
-| `npx playwright test`                                           | Every test for `TEST_APP`                               |
+| `npx playwright test`                                           | Every test for `TEST_APP_FOLDER`                        |
 | `npx playwright test -g SC-004`                                 | One case                                                |
 | `npx playwright test apps/super-catalog/tests/products.spec.ts` | One spec file                                           |
 | `npx playwright test --grep @smoke`                             | Only the smoke tests                                    |
@@ -75,11 +75,11 @@ test` runs every test for the app in `TEST_APP`, in parallel.
 | `npm run check`                                                 | Type-check, lint and check formatting                   |
 
 On Windows, Git Bash runs these as written. In PowerShell, copy the file with
-`Copy-Item .env.example .env`, set a variable with `$env:TEST_APP = 'super-portal'` before running
+`Copy-Item .env.example .env`, set a variable with `$env:TEST_APP_FOLDER = 'super-portal'` before running
 the tests (it stays set in that window), and put quotes around a tag (`--grep '@smoke'`), because
 PowerShell treats `@` as its own syntax.
 
-VS Code's Playwright extension uses the same configuration and reads `TEST_APP` from `.env`, so it
+VS Code's Playwright extension uses the same configuration and reads `TEST_APP_FOLDER` from `.env`, so it
 lists that app's tests.
 
 ## Choosing what runs
@@ -89,13 +89,13 @@ shell), in Docker (`-e`) and in a pipeline (CI variables).
 
 | Variable                                | What it chooses                                           | Values                                              | Default                            |
 | --------------------------------------- | --------------------------------------------------------- | --------------------------------------------------- | ---------------------------------- |
-| `TEST_APP`                              | The application                                           | `super-catalog`, `super-portal`                     | None: required                     |
+| `TEST_APP_FOLDER`                       | The application, by its folder in `apps/`                 | `super-catalog`, `super-portal`                     | None: required                     |
 | `TEST_BROWSER`                          | Browsers, comma-separated                                 | `chromium`, `firefox`, `webkit`, `chrome`, `msedge` | `chromium`                         |
 | `SUPER_CATALOG_URL`, `SUPER_PORTAL_URL` | The address of the app being tested                       | A full URL                                          | None: the tested app's is required |
 | `TEST_RETRIES`                          | Retries for a failing test                                | A number                                            | `0`                                |
 | `TEST_PASSWORD_<USERNAME>`              | A test account's password, such as `TEST_PASSWORD_ADMIN1` | Secret                                              | None                               |
 
-- `TEST_APP` has no default, so one application runs at a time and nobody runs everything by accident.
+- `TEST_APP_FOLDER` has no default, so one application runs at a time and nobody runs everything by accident.
 - Settings aren't checked before they're used. A misspelled browser name, for example, runs the
   tests in Chromium under that name.
 - Playwright's own options still work on top: `--grep`, `-g`, `--shard`, `--project`, `--headed`, a
@@ -105,8 +105,9 @@ shell), in Docker (`-e`) and in a pipeline (CI variables).
 
 ## Which site to test
 
-A run goes wherever the tested app's address variable says: `SUPER_CATALOG_URL` when `TEST_APP` is
+A run goes wherever the tested app's address variable says: `SUPER_CATALOG_URL` when `TEST_APP_FOLDER` is
 `super-catalog`, `SUPER_PORTAL_URL` when it's `super-portal`. Only the tested app's address is read.
+The variable is named after the app's folder, so renaming the folder changes which variable is read.
 If it's missing, or isn't a full address, the run stops before any test, saying the app isn't reachable.
 
 `.env.example` has the local Docker environment's addresses, so a local run needs nothing more. To
@@ -227,8 +228,8 @@ up to 15. A test known to be slow can call `test.slow()` to get three times as l
 
 ## Adding an application
 
-1. Choose its name for `TEST_APP`, such as `my-app`. Its tests go in `apps/my-app/tests`, and its
-   address goes in a variable named after it, `MY_APP_URL`.
+1. Choose its name for `TEST_APP_FOLDER`, such as `my-app`. Its tests go in `apps/my-app/tests`, and its
+   address goes in a variable named after its folder, `MY_APP_URL`.
 2. Add that variable, with the app's local address, to `.env.example`. Add its name to the
    `environment` list in `docker-compose.yml` too.
 3. Create `apps/<name>/` with its test plan, `pages/`, `fixtures.ts` and `tests/`. Its `fixtures.ts`
@@ -246,7 +247,7 @@ With the local environment running:
 ```bash
 docker compose build
 docker compose run --rm tests
-docker compose run --rm -e TEST_APP=super-portal tests
+docker compose run --rm -e TEST_APP_FOLDER=super-portal tests
 docker compose run --rm -e TEST_BROWSER=firefox tests npx playwright test --grep @smoke
 docker compose down
 ```
@@ -318,7 +319,7 @@ Everything a pipeline needs to run these tests. Nothing here depends on GitLab o
   (`.env` is excluded).
 - It runs `npx playwright test`, and exits 0 when every test passes and 1 when any fails.
 - It's configured by environment variables ([the table above](#choosing-what-runs)). A pipeline sets
-  at least `TEST_APP`, the app's [address](#addresses) and the `TEST_PASSWORD_*` variables, masked.
+  at least `TEST_APP_FOLDER`, the app's [address](#addresses) and the `TEST_PASSWORD_*` variables, masked.
 - To run only part of the suite, override its command and add Playwright's options, such as
   `npx playwright test --grep @smoke`.
 - It writes everything to `/app/reports`. A [sharded run](#sharding) writes
@@ -333,10 +334,10 @@ Everything a pipeline needs to run these tests. Nothing here depends on GitLab o
 The only addresses in the repo are the local ones in `.env.example`. Each run gets the tested app's
 address from a variable, so changing an address means changing a CI variable, not the code:
 
-| Variable            | Set it to                                                       |
-| ------------------- | --------------------------------------------------------------- |
-| `SUPER_CATALOG_URL` | Super Catalog's address, for runs with `TEST_APP=super-catalog` |
-| `SUPER_PORTAL_URL`  | Super Portal's address, for runs with `TEST_APP=super-portal`   |
+| Variable            | Set it to                                                              |
+| ------------------- | ---------------------------------------------------------------------- |
+| `SUPER_CATALOG_URL` | Super Catalog's address, for runs with `TEST_APP_FOLDER=super-catalog` |
+| `SUPER_PORTAL_URL`  | Super Portal's address, for runs with `TEST_APP_FOLDER=super-portal`   |
 
 A missing or malformed address stops the run at once, saying the app isn't reachable. Nothing
 in the tests depends on which environment an address belongs to, so a job that should run only part
@@ -395,7 +396,7 @@ e2e:
   image: mcr.microsoft.com/playwright:v1.64.1-noble
   parallel: 10
   variables:
-    TEST_APP: super-portal
+    TEST_APP_FOLDER: super-portal
     SUPER_PORTAL_URL: https://super-portal.test.yourcompany.com
     PLAYWRIGHT_BLOB_OUTPUT_DIR: reports/blob
   script:
@@ -446,7 +447,7 @@ spec:
           image: registry.example.com/super-apps-tests:1.0.0
           command: ['sh', '-c', 'npx playwright test --shard=$((JOB_COMPLETION_INDEX + 1))/10 --reporter=blob']
           env:
-            - { name: TEST_APP, value: super-portal }
+            - { name: TEST_APP_FOLDER, value: super-portal }
             - { name: SUPER_PORTAL_URL, value: 'https://super-portal.test.yourcompany.com' }
             - { name: PLAYWRIGHT_BLOB_OUTPUT_DIR, value: reports/blob }
           envFrom:

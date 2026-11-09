@@ -3,7 +3,7 @@
 # environment instead; it doesn't need this file or its relay. See README.md.
 #   docker compose build
 #   docker compose run --rm tests
-#   docker compose run --rm -e TEST_APP=super-portal tests
+#   docker compose run --rm -e TEST_APP_FOLDER=super-portal tests
 #   docker compose down
 name: super-apps-tests
 
@@ -39,7 +39,7 @@ services:
       - path: .env
         required: false
     environment:
-      - TEST_APP
+      - TEST_APP_FOLDER
       - SUPER_CATALOG_URL
       - SUPER_PORTAL_URL
       - TEST_BROWSER

@@ -8,9 +8,9 @@ import { defineConfig, devices, type Project } from '@playwright/test';
 const envFile = path.join(__dirname, '.env');
 if (existsSync(envFile)) process.loadEnvFile(envFile);
 
-const app = process.env.TEST_APP!;
-// An app's address is in a variable named after it: SUPER_PORTAL_URL for super-portal.
-const baseURL = process.env[`${app.toUpperCase().replaceAll('-', '_')}_URL`];
+const appFolder = process.env.TEST_APP_FOLDER!;
+// An app's address is in a variable named after its folder: SUPER_PORTAL_URL for super-portal.
+const baseURL = process.env[`${appFolder.toUpperCase().replaceAll('-', '_')}_URL`];
 const browsers = (process.env.TEST_BROWSER || 'chromium').split(',').map((name) => name.trim());
 
 const BROWSER_SETTINGS: Record<string, Project['use']> = {
@@ -23,7 +23,7 @@ const BROWSER_SETTINGS: Record<string, Project['use']> = {
 };
 
 export default defineConfig({
-  testDir: `apps/${app}/tests`,
+  testDir: `apps/${appFolder}/tests`,
   // Every test runs in parallel with every other, in its own browser context.
   fullyParallel: true,
   workers: 2,
