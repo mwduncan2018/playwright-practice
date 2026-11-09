@@ -18,7 +18,7 @@ export default defineConfig({
   testDir: `apps/${settings.app}/tests`,
   // Every test runs in parallel with every other, in its own browser context.
   fullyParallel: true,
-  workers: settings.workers,
+  workers: 2,
   retries: settings.retries,
   timeout: 60_000,
   expect: { timeout: 10_000 },

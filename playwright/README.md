@@ -88,14 +88,13 @@ lists that app's tests.
 Every setting is an environment variable, so the same names work on your machine (in `.env` or the
 shell), in Docker (`-e`) and in a pipeline (CI variables).
 
-| Variable                                | What it chooses                                           | Values                                                          | Default                                                |
-| --------------------------------------- | --------------------------------------------------------- | --------------------------------------------------------------- | ------------------------------------------------------ |
-| `TEST_APP`                              | The application                                           | `super-catalog`, `super-portal`                                 | None: required                                         |
-| `TEST_BROWSER`                          | Browsers, comma-separated                                 | `chromium`, `firefox`, `webkit`, `chrome`, `msedge`             | `chromium`                                             |
-| `SUPER_CATALOG_URL`, `SUPER_PORTAL_URL` | The address of the app being tested                       | A full URL                                                      | None: the tested app's is required                     |
-| `TEST_WORKERS`                          | Tests running at once in this run                         | A number such as `4`, or a share of the CPU cores such as `50%` | Half the cores, but no more than a role's accounts (4) |
-| `TEST_RETRIES`                          | Retries for a failing test                                | A number                                                        | `0`                                                    |
-| `TEST_PASSWORD_<USERNAME>`              | A test account's password, such as `TEST_PASSWORD_ADMIN1` | Secret                                                          | None                                                   |
+| Variable                                | What it chooses                                           | Values                                              | Default                            |
+| --------------------------------------- | --------------------------------------------------------- | --------------------------------------------------- | ---------------------------------- |
+| `TEST_APP`                              | The application                                           | `super-catalog`, `super-portal`                     | None: required                     |
+| `TEST_BROWSER`                          | Browsers, comma-separated                                 | `chromium`, `firefox`, `webkit`, `chrome`, `msedge` | `chromium`                         |
+| `SUPER_CATALOG_URL`, `SUPER_PORTAL_URL` | The address of the app being tested                       | A full URL                                          | None: the tested app's is required |
+| `TEST_RETRIES`                          | Retries for a failing test                                | A number                                            | `0`                                |
+| `TEST_PASSWORD_<USERNAME>`              | A test account's password, such as `TEST_PASSWORD_ADMIN1` | Secret                                              | None                               |
 
 - `TEST_APP` has no default, so one application runs at a time and nobody runs everything by accident.
 - Settings aren't checked before they're used. A misspelled browser name, for example, runs the
@@ -165,11 +164,10 @@ Both apps sign in through Keycloak, and `shared/fixtures.ts` takes care of it.
   describe block's tests in as an admin. `'standard'` is the default, and `'nobody'` gives a signed-out
   page for testing the sign-in page itself (SC-001).
 - **Each worker has its own accounts.** Worker 1 uses `admin1` and `standard1`, worker 2 uses `admin2`
-  and `standard2`, and so on, from the lists in `accounts.ts`. A run uses no more workers than a
-  role has accounts (four) unless `TEST_WORKERS` asks for more, so its workers never share one. More
-  workers, or several runs at once against one site, do share, so a test must not depend on
-  an account's data staying as it left it. SP-010 is the exception: it changes a user's setting, so
-  two copies running at once on one account, such as one per browser, can collide.
+  and `standard2`, and so on, from the lists in `accounts.ts`. A run's two workers never share one.
+  More than four workers, or several runs at once against one site, do share, so a test must not
+  depend on an account's data staying as it left it. SP-010 is the exception: it changes a user's
+  setting, so two copies running at once on one account, such as one per browser, can collide.
 - **A second person.** `openPortalAs('admin')` gives a test an admin in a browser of their own: in
   SP-006 a standard user submits a request and an admin approves it. `accountFor('admin')` gives that
   admin's account, such as their name.
@@ -354,7 +352,7 @@ runs `npx playwright test --grep @smoke`.
   pod (0 to 9), as in the [example below](#example-a-kubernetes-indexed-job).
 - `--reporter=blob` writes a report for merging. Playwright's `PLAYWRIGHT_BLOB_OUTPUT_DIR=reports/blob`
   puts it with the other reports, where `npm run merge-reports` looks.
-- Inside each container, `TEST_WORKERS` tests run at once.
+- Inside each container, two tests run at once, as set by `workers` in `playwright.config.ts`.
 - Playwright divides tests between shards by count, not duration, so shards can finish at different
   times when tests vary a lot in length.
 - To merge, collect every shard's `reports/blob/*.zip` into one `reports/blob` folder and run
@@ -365,8 +363,8 @@ runs `npx playwright test --grep @smoke`.
 
 These are recommendations to tune:
 
-- **Workers and CPU.** Set `TEST_WORKERS` to the pod's CPU limit, one worker per core. Node sees the
-  node's cores, not the pod's limit, and without the variable a run uses half of those, up to four.
+- **Workers and CPU.** Give each pod one CPU per worker: two for the two workers set in
+  `playwright.config.ts`.
 - **Memory.** About 1 GB per worker, plus 1 GB for the test runner.
 - **Shared memory.** Chromium needs more than a container's default. Use `--ipc=host` or
   `--shm-size=1g` with Docker; in Kubernetes, mount an `emptyDir` with `medium: Memory` at `/dev/shm`.
@@ -400,7 +398,6 @@ e2e:
   variables:
     TEST_APP: super-portal
     SUPER_PORTAL_URL: https://super-portal.test.yourcompany.com
-    TEST_WORKERS: '4'
     PLAYWRIGHT_BLOB_OUTPUT_DIR: reports/blob
   script:
     - cd playwright
@@ -452,13 +449,12 @@ spec:
           env:
             - { name: TEST_APP, value: super-portal }
             - { name: SUPER_PORTAL_URL, value: 'https://super-portal.test.yourcompany.com' }
-            - { name: TEST_WORKERS, value: '4' }
             - { name: PLAYWRIGHT_BLOB_OUTPUT_DIR, value: reports/blob }
           envFrom:
             - secretRef: { name: e2e-passwords }
           resources:
-            requests: { cpu: '4', memory: 5Gi }
-            limits: { cpu: '4', memory: 5Gi }
+            requests: { cpu: '2', memory: 3Gi }
+            limits: { cpu: '2', memory: 3Gi }
           volumeMounts:
             - { name: shm, mountPath: /dev/shm }
       volumes:

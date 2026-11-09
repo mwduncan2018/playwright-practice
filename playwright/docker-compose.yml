@@ -43,7 +43,6 @@ services:
       - SUPER_CATALOG_URL
       - SUPER_PORTAL_URL
       - TEST_BROWSER
-      - TEST_WORKERS
       - TEST_RETRIES
     volumes:
       # Reports and traces land here, on this machine.
