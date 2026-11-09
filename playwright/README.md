@@ -32,14 +32,13 @@ apps/
     tests/                         one spec file per area, one test per manual case
   super-portal/                    the same for Super Portal
 shared/
-  settings.ts                      reads the TEST_* variables and the app's address
   accounts.ts                      roles, the test accounts, and which one each worker uses
   fixtures.ts                      signing in, and a second person in a test
   keycloak-sign-in.page.ts         Keycloak's sign-in page
   fill-secret.ts                   types a password without it showing in the report
   global-setup.ts                  checks the app answers before any test
   test-plan.ts, test-data.ts       links to the plan, and unique test data
-playwright.config.ts               parallelism, browsers and reporters
+playwright.config.ts               the TEST_* variables, parallelism, browsers and reporters
 merge.config.ts                    merges sharded reports
 Dockerfile, docker-compose.yml     the test image, and running it locally
 eslint.config.mjs, .prettierrc.json  code checks
@@ -108,7 +107,7 @@ shell), in Docker (`-e`) and in a pipeline (CI variables).
 
 A run goes wherever the tested app's address variable says: `SUPER_CATALOG_URL` when `TEST_APP` is
 `super-catalog`, `SUPER_PORTAL_URL` when it's `super-portal`. Only the tested app's address is read.
-If it's missing, or isn't a full address, the run stops with a message naming the variable.
+If it's missing, or isn't a full address, the run stops before any test, saying the app isn't reachable.
 
 `.env.example` has the local Docker environment's addresses, so a local run needs nothing more. To
 test a site somewhere else, change the address in `.env`, or override it for one run. A site whose
@@ -339,7 +338,7 @@ address from a variable, so changing an address means changing a CI variable, no
 | `SUPER_CATALOG_URL` | Super Catalog's address, for runs with `TEST_APP=super-catalog` |
 | `SUPER_PORTAL_URL`  | Super Portal's address, for runs with `TEST_APP=super-portal`   |
 
-A missing or malformed address stops the run at once, with a message naming the variable. Nothing
+A missing or malformed address stops the run at once, saying the app isn't reachable. Nothing
 in the tests depends on which environment an address belongs to, so a job that should run only part
 of the suite chooses it with `--grep`. For example, a staging job that runs only the smoke tests
 runs `npx playwright test --grep @smoke`.

@@ -1,9 +1,17 @@
+import { existsSync } from 'node:fs';
+import path from 'node:path';
+
 import { defineConfig, devices, type Project } from '@playwright/test';
 
-import { settings } from './shared/settings';
+// Everything here that changes between runs comes from environment variables. Locally, .env fills in
+// what isn't set. README.md lists them all.
+const envFile = path.join(__dirname, '.env');
+if (existsSync(envFile)) process.loadEnvFile(envFile);
 
-// Everything here that changes between runs comes from shared/settings.ts, which reads the TEST_*
-// variables. README.md lists them all.
+const app = process.env.TEST_APP!;
+// An app's address is in a variable named after it: SUPER_PORTAL_URL for super-portal.
+const baseURL = process.env[`${app.toUpperCase().replaceAll('-', '_')}_URL`];
+const browsers = (process.env.TEST_BROWSER || 'chromium').split(',').map((name) => name.trim());
 
 const BROWSER_SETTINGS: Record<string, Project['use']> = {
   chromium: { ...devices['Desktop Chrome'] },
@@ -15,11 +23,11 @@ const BROWSER_SETTINGS: Record<string, Project['use']> = {
 };
 
 export default defineConfig({
-  testDir: `apps/${settings.app}/tests`,
+  testDir: `apps/${app}/tests`,
   // Every test runs in parallel with every other, in its own browser context.
   fullyParallel: true,
   workers: 2,
-  retries: settings.retries,
+  retries: Number(process.env.TEST_RETRIES || 0),
   timeout: 60_000,
   expect: { timeout: 10_000 },
   globalSetup: './shared/global-setup.ts',
@@ -30,11 +38,11 @@ export default defineConfig({
     ['junit', { outputFile: 'reports/junit.xml' }],
   ],
   use: {
-    baseURL: settings.appUrl,
+    baseURL,
     actionTimeout: 15_000,
     navigationTimeout: 30_000,
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
   },
-  projects: settings.browsers.map((name) => ({ name, use: BROWSER_SETTINGS[name] })),
+  projects: browsers.map((name) => ({ name, use: BROWSER_SETTINGS[name] })),
 });

@@ -6,7 +6,6 @@ import { type Browser, type BrowserContext, type Page, expect, test as base } fr
 
 import { type Account, accountForWorker, passwordVariable, type Role, ROLES } from './accounts';
 import { KeycloakSignInPage } from './keycloak-sign-in.page';
-import { settings } from './settings';
 
 type StorageState = Awaited<ReturnType<BrowserContext['storageState']>>;
 
@@ -35,11 +34,11 @@ interface WorkerFixtures {
 }
 
 /** Signs in through Keycloak in a context of its own and returns the session's cookies. */
-async function signIn(browser: Browser, account: Account): Promise<StorageState> {
+async function signIn(browser: Browser, account: Account, baseURL: string): Promise<StorageState> {
   // Were this to run during a test, the new context would inherit the test's options, its signed-in
   // session included, so start it explicitly empty: otherwise Keycloak would sign the wrong person
   // straight back in.
-  const context = await browser.newContext({ baseURL: settings.appUrl, storageState: { cookies: [], origins: [] } });
+  const context = await browser.newContext({ baseURL, storageState: { cookies: [], origins: [] } });
   try {
     const page = await context.newPage();
     await page.goto('/');
@@ -47,10 +46,10 @@ async function signIn(browser: Browser, account: Account): Promise<StorageState>
     // Keycloak's address isn't configured here, because the app redirects to it. So this is where a
     // Keycloak that's down shows up.
     await keycloak.username.waitFor({ timeout: 15_000 }).catch(() => {
-      throw new Error(`${settings.appUrl} didn't open Keycloak's sign-in page. Is Keycloak running?`);
+      throw new Error(`${baseURL} didn't open Keycloak's sign-in page. Is Keycloak running?`);
     });
     await keycloak.signIn(account.username, account.password);
-    const appOrigin = new URL(settings.appUrl).origin;
+    const appOrigin = new URL(baseURL).origin;
     // Wait to be back on the app, or for Keycloak to say why not, such as a wrong password.
     const outcome = await Promise.race([
       page.waitForURL((url) => url.origin === appOrigin, { timeout: 15_000 }).then(() => 'signed in' as const),
@@ -60,7 +59,7 @@ async function signIn(browser: Browser, account: Account): Promise<StorageState>
       const message =
         outcome === 'refused' ? await keycloak.errorMessage.textContent({ timeout: 1_000 }).catch(() => null) : null;
       throw new Error(
-        `Couldn't sign in to ${settings.appUrl} as ${account.username}` +
+        `Couldn't sign in to ${baseURL} as ${account.username}` +
           (message ? `: Keycloak says "${message.trim()}"` : '') +
           `. Check ${passwordVariable(account.username)}.`,
       );
@@ -89,9 +88,10 @@ export const test = base.extend<SignInOptions & TestFixtures, WorkerFixtures>({
   // no sign-in, and no password, shows in a report or a trace, as a second person signing in during
   // a test would. Sessions stay in memory, never in files.
   sessionFor: [
-    async ({ browser, accountFor }, use) => {
+    async ({ browser, accountFor }, use, workerInfo) => {
+      const baseURL = workerInfo.project.use.baseURL!;
       // async, so that a missing password becomes a failed sign-in like any other.
-      const signInAs = async (role: Role) => signIn(browser, accountFor(role));
+      const signInAs = async (role: Role) => signIn(browser, accountFor(role), baseURL);
       const sessions = new Map(ROLES.map((role) => [role, signInAs(role)] as const));
       // Wait for every sign-in, but leave a failure to the tests that need that role.
       await Promise.allSettled(sessions.values());
@@ -112,11 +112,11 @@ export const test = base.extend<SignInOptions & TestFixtures, WorkerFixtures>({
     await use(new KeycloakSignInPage(page));
   },
 
-  openPageAs: async ({ browser, sessionFor, viewport }, use) => {
+  openPageAs: async ({ browser, sessionFor, baseURL, viewport }, use) => {
     const contexts: BrowserContext[] = [];
     await use(async (role) => {
       const context = await browser.newContext({
-        baseURL: settings.appUrl,
+        baseURL,
         viewport,
         storageState: await sessionFor(role),
       });
