@@ -33,7 +33,7 @@ apps/
   super-portal/                    the same for Super Portal
 shared/
   apps.ts                          the applications, and where their tests are
-  environments.ts                  each environment's addresses and test accounts
+  environments.ts                  what differs per environment: accounts, smoke-only, local addresses
   settings.ts                      reads the TEST_* variables
   accounts.ts                      roles, and which account each worker uses
   fixtures.ts                      signing in, and a second person in a test
@@ -94,8 +94,8 @@ shell), in Docker (`-e`) and in a pipeline (CI variables).
 | `TEST_APP`                              | The application                                                         | `super-catalog`, `super-portal`                                 | None: required                                         |
 | `TEST_ENV`                              | The environment                                                         | `local`, `dev`, `test`, `staging`                               | `local`                                                |
 | `TEST_BROWSER`                          | Browsers, comma-separated                                               | `chromium`, `firefox`, `webkit`, `chrome`, `msedge`             | `chromium`                                             |
-| `SUPER_CATALOG_URL`, `SUPER_PORTAL_URL` | The app's address, instead of the environment's                         | A URL                                                           | From `environments.ts`                                 |
-| `KEYCLOAK_URL`                          | Keycloak's address, instead of the environment's                        | A URL                                                           | From `environments.ts`                                 |
+| `SUPER_CATALOG_URL`, `SUPER_PORTAL_URL` | The address of the app being tested                                     | A full URL                                                      | Built in for `local`, otherwise required               |
+| `KEYCLOAK_URL`                          | Keycloak's address, for the check before the tests                      | A full URL                                                      | Built in for `local`, otherwise required               |
 | `TEST_WORKERS`                          | Tests running at once in this run                                       | A number such as `4`, or a share of the CPU cores such as `50%` | Half the cores, but no more than a role's accounts (4) |
 | `TEST_SHARD`                            | This container's share of the tests                                     | `current/total`, such as `3/10`                                 | All the tests                                          |
 | `TEST_SHARD_TOTAL`                      | The number of shards, with Kubernetes' `JOB_COMPLETION_INDEX`           | A number                                                        | Not set                                                |
@@ -113,13 +113,21 @@ shell), in Docker (`-e`) and in a pipeline (CI variables).
 
 ## Environments
 
-An environment is a complete copy of the system: the apps, their data and Keycloak.
-`shared/environments.ts` lists each one's addresses, Keycloak realm and test accounts. The dev, test
-and staging addresses are placeholders (`*.example.com`) to replace with the real ones.
+An environment is a complete copy of the system: the apps, their data and Keycloak. `TEST_ENV` picks
+one, and `shared/environments.ts` holds what differs between them: the Keycloak realm, the test
+accounts and whether the environment is smoke-only.
 
-- `local` is the Docker environment in the repo root.
+- `local` is the Docker environment in the repo root. Its addresses are built in, so it needs no
+  address variables.
+- `dev`, `test` and `staging` have no addresses in the code. A run sets `KEYCLOAK_URL` and the address
+  of the app being tested (`SUPER_CATALOG_URL` or `SUPER_PORTAL_URL`). If one is missing, the run
+  stops with a message naming it.
 - `staging` runs only tests tagged `@smoke`, whatever else is asked for. `TEST_GREP`, `--grep` and a
-  file path can narrow a staging run further, but never widen it.
+  file path can narrow a staging run further, but never widen it. The rule comes from `TEST_ENV`, not
+  the address, so a staging address with `TEST_ENV` left at `local` would run every test there.
+
+`KEYCLOAK_URL` is used only for the check before the tests start. Browsers reach Keycloak by following
+the app's redirect, which is set where the app is deployed.
 
 To add an environment, add an entry to `environments.ts`. Its name works in `TEST_ENV` straight away.
 
@@ -229,7 +237,7 @@ up to 15. A test known to be slow can call `test.slow()` to get three times as l
 
 1. Add it to `shared/apps.ts`: its name for `TEST_APP`, its tests' folder, and a variable for its
    address.
-2. Add its address to every environment in `shared/environments.ts`.
+2. Add its address to the `local` environment in `shared/environments.ts`.
 3. Create `apps/<name>/` with its test plan, `pages/`, `fixtures.ts` and `tests/`. Its `fixtures.ts`
    extends `shared/fixtures.ts` with a fixture holding its page objects, and defines its `plan`.
 4. If it signs in on Keycloak's usual page, signing in already works. If not, change `signIn` in
@@ -313,13 +321,28 @@ Everything a pipeline needs to run these tests. Nothing here depends on GitLab o
   (`.env` is excluded).
 - It runs `npx playwright test`, and exits 0 when every test passes and 1 when any fails.
 - It's configured entirely by environment variables ([the table above](#choosing-what-runs)). A
-  pipeline sets at least `TEST_APP`, `TEST_ENV` and the `TEST_PASSWORD_*` variables, masked.
+  pipeline sets at least `TEST_APP`, `TEST_ENV`, the [addresses](#addresses) and the
+  `TEST_PASSWORD_*` variables, masked.
 - It writes everything to `/app/reports`. A sharded run writes `reports/blob/shard-N-of-M.zip`;
   otherwise `reports/html/` and `reports/junit.xml`. Failures' screenshots and traces go to
   `reports/artifacts/`.
 - Before any test, it checks that the app and Keycloak answer, so a down environment fails in seconds
   with one message.
 - Pipelines don't need the local relay or the compose file.
+
+### Addresses
+
+The repo holds no addresses for dev, test or staging. Each run gets them from variables, so changing
+an address means changing a CI variable, not the code:
+
+| Variable            | Set it to                                                       |
+| ------------------- | --------------------------------------------------------------- |
+| `SUPER_CATALOG_URL` | Super Catalog's address, for runs with `TEST_APP=super-catalog` |
+| `SUPER_PORTAL_URL`  | Super Portal's address, for runs with `TEST_APP=super-portal`   |
+| `KEYCLOAK_URL`      | Keycloak's address, for the check before the tests start        |
+
+A missing or malformed address stops the run at once, with a message naming the variable. Set
+`TEST_ENV` to match the address, because the staging smoke-only rule comes from that name.
 
 ### Sharding
 
@@ -372,6 +395,8 @@ e2e:
   variables:
     TEST_APP: super-portal
     TEST_ENV: test
+    SUPER_PORTAL_URL: https://super-portal.test.yourcompany.com
+    KEYCLOAK_URL: https://login.test.yourcompany.com
     TEST_WORKERS: '4'
   script:
     - cd playwright
@@ -423,6 +448,8 @@ spec:
           env:
             - { name: TEST_APP, value: super-portal }
             - { name: TEST_ENV, value: test }
+            - { name: SUPER_PORTAL_URL, value: 'https://super-portal.test.yourcompany.com' }
+            - { name: KEYCLOAK_URL, value: 'https://login.test.yourcompany.com' }
             - { name: TEST_SHARD_TOTAL, value: '10' }
             - { name: TEST_WORKERS, value: '4' }
           envFrom:

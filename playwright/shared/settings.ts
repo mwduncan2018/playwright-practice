@@ -8,7 +8,7 @@ import path from 'node:path';
 import { parseEnv } from 'node:util';
 
 import { type AppName, APPS } from './apps';
-import { ENVIRONMENTS, type EnvironmentName } from './environments';
+import { type Environment, ENVIRONMENTS, type EnvironmentName } from './environments';
 
 export const BROWSERS = ['chromium', 'firefox', 'webkit', 'chrome', 'msedge'] as const;
 export type BrowserName = (typeof BROWSERS)[number];
@@ -113,17 +113,30 @@ function readRetries(ci: boolean): number {
   return Number(value);
 }
 
+/**
+ * An address from its variable, or else the environment's own. Only local has its own, so
+ * everywhere else the variable is required.
+ */
+function readAddress(variable: string, name: string, environment: EnvironmentName, own: string | undefined): string {
+  const address = read(variable) ?? own;
+  if (address === undefined) fail(`set ${variable} to ${name}'s address in the ${environment} environment.`);
+  if (!/^https?:\/\/\S+$/i.test(address)) {
+    fail(`${variable} is "${address}"; use a full address such as https://server.example.com.`);
+  }
+  return address.replace(/\/+$/, '');
+}
+
 function readSettings(): Settings {
   loadDotEnv();
   const app = choose('TEST_APP', Object.keys(APPS) as AppName[]);
   const environment = choose('TEST_ENV', Object.keys(ENVIRONMENTS) as EnvironmentName[], 'local');
-  const where = ENVIRONMENTS[environment];
+  const where: Environment = ENVIRONMENTS[environment];
   const ci = Boolean(read('CI'));
   return {
     app,
-    appUrl: (read(APPS[app].urlVariable) ?? where.apps[app]).replace(/\/+$/, ''),
+    appUrl: readAddress(APPS[app].urlVariable, APPS[app].title, environment, where.apps?.[app]),
     environment,
-    keycloakUrl: (read('KEYCLOAK_URL') ?? where.keycloakUrl).replace(/\/+$/, ''),
+    keycloakUrl: readAddress('KEYCLOAK_URL', 'Keycloak', environment, where.keycloakUrl),
     realm: where.realm,
     smokeOnly: where.smokeOnly,
     browsers: readBrowsers(),

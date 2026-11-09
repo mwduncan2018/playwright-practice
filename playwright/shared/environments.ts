@@ -8,10 +8,10 @@ export interface AccountName {
 }
 
 export interface Environment {
-  /** Each application's address. */
-  apps: Record<AppName, string>;
-  /** Keycloak's address, as browsers see it. */
-  keycloakUrl: string;
+  /** Each application's address. Only local lists these; see ENVIRONMENTS below. */
+  apps?: Record<AppName, string>;
+  /** Keycloak's address, as browsers see it. Only local lists this too. */
+  keycloakUrl?: string;
   realm: string;
   /** Run only the tests tagged @smoke, whatever else is asked for. */
   smokeOnly: boolean;
@@ -38,8 +38,9 @@ const ACCOUNTS: Record<Role, AccountName[]> = {
 };
 
 /**
- * Where each environment lives. TEST_ENV picks one. URLs aren't secret, so they live here; the
- * dev, test and staging addresses are placeholders to replace with the real ones.
+ * What differs between environments. TEST_ENV picks one. Only local has addresses here, because
+ * they never change. The others get theirs from the variables SUPER_CATALOG_URL, SUPER_PORTAL_URL
+ * and KEYCLOAK_URL, set in the pipeline, so changing an address doesn't need a code change.
  */
 export const ENVIRONMENTS = {
   local: {
@@ -49,36 +50,9 @@ export const ENVIRONMENTS = {
     smokeOnly: false,
     accounts: ACCOUNTS,
   },
-  dev: {
-    apps: {
-      'super-catalog': 'https://super-catalog.dev.example.com',
-      'super-portal': 'https://super-portal.dev.example.com',
-    },
-    keycloakUrl: 'https://login.dev.example.com',
-    realm: 'super-apps',
-    smokeOnly: false,
-    accounts: ACCOUNTS,
-  },
-  test: {
-    apps: {
-      'super-catalog': 'https://super-catalog.test.example.com',
-      'super-portal': 'https://super-portal.test.example.com',
-    },
-    keycloakUrl: 'https://login.test.example.com',
-    realm: 'super-apps',
-    smokeOnly: false,
-    accounts: ACCOUNTS,
-  },
-  staging: {
-    apps: {
-      'super-catalog': 'https://super-catalog.staging.example.com',
-      'super-portal': 'https://super-portal.staging.example.com',
-    },
-    keycloakUrl: 'https://login.staging.example.com',
-    realm: 'super-apps',
-    smokeOnly: true,
-    accounts: ACCOUNTS,
-  },
+  dev: { realm: 'super-apps', smokeOnly: false, accounts: ACCOUNTS },
+  test: { realm: 'super-apps', smokeOnly: false, accounts: ACCOUNTS },
+  staging: { realm: 'super-apps', smokeOnly: true, accounts: ACCOUNTS },
 } satisfies Record<string, Environment>;
 
 export type EnvironmentName = keyof typeof ENVIRONMENTS;
