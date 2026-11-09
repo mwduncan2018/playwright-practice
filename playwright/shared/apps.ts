@@ -1,12 +1,12 @@
 /**
- * The applications this project tests. TEST_APP picks one. To add an application, add it here and
- * to the local environment in environments.ts, then give it a folder in apps/ (see README.md).
+ * The applications this project tests. TEST_APP picks one. To add an application, add it here,
+ * then give it a folder in apps/ (see README.md).
  */
 export const APPS = {
   'super-catalog': {
     title: 'Super Catalog',
     testDir: 'apps/super-catalog/tests',
-    /** The variable holding this app's address. Required everywhere except local. */
+    /** The variable holding this app's address, which a run testing this app requires. */
     urlVariable: 'SUPER_CATALOG_URL',
   },
   'super-portal': {

@@ -44,6 +44,11 @@ async function signIn(browser: Browser, account: Account): Promise<StorageState>
     const page = await context.newPage();
     await page.goto('/');
     const keycloak = new KeycloakSignInPage(page);
+    // Keycloak's address isn't configured here, because the app redirects to it. So this is where a
+    // Keycloak that's down shows up.
+    await keycloak.username.waitFor({ timeout: 15_000 }).catch(() => {
+      throw new Error(`${settings.appUrl} didn't open Keycloak's sign-in page. Is Keycloak running?`);
+    });
     await keycloak.signIn(account.username, account.password);
     const appOrigin = new URL(settings.appUrl).origin;
     // Wait to be back on the app, or for Keycloak to say why not, such as a wrong password.

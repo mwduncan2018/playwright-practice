@@ -12,27 +12,22 @@ function reasonFor(error: unknown): string {
 }
 
 /**
- * Runs once before any test: checks the application and Keycloak answer, so an environment that's
- * down gives one clear message instead of every test timing out.
+ * Runs once before any test: checks the application answers, so a site that's down gives one clear
+ * message instead of every test timing out.
  */
 export default async function globalSetup(): Promise<void> {
-  const checks: [string, string][] = [
-    [APPS[settings.app].title, `${settings.appUrl}/`],
-    ['Keycloak', `${settings.keycloakUrl}/realms/${settings.realm}/.well-known/openid-configuration`],
-  ];
-  for (const [name, url] of checks) {
-    let problem: string | undefined;
-    try {
-      const response = await fetch(url, { signal: AbortSignal.timeout(15_000) });
-      if (!response.ok) problem = `it answered ${response.status} ${response.statusText}`;
-    } catch (error) {
-      problem = reasonFor(error);
-    }
-    if (problem !== undefined) {
-      throw new Error(
-        `${name} isn't reachable at ${url} (${problem}). Is the ${settings.environment} environment running? ` +
-          'For local, run "docker compose up -d --wait" in the repo root.',
-      );
-    }
+  const { title, urlVariable } = APPS[settings.app];
+  let problem: string | undefined;
+  try {
+    const response = await fetch(`${settings.appUrl}/`, { signal: AbortSignal.timeout(15_000) });
+    if (!response.ok) problem = `it answered ${response.status} ${response.statusText}`;
+  } catch (error) {
+    problem = reasonFor(error);
+  }
+  if (problem !== undefined) {
+    throw new Error(
+      `${title} isn't reachable at ${settings.appUrl} (${problem}). Check ${urlVariable}, and that the site is ` +
+        'running. For the local Docker environment, run "docker compose up -d --wait" in the repo root.',
+    );
   }
 }

@@ -15,12 +15,6 @@ const BROWSER_SETTINGS: Record<BrowserName, Project['use']> = {
   msedge: { ...devices['Desktop Edge'], channel: 'msedge' },
 };
 
-/** TEST_GREP and the environment's smoke-only rule together: a test must match both. */
-function grep(): RegExp | undefined {
-  const parts = [settings.smokeOnly ? '@smoke' : undefined, settings.grep].filter(Boolean);
-  return parts.length > 0 ? new RegExp(parts.map((part) => `(?=.*(?:${part}))`).join('')) : undefined;
-}
-
 // A sharded run writes a blob report for merging later (npm run merge-reports); otherwise the
 // HTML and JUnit reports are written straight away.
 const reporters: ReporterDescription[] = settings.shard
@@ -43,7 +37,7 @@ export default defineConfig({
   fullyParallel: true,
   workers: settings.workers,
   shard: settings.shard,
-  grep: grep(),
+  grep: settings.grep ? new RegExp(settings.grep) : undefined,
   grepInvert: settings.grepInvert ? new RegExp(settings.grepInvert) : undefined,
   retries: settings.retries,
   forbidOnly: settings.ci,

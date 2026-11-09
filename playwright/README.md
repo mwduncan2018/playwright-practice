@@ -7,7 +7,7 @@ folder, and the test report shows that plan's steps word for word.
 - [What's here](#whats-here)
 - [Run the tests on your machine](#run-the-tests-on-your-machine)
 - [Choosing what runs](#choosing-what-runs)
-- [Environments](#environments)
+- [Which site to test](#which-site-to-test)
 - [Tags](#tags)
 - [Signing in](#signing-in)
 - [Writing a test from the manual plan](#writing-a-test-from-the-manual-plan)
@@ -33,13 +33,12 @@ apps/
   super-portal/                    the same for Super Portal
 shared/
   apps.ts                          the applications, and where their tests are
-  environments.ts                  what differs per environment: accounts, smoke-only, local addresses
-  settings.ts                      reads the TEST_* variables
-  accounts.ts                      roles, and which account each worker uses
+  settings.ts                      reads the TEST_* variables and the app's address
+  accounts.ts                      roles, the test accounts, and which one each worker uses
   fixtures.ts                      signing in, and a second person in a test
   keycloak-sign-in.page.ts         Keycloak's sign-in page
   fill-secret.ts                   types a password without it showing in the report
-  global-setup.ts                  checks the app and Keycloak answer before any test
+  global-setup.ts                  checks the app answers before any test
   test-plan.ts, test-data.ts       links to the plan, and unique test data
 playwright.config.ts               parallelism, browsers and reporters
 merge.config.ts                    merges sharded reports
@@ -61,8 +60,8 @@ npx playwright test
 ```
 
 `npx playwright install` downloads the browsers, once per Playwright version. `.env` holds the local
-settings: which app to test, and the test accounts' passwords. `npx playwright test` runs every test
-for the app in `TEST_APP`, in parallel.
+settings: which app to test, the apps' addresses, and the test accounts' passwords. `npx playwright
+test` runs every test for the app in `TEST_APP`, in parallel.
 
 | Command                                                         | What it does                                            |
 | --------------------------------------------------------------- | ------------------------------------------------------- |
@@ -92,10 +91,8 @@ shell), in Docker (`-e`) and in a pipeline (CI variables).
 | Variable                                | What it chooses                                                         | Values                                                          | Default                                                |
 | --------------------------------------- | ----------------------------------------------------------------------- | --------------------------------------------------------------- | ------------------------------------------------------ |
 | `TEST_APP`                              | The application                                                         | `super-catalog`, `super-portal`                                 | None: required                                         |
-| `TEST_ENV`                              | The environment                                                         | `local`, `dev`, `test`, `staging`                               | `local`                                                |
 | `TEST_BROWSER`                          | Browsers, comma-separated                                               | `chromium`, `firefox`, `webkit`, `chrome`, `msedge`             | `chromium`                                             |
-| `SUPER_CATALOG_URL`, `SUPER_PORTAL_URL` | The address of the app being tested                                     | A full URL                                                      | Built in for `local`, otherwise required               |
-| `KEYCLOAK_URL`                          | Keycloak's address, for the check before the tests                      | A full URL                                                      | Built in for `local`, otherwise required               |
+| `SUPER_CATALOG_URL`, `SUPER_PORTAL_URL` | The address of the app being tested                                     | A full URL                                                      | None: the tested app's is required                     |
 | `TEST_WORKERS`                          | Tests running at once in this run                                       | A number such as `4`, or a share of the CPU cores such as `50%` | Half the cores, but no more than a role's accounts (4) |
 | `TEST_SHARD`                            | This container's share of the tests                                     | `current/total`, such as `3/10`                                 | All the tests                                          |
 | `TEST_SHARD_TOTAL`                      | The number of shards, with Kubernetes' `JOB_COMPLETION_INDEX`           | A number                                                        | Not set                                                |
@@ -111,25 +108,26 @@ shell), in Docker (`-e`) and in a pipeline (CI variables).
 - `chrome` and `msedge` use Chrome or Edge as installed on the machine. The Docker image doesn't have
   them unless it adds them (`RUN npx playwright install --with-deps chrome msedge`).
 
-## Environments
+## Which site to test
 
-An environment is a complete copy of the system: the apps, their data and Keycloak. `TEST_ENV` picks
-one, and `shared/environments.ts` holds what differs between them: the Keycloak realm, the test
-accounts and whether the environment is smoke-only.
+A run goes wherever the tested app's address variable says: `SUPER_CATALOG_URL` when `TEST_APP` is
+`super-catalog`, `SUPER_PORTAL_URL` when it's `super-portal`. Only the tested app's address is read.
+If it's missing, or isn't a full address, the run stops with a message naming the variable.
 
-- `local` is the Docker environment in the repo root. Its addresses are built in, so it needs no
-  address variables.
-- `dev`, `test` and `staging` have no addresses in the code. A run sets `KEYCLOAK_URL` and the address
-  of the app being tested (`SUPER_CATALOG_URL` or `SUPER_PORTAL_URL`). If one is missing, the run
-  stops with a message naming it.
-- `staging` runs only tests tagged `@smoke`, whatever else is asked for. `TEST_GREP`, `--grep` and a
-  file path can narrow a staging run further, but never widen it. The rule comes from `TEST_ENV`, not
-  the address, so a staging address with `TEST_ENV` left at `local` would run every test there.
+`.env.example` has the local Docker environment's addresses, so a local run needs nothing more. To
+test a site somewhere else, change the address in `.env`, or override it for one run. A site whose
+test accounts have different passwords needs those set too (`TEST_PASSWORD_*`).
 
-`KEYCLOAK_URL` is used only for the check before the tests start. Browsers reach Keycloak by following
-the app's redirect, which is set where the app is deployed.
+```bash
+SUPER_PORTAL_URL=https://super-portal.dev.example.com npx playwright test
+```
 
-To add an environment, add an entry to `environments.ts`. Its name works in `TEST_ENV` straight away.
+The tests don't know whether an address is dev, test or staging, so a run executes every test it's
+asked to. To run only part of the suite against a site, choose it with `TEST_GREP` or `--grep`. For
+example, a staging job that should run only the smoke tests sets `TEST_GREP=@smoke`.
+
+Keycloak's address isn't set here. Browsers reach Keycloak by following the app's redirect, which is
+set where the app is deployed.
 
 ## Tags
 
@@ -170,9 +168,9 @@ Both apps sign in through Keycloak, and `shared/fixtures.ts` takes care of it.
   describe block's tests in as an admin. `'standard'` is the default, and `'nobody'` gives a signed-out
   page for testing the sign-in page itself (SC-001).
 - **Each worker has its own accounts.** Worker 1 uses `admin1` and `standard1`, worker 2 uses `admin2`
-  and `standard2`, and so on, from the lists in `environments.ts`. A run uses no more workers than a
+  and `standard2`, and so on, from the lists in `accounts.ts`. A run uses no more workers than a
   role has accounts (four) unless `TEST_WORKERS` asks for more, so its workers never share one. More
-  workers, or several runs at once against one environment, do share, so a test must not depend on
+  workers, or several runs at once against one site, do share, so a test must not depend on
   an account's data staying as it left it. SP-010 is the exception: it changes a user's setting, so
   two copies running at once on one account, such as one per browser, can collide.
 - **A second person.** `openPortalAs('admin')` gives a test an admin in a browser of their own: in
@@ -237,7 +235,8 @@ up to 15. A test known to be slow can call `test.slow()` to get three times as l
 
 1. Add it to `shared/apps.ts`: its name for `TEST_APP`, its tests' folder, and a variable for its
    address.
-2. Add its address to the `local` environment in `shared/environments.ts`.
+2. Add that variable, with the app's local address, to `.env.example`. Add its name to the
+   `environment` list in `docker-compose.yml` too.
 3. Create `apps/<name>/` with its test plan, `pages/`, `fixtures.ts` and `tests/`. Its `fixtures.ts`
    extends `shared/fixtures.ts` with a fixture holding its page objects, and defines its `plan`.
 4. If it signs in on Keycloak's usual page, signing in already works. If not, change `signIn` in
@@ -321,28 +320,29 @@ Everything a pipeline needs to run these tests. Nothing here depends on GitLab o
   (`.env` is excluded).
 - It runs `npx playwright test`, and exits 0 when every test passes and 1 when any fails.
 - It's configured entirely by environment variables ([the table above](#choosing-what-runs)). A
-  pipeline sets at least `TEST_APP`, `TEST_ENV`, the [addresses](#addresses) and the
-  `TEST_PASSWORD_*` variables, masked.
+  pipeline sets at least `TEST_APP`, the app's [address](#addresses) and the `TEST_PASSWORD_*`
+  variables, masked.
 - It writes everything to `/app/reports`. A sharded run writes `reports/blob/shard-N-of-M.zip`;
   otherwise `reports/html/` and `reports/junit.xml`. Failures' screenshots and traces go to
   `reports/artifacts/`.
-- Before any test, it checks that the app and Keycloak answer, so a down environment fails in seconds
-  with one message.
+- Before any test, it checks that the app answers, so a site that's down fails in seconds with one
+  message. If Keycloak is down, the tests that sign in fail with a message saying so.
 - Pipelines don't need the local relay or the compose file.
 
 ### Addresses
 
-The repo holds no addresses for dev, test or staging. Each run gets them from variables, so changing
-an address means changing a CI variable, not the code:
+The only addresses in the repo are the local ones in `.env.example`. Each run gets the tested app's
+address from a variable, so changing an address means changing a CI variable, not the code:
 
 | Variable            | Set it to                                                       |
 | ------------------- | --------------------------------------------------------------- |
 | `SUPER_CATALOG_URL` | Super Catalog's address, for runs with `TEST_APP=super-catalog` |
 | `SUPER_PORTAL_URL`  | Super Portal's address, for runs with `TEST_APP=super-portal`   |
-| `KEYCLOAK_URL`      | Keycloak's address, for the check before the tests start        |
 
-A missing or malformed address stops the run at once, with a message naming the variable. Set
-`TEST_ENV` to match the address, because the staging smoke-only rule comes from that name.
+A missing or malformed address stops the run at once, with a message naming the variable. Nothing
+in the tests depends on which environment an address belongs to, so a job that should run only part
+of the suite chooses it with `TEST_GREP`. For example, a staging job that runs only the smoke tests
+sets `TEST_GREP=@smoke`.
 
 ### Sharding
 
@@ -376,9 +376,9 @@ These are recommendations to tune:
 - Masking covers only the job log. Traces hold session cookies and tokens, and screenshots and page
   snapshots show what was on the screen, so keep test artifacts where only the team can download
   them, and not for long.
-- Each pod's workers use the accounts in `environments.ts` in order, so pods share accounts. That's
+- Each pod's workers use the accounts in `shared/accounts.ts` in order, so pods share accounts. That's
   fine for most tests, but SP-010 changes a user's setting, so runs that test different browsers at
-  the same time against one environment can collide on it. Run the browsers one after another, or
+  the same time against one site can collide on it. Run the browsers one after another, or
   add accounts: more accounts per role means less sharing.
 - Tests create records with unique names and leave them behind. Long-lived environments will collect
   them; cleaning up is part of the test data discussion still to come.
@@ -394,9 +394,7 @@ e2e:
   parallel: 10
   variables:
     TEST_APP: super-portal
-    TEST_ENV: test
     SUPER_PORTAL_URL: https://super-portal.test.yourcompany.com
-    KEYCLOAK_URL: https://login.test.yourcompany.com
     TEST_WORKERS: '4'
   script:
     - cd playwright
@@ -447,9 +445,7 @@ spec:
           image: registry.example.com/super-apps-tests:1.0.0
           env:
             - { name: TEST_APP, value: super-portal }
-            - { name: TEST_ENV, value: test }
             - { name: SUPER_PORTAL_URL, value: 'https://super-portal.test.yourcompany.com' }
-            - { name: KEYCLOAK_URL, value: 'https://login.test.yourcompany.com' }
             - { name: TEST_SHARD_TOTAL, value: '10' }
             - { name: TEST_WORKERS, value: '4' }
           envFrom:
