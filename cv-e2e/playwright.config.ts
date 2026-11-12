@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices, type TraceMode } from '@playwright/test';
 
 const envFile = path.join(__dirname, '.env');
 if (existsSync(envFile)) process.loadEnvFile(envFile);
@@ -57,7 +57,7 @@ export default defineConfig({
           ],
   use: {
     baseURL: process.env.TEST_APP_URL,
-    trace: 'on-first-retry',
+    trace: (process.env.TEST_TRACE || 'on-first-retry') as TraceMode,
   },
 
   projects: [

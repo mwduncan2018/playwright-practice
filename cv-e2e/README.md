@@ -17,6 +17,7 @@ A variable set in the shell overrides `.env`. A pipeline has no `.env`, so it mu
 | `TEST_PARALLEL`       | Whether tests in the same file run at one time   | `true` turns it on; anything else is off            | Off                                       |
 | `TEST_RETRIES`        | How many times a failing test is retried         | A whole number                                      | `0`                                       |
 | `TEST_WORKERS`        | How many tests run at once                       | A whole number, not a percentage                    | Half the CPU cores                        |
+| `TEST_TRACE`          | When a test's trace is recorded and kept         | A trace mode, listed in `.env.example`              | `on-first-retry`                          |
 | `TEST_HISTORY_KEEP`   | How many local runs `playwright-history` keeps   | A whole number                                      | `20`                                      |
 | `TEST_ADMIN_USERNAME` | The admin account's username                     | A username                                          | No effect yet: no test reads it           |
 | `TEST_ADMIN_PASSWORD` | The admin account's password                     | A password                                          | No effect yet: no test reads it           |
@@ -27,6 +28,8 @@ A variable set in the shell overrides `.env`. A pipeline has no `.env`, so it mu
   three are browsers Playwright downloads, which aren't digitally signed, so Windows Smart App Control
   can block them. Where it's turned on, use `msedge` or `chrome`.
 - Keep real passwords in `.env` or in masked pipeline variables, never in `.env.example`.
+- A trace records what a test typed, passwords included. In a test that types a password, turn traces
+  off with `test.use({ trace: 'off' })`.
 - `CI` isn't set by you: most pipelines set it automatically. When it's set, a run that contains
   `test.only` fails.
 
