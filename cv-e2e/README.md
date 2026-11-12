@@ -40,6 +40,9 @@ lists the tests, so it isn't saved.
 Each report's title shows the run's `TEST_APP_FOLDER`, `TEST_BROWSER` and `TEST_APP_URL` as they were
 set, and the list shows them in its App and Browser columns.
 
+The list uses the same light or dark theme as Playwright's reports: the one picked with the gear icon
+in any run's report, or else the system's.
+
 To see the list and open a run's report:
 
 ```bash

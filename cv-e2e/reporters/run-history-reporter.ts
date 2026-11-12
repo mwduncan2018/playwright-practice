@@ -173,32 +173,92 @@ function indexPage(runs: Summary[], keep: number) {
   <head>
     <meta charset="utf-8">
     <title>Run history</title>
+    <script>
+      // The same theme as Playwright's reports: the one picked in a report's settings, or the system's.
+      let theme = 'system';
+      try {
+        theme = localStorage.getItem('theme') || theme;
+      } catch {}
+      if (theme === 'system') theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark-mode' : 'light-mode';
+      document.documentElement.classList.add(theme);
+    </script>
     <style>
-      body { margin: 24px; font: 14px system-ui, sans-serif; color: #1f2328; background: #ffffff; }
+      /* Playwright's report colors, light and dark. */
+      :root {
+        color-scheme: light;
+        --color-canvas-default: #ffffff;
+        --color-canvas-subtle: #f6f8fa;
+        --color-fg-default: #24292f;
+        --color-fg-muted: #57606a;
+        --color-border-default: #d0d7de;
+        --color-accent-fg: #0969da;
+        --color-success-fg: #1a7f37;
+        --color-danger-fg: #cf222e;
+        --color-danger-subtle: #ffebe9;
+        --color-attention-fg: #9a6700;
+        --color-attention-subtle: #fff8c5;
+      }
+      :root.dark-mode {
+        color-scheme: dark;
+        --color-canvas-default: #0d1117;
+        --color-canvas-subtle: #161b22;
+        --color-fg-default: #c9d1d9;
+        --color-fg-muted: #8b949e;
+        --color-border-default: #30363d;
+        --color-accent-fg: #58a6ff;
+        --color-success-fg: #3fb950;
+        --color-danger-fg: #f85149;
+        --color-danger-subtle: #f8514926;
+        --color-attention-fg: #d29922;
+        --color-attention-subtle: #bb800926;
+      }
+      /* Like Playwright's report, the page itself has the browser's background, and the table sits in a
+         bordered panel. */
+      body {
+        margin: 24px;
+        font: 14px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        color: var(--color-fg-default);
+      }
       h1 { font-size: 20px; }
+      a { color: var(--color-accent-fg); }
+      .panel {
+        display: inline-block;
+        border: 1px solid var(--color-border-default);
+        border-radius: 6px;
+        overflow: hidden;
+        background: var(--color-canvas-default);
+      }
       table { border-collapse: collapse; }
-      th, td { padding: 6px 10px; border-bottom: 1px solid #d0d7de; text-align: left; vertical-align: top; }
-      th { background: #f6f8fa; }
+      th, td {
+        padding: 6px 10px;
+        border-bottom: 1px solid var(--color-border-default);
+        text-align: left;
+        vertical-align: top;
+      }
+      tr:last-child td { border-bottom: none; }
+      th { background: var(--color-canvas-subtle); }
       .count { text-align: right; }
       .status { font-weight: 600; }
-      .url { font-size: 12px; color: #59636e; }
-      tr.passed .status { color: #1a7f37; }
-      tr.failed, tr.timedout { background: #ffebe9; }
-      tr.failed .status, tr.timedout .status { color: #cf222e; }
-      tr.interrupted { background: #fff8c5; }
-      tr.interrupted .status { color: #9a6700; }
+      .url { font-size: 12px; color: var(--color-fg-muted); }
+      tr.passed .status { color: var(--color-success-fg); }
+      tr.failed, tr.timedout { background: var(--color-danger-subtle); }
+      tr.failed .status, tr.timedout .status { color: var(--color-danger-fg); }
+      tr.interrupted { background: var(--color-attention-subtle); }
+      tr.interrupted .status { color: var(--color-attention-fg); }
     </style>
   </head>
   <body>
     <h1>Run history</h1>
     <p>Newest first. The newest ${keep} runs are kept.</p>
-    <table>
-      <tr>
-        <th>Time</th><th>Duration</th><th>Status</th><th>App</th><th>Browser</th><th>Passed</th>
-        <th>Failed</th><th>Flaky</th><th>Skipped</th><th>Commit</th><th>Arguments</th><th>Report</th>
-      </tr>
+    <div class="panel">
+      <table>
+        <tr>
+          <th>Time</th><th>Duration</th><th>Status</th><th>App</th><th>Browser</th><th>Passed</th>
+          <th>Failed</th><th>Flaky</th><th>Skipped</th><th>Commit</th><th>Arguments</th><th>Report</th>
+        </tr>
 ${rows.join('\n')}
-    </table>
+      </table>
+    </div>
   </body>
 </html>
 `;
