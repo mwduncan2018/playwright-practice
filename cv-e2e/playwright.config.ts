@@ -11,6 +11,12 @@ if (existsSync(envFile)) process.loadEnvFile(envFile);
 // workers inherit it through the environment. The time first makes run folders sort by age.
 process.env.TEST_RUN_ID ??= `${new Date().toISOString().replace(/[:.]/g, '-')}-${randomUUID()}`;
 const historyDir = path.join(__dirname, 'playwright-history');
+// Each run's report title says what was tested, with the variables as they're set.
+const reportTitle = [
+  process.env.TEST_APP_FOLDER || 'folder not set',
+  process.env.TEST_BROWSER || 'browser not set',
+  process.env.TEST_APP_URL || 'URL not set',
+].join(' - ');
 
 export default defineConfig({
   testDir: process.env.TEST_APP_FOLDER,
@@ -29,10 +35,24 @@ export default defineConfig({
       : process.argv.includes('--list')
         ? 'list'
         : [
-            ['html', { outputFolder: path.join(historyDir, process.env.TEST_RUN_ID, 'html'), open: 'on-failure' }],
+            [
+              'html',
+              {
+                outputFolder: path.join(historyDir, process.env.TEST_RUN_ID, 'html'),
+                open: 'on-failure',
+                title: reportTitle,
+              },
+            ],
             [
               './reporters/run-history-reporter.ts',
-              { historyDir, runId: process.env.TEST_RUN_ID, keep: Number(process.env.TEST_HISTORY_KEEP) || 20 },
+              {
+                historyDir,
+                runId: process.env.TEST_RUN_ID,
+                keep: Number(process.env.TEST_HISTORY_KEEP) || 20,
+                appFolder: process.env.TEST_APP_FOLDER,
+                appUrl: process.env.TEST_APP_URL,
+                browser: process.env.TEST_BROWSER,
+              },
             ],
           ],
   use: {

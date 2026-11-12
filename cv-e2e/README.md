@@ -37,6 +37,9 @@ Each local run saves its HTML report in a folder of its own under `playwright-hi
 Each run also deletes the oldest runs beyond `TEST_HISTORY_KEEP`. `npx playwright test --list` only
 lists the tests, so it isn't saved.
 
+Each report's title shows the run's `TEST_APP_FOLDER`, `TEST_BROWSER` and `TEST_APP_URL` as they were
+set, and the list shows them in its App and Browser columns.
+
 To see the list and open a run's report:
 
 ```bash

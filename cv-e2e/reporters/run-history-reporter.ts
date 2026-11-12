@@ -8,6 +8,9 @@ interface Options {
   historyDir: string;
   runId: string;
   keep: number;
+  appFolder?: string;
+  appUrl?: string;
+  browser?: string;
 }
 
 interface Summary {
@@ -15,6 +18,10 @@ interface Summary {
   startTime: string;
   durationMs: number;
   status: FullResult['status'];
+  // Null when the variable wasn't set. Missing from runs saved before these were recorded.
+  appFolder?: string | null;
+  appUrl?: string | null;
+  browser?: string | null;
   passed: number;
   failed: number;
   flaky: number;
@@ -69,6 +76,9 @@ export default class RunHistoryReporter implements Reporter {
       startTime: result.startTime.toISOString(),
       durationMs: Math.round(result.duration),
       status: result.status,
+      appFolder: this.options.appFolder || null,
+      appUrl: this.options.appUrl || null,
+      browser: this.options.browser || null,
       ...counts,
       branch: git('rev-parse', '--abbrev-ref', 'HEAD'),
       sha: git('rev-parse', '--short', 'HEAD'),
@@ -135,10 +145,19 @@ function git(...args: string[]) {
 function indexPage(runs: Summary[], keep: number) {
   const rows = runs.map((run) => {
     const commit = run.sha ? `${run.branch}@${run.sha}${run.dirty ? ' (dirty)' : ''}` : 'n/a';
+    // A dash for runs saved before these were recorded.
+    const app =
+      run.appFolder === undefined
+        ? '-'
+        : `${escapeHtml(run.appFolder ?? 'folder not set')}<br>` +
+          `<span class="url">${escapeHtml(run.appUrl ?? 'URL not set')}</span>`;
+    const browser = run.browser === undefined ? '-' : escapeHtml(run.browser ?? 'not set');
     return `      <tr class="${escapeHtml(run.status)}">
         <td>${escapeHtml(new Date(run.startTime).toLocaleString())}</td>
         <td>${formatDuration(run.durationMs)}</td>
         <td class="status">${escapeHtml(run.status)}</td>
+        <td>${app}</td>
+        <td>${browser}</td>
         <td class="count">${run.passed}</td>
         <td class="count">${run.failed}</td>
         <td class="count">${run.flaky}</td>
@@ -162,6 +181,7 @@ function indexPage(runs: Summary[], keep: number) {
       th { background: #f6f8fa; }
       .count { text-align: right; }
       .status { font-weight: 600; }
+      .url { font-size: 12px; color: #59636e; }
       tr.passed .status { color: #1a7f37; }
       tr.failed, tr.timedout { background: #ffebe9; }
       tr.failed .status, tr.timedout .status { color: #cf222e; }
@@ -174,8 +194,8 @@ function indexPage(runs: Summary[], keep: number) {
     <p>Newest first. The newest ${keep} runs are kept.</p>
     <table>
       <tr>
-        <th>Time</th><th>Duration</th><th>Status</th><th>Passed</th><th>Failed</th><th>Flaky</th>
-        <th>Skipped</th><th>Commit</th><th>Arguments</th><th>Report</th>
+        <th>Time</th><th>Duration</th><th>Status</th><th>App</th><th>Browser</th><th>Passed</th>
+        <th>Failed</th><th>Flaky</th><th>Skipped</th><th>Commit</th><th>Arguments</th><th>Report</th>
       </tr>
 ${rows.join('\n')}
     </table>
