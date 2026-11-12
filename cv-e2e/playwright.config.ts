@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 
@@ -6,13 +7,30 @@ import { defineConfig, devices } from '@playwright/test';
 const envFile = path.join(__dirname, '.env');
 if (existsSync(envFile)) process.loadEnvFile(envFile);
 
+// Every worker loads this file again, so the run ID is made once, in the main process, and the
+// workers inherit it through the environment. The time first makes run folders sort by age.
+process.env.TEST_RUN_ID ??= `${new Date().toISOString().replace(/[:.]/g, '-')}-${randomUUID()}`;
+const historyDir = path.join(__dirname, 'playwright-history');
+
 export default defineConfig({
   testDir: process.env.TEST_APP_FOLDER,
+  // Shared by every run, not one per run: each run's HTML report keeps its own copy of every trace and
+  // screenshot. Two runs at the same time in this folder clear each other's test-results.
+  outputDir: 'test-results',
   fullyParallel: process.env.TEST_PARALLEL === "true",
   retries: Number(process.env.TEST_RETRIES || 0),
   workers: Number(process.env.TEST_WORKERS) || undefined,
   forbidOnly: !!process.env.CI,
-  reporter: 'html',
+  reporter:
+    process.env.GITLAB_CI === 'true'
+      ? 'html'
+      : [
+          ['html', { outputFolder: path.join(historyDir, process.env.TEST_RUN_ID, 'html'), open: 'on-failure' }],
+          [
+            './reporters/run-history-reporter.ts',
+            { historyDir, runId: process.env.TEST_RUN_ID, keep: Number(process.env.TEST_HISTORY_KEEP) || 20 },
+          ],
+        ],
   use: {
     baseURL: process.env.TEST_APP_URL,
     trace: 'on-first-retry',

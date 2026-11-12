@@ -17,6 +17,7 @@ A variable set in the shell overrides `.env`. A pipeline has no `.env`, so it mu
 | `TEST_PARALLEL`       | Whether tests in the same file run at one time   | `true` turns it on; anything else is off   | Off                                       |
 | `TEST_RETRIES`        | How many times a failing test is retried         | A whole number                             | `0`                                       |
 | `TEST_WORKERS`        | How many tests run at once                       | A whole number, not a percentage           | Half the CPU cores                        |
+| `TEST_HISTORY_KEEP`   | How many local runs `playwright-history` keeps   | A whole number                             | `20`                                      |
 | `TEST_ADMIN_USERNAME` | The admin account's username                     | A username                                 | No effect yet: no test reads it           |
 | `TEST_ADMIN_PASSWORD` | The admin account's password                     | A password                                 | No effect yet: no test reads it           |
 
@@ -25,3 +26,20 @@ A variable set in the shell overrides `.env`. A pipeline has no `.env`, so it mu
 - Keep real passwords in `.env` or in masked pipeline variables, never in `.env.example`.
 - `CI` isn't set by you: most pipelines set it automatically. When it's set, a run that contains
   `test.only` fails.
+
+## Run history
+
+Each local run saves its HTML report in a folder of its own under `playwright-history`, with a
+`summary.json` of the results. `playwright-history/index.html` lists the saved runs, newest first.
+Each run also deletes the oldest runs beyond `TEST_HISTORY_KEEP`.
+
+To see the list and open a run's report:
+
+```bash
+npm run report:history
+```
+
+Open reports this way, not from the files on disk: traces only load when the report is served.
+
+In a GitLab pipeline, where `GITLAB_CI` is `true`, none of this happens. The run writes one HTML report
+to `playwright-report` instead.

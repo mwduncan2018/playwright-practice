@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "report:history": "playwright show-report playwright-history"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
