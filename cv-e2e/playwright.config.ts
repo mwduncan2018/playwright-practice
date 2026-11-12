@@ -21,16 +21,20 @@ export default defineConfig({
   retries: Number(process.env.TEST_RETRIES || 0),
   workers: Number(process.env.TEST_WORKERS) || undefined,
   forbidOnly: !!process.env.CI,
+  // Locally, each run's report goes into playwright-history. Listing tests (--list) doesn't run them,
+  // so it only prints the list.
   reporter:
     process.env.GITLAB_CI === 'true'
       ? 'html'
-      : [
-          ['html', { outputFolder: path.join(historyDir, process.env.TEST_RUN_ID, 'html'), open: 'on-failure' }],
-          [
-            './reporters/run-history-reporter.ts',
-            { historyDir, runId: process.env.TEST_RUN_ID, keep: Number(process.env.TEST_HISTORY_KEEP) || 20 },
+      : process.argv.includes('--list')
+        ? 'list'
+        : [
+            ['html', { outputFolder: path.join(historyDir, process.env.TEST_RUN_ID, 'html'), open: 'on-failure' }],
+            [
+              './reporters/run-history-reporter.ts',
+              { historyDir, runId: process.env.TEST_RUN_ID, keep: Number(process.env.TEST_HISTORY_KEEP) || 20 },
+            ],
           ],
-        ],
   use: {
     baseURL: process.env.TEST_APP_URL,
     trace: 'on-first-retry',
@@ -50,6 +54,11 @@ export default defineConfig({
     {
       name: 'webkit',
       use: { ...devices['Desktop Safari'] },
+    },
+
+    {
+      name: 'msedge',
+      use: { ...devices['Desktop Edge'], channel: 'msedge' },
     },
   ].filter((project) => project.name === process.env.TEST_BROWSER),
 
