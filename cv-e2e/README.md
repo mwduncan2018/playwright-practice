@@ -63,6 +63,8 @@ Every page object extends the base page in `shared/base.page.ts`, which gives it
 
 - `getCurrentUrl()`: the address the browser is on now. It reads the address once, without waiting, so
   to check where a test ended up, use `await expect(page).toHaveURL(...)`, which waits for it.
+- `getTabTitle()`: the browser tab's title now. It reads the title once, without waiting, so to check
+  it, use `await expect(page).toHaveTitle(...)`, which waits for it.
 - `takeScreenshot(name)`: a full-page screenshot, added to the test's report under that name. It only
   works while a test is running.
 

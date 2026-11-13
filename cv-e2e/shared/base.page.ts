@@ -9,11 +9,21 @@ export abstract class BasePage {
   }
 
   /**
-   * The address the browser is on right now. It reads the address once, without waiting, so to
-   * check where a test ended up, use `await expect(page).toHaveURL(...)`, which waits for it.
+   * Returns the page's address at this moment, without waiting for it to change.
+   * To check where a click or other action led, use `await expect(page).toHaveURL(...)` instead:
+   * it keeps checking until the address matches.
    */
   getCurrentUrl(): string {
     return this.page.url();
+  }
+
+  /**
+   * Returns the browser tab's title at this moment, without waiting for it to change.
+   * To check the title, use `await expect(page).toHaveTitle(...)` instead: it keeps checking until
+   * the title matches.
+   */
+  async getTabTitle(): Promise<string> {
+    return this.page.title();
   }
 
   /** Takes a full-page screenshot and adds it to the running test's report under the given name. */
