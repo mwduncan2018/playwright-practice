@@ -56,3 +56,15 @@ Open reports this way, not from the files on disk: traces only load when the rep
 
 In a GitLab pipeline, where `GITLAB_CI` is `true`, none of this happens. The run writes one HTML report
 to `playwright-report` instead.
+
+## Page objects
+
+Every page object extends the base page in `shared/base.page.ts`, which gives it:
+
+- `getCurrentUrl()`: the address the browser is on now. It reads the address once, without waiting, so
+  to check where a test ended up, use `await expect(page).toHaveURL(...)`, which waits for it.
+- `takeScreenshot(name)`: a full-page screenshot, added to the test's report under that name. It only
+  works while a test is running.
+
+Each app's page objects go in a `pages` folder in that app's test folder. For example,
+`tests/app1/pages/playwright-home.page.ts` is the home page of app1's site.
