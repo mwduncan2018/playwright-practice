@@ -1,4 +1,4 @@
-# cv-e2e
+# alpha-playwright
 
 Playwright end-to-end tests.
 
