@@ -2,6 +2,20 @@
 
 Playwright end-to-end tests.
 
+## Apps
+
+Each app's tests are in a folder of their own. A run tests one app: set `TEST_APP_FOLDER` to its
+folder and `TEST_APP_URL` to its site.
+
+| `TEST_APP_FOLDER`     | `TEST_APP_URL`           |
+| --------------------- | ------------------------ |
+| `tests/super-catalog` | `http://localhost:3001/` |
+| `tests/super-portal`  | `http://localhost:3002/` |
+
+Super Catalog and Super Portal run in the repo's local Docker environment and sign in through its
+Keycloak. Start it from the repo root with `docker compose up -d --wait`. Their tests follow the manual
+test plans in their folders, such as `tests/super-catalog/super-catalog-test-plan.docx`.
+
 ## Environment variables
 
 Every setting is an environment variable. For local runs, copy `.env.example` to `.env` and put in
@@ -9,21 +23,25 @@ your values. Git ignores `.env`.
 
 A variable set in the shell overrides `.env`. A pipeline has no `.env`, so it must set these itself.
 
-| Variable              | What it sets                                     | Values                                              | If not set                                |
-| --------------------- | ------------------------------------------------ | --------------------------------------------------- | ----------------------------------------- |
-| `TEST_APP_FOLDER`     | The folder of tests to run                       | A path from this folder, like `tests/app1`          | Every test in this project runs           |
-| `TEST_APP_URL`        | The app's address, which `page.goto('/')` uses   | A full URL, like `https://playwright.dev/`          | `page.goto('/')` doesn't work             |
-| `TEST_BROWSER`        | The browser to run in                            | `chromium`, `firefox`, `webkit`, `msedge`, `chrome` | "No tests found"                          |
-| `TEST_PARALLEL`       | Whether tests in the same file run at one time   | `true` turns it on; anything else is off            | Off                                       |
-| `TEST_RETRIES`        | How many times a failing test is retried         | A whole number                                      | `0`                                       |
-| `TEST_WORKERS`        | How many tests run at once                       | A whole number, not a percentage                    | Half the CPU cores                        |
-| `TEST_TRACE`          | When a test's trace is recorded and kept         | A trace mode, listed in `.env.example`              | `on-first-retry`                          |
-| `TEST_HISTORY_KEEP`   | How many local runs `playwright-history` keeps   | A whole number                                      | `20`                                      |
-| `TEST_ADMIN_USERNAME` | The admin account's username                     | A username                                          | No effect yet: no test reads it           |
-| `TEST_ADMIN_PASSWORD` | The admin account's password                     | A password                                          | No effect yet: no test reads it           |
+| Variable               | What it sets                                   | Values                                              | If not set                       |
+| ---------------------- | ---------------------------------------------- | --------------------------------------------------- | -------------------------------- |
+| `TEST_APP_FOLDER`      | The folder of tests to run                     | A path from this folder, like `tests/super-catalog` | Every test in this project runs  |
+| `TEST_APP_URL`         | The app's address, which `page.goto('/')` uses | A full URL, like `http://localhost:3001/`           | `page.goto('/')` doesn't work    |
+| `TEST_BROWSER`         | The browser to run in                          | `chromium`, `firefox`, `webkit`, `msedge`, `chrome` | "No tests found"                 |
+| `TEST_PARALLEL`        | Whether tests in the same file run at one time | `true` turns it on; anything else is off            | Off                              |
+| `TEST_RETRIES`         | How many times a failing test is retried       | A whole number                                      | `0`                              |
+| `TEST_WORKERS`         | How many tests run at once                     | A whole number, not a percentage                    | Half the CPU cores               |
+| `TEST_TRACE`           | When a test's trace is recorded and kept       | A trace mode, listed in `.env.example`              | `on-first-retry`                 |
+| `TEST_HISTORY_KEEP`    | How many local runs `playwright-history` keeps | A whole number                                      | `20`                             |
+| `TEST_PASSWORD_<USER>` | A test account's password                      | Its password; `.env.example` has the local ones     | Signing in as that account fails |
+| `TEST_ADMIN_USERNAME`  | The admin account's username                   | A username                                          | No effect yet: no test reads it  |
+| `TEST_ADMIN_PASSWORD`  | The admin account's password                   | A password                                          | No effect yet: no test reads it  |
 
 - `TEST_APP_FOLDER` and `TEST_APP_URL` go together. If they don't match, one app's tests run against
   the other app's site.
+- `TEST_PASSWORD_<USER>` is one variable per test account, named after its username, such as
+  `TEST_PASSWORD_ADMIN1` for admin1. Super Catalog and Super Portal's tests use admin1 to admin4 and
+  standard1 to standard4.
 - `msedge` and `chrome` run the Microsoft Edge and Google Chrome installed on the machine. The other
   three are browsers Playwright downloads, which aren't digitally signed, so Windows Smart App Control
   can block them. Where it's turned on, use `msedge` or `chrome`.
@@ -69,4 +87,16 @@ Every page object extends the base page in `shared/base.page.ts`, which gives it
   works while a test is running.
 
 Each app's page objects go in a `pages` folder in that app's test folder. For example,
-`tests/app1/pages/playwright-home.page.ts` is the home page of app1's site.
+`tests/super-catalog/pages/products.page.ts` is Super Catalog's Products page. Parts that appear on many
+pages, such as a menu, a dialog or a wizard, are component classes there that don't extend the base
+page.
+
+## Signing in
+
+Super Catalog and Super Portal's tests import `test` and `expect` from their app's `fixtures.ts`, which
+signs them in. Each test chooses who it's signed in as with `test.use({ signedInAs: ... })`:
+`'standard'` (the default), `'admin'`, or `'nobody'` for a test that signs in itself.
+
+Every role signs in once per worker, before the worker's first test starts, and later tests reuse the
+session, so no sign-in or password shows in a report or trace. Each worker uses its own accounts:
+worker 1 gets admin1 and standard1, worker 2 gets admin2 and standard2, and so on up to four workers.
