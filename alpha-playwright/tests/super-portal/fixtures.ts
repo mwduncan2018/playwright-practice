@@ -1,6 +1,7 @@
 /**
- * Super Portal's tests import test and expect from here. The portal fixture holds every page
- * object for the test's page; openPortalAs gives a second person their own browser and pages.
+ * Super Portal's tests import test and expect from here. The portal fixture holds the test's page
+ * and every page object on it; openPortalAs gives a second person their own browser, page and page
+ * objects.
  */
 import type { Page } from '@playwright/test';
 
@@ -19,6 +20,7 @@ import { SettingsPage } from './pages/settings.page';
 
 export function portalPages(page: Page) {
   return {
+    page,
     layout: new PortalLayout(page),
     home: new HomePage(page),
     newRequest: new NewRequestPage(page),

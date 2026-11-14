@@ -12,8 +12,9 @@ test(
     const wizard = portal.accessWizard;
 
     await test.step('1. Open the user menu and select Settings.', async () => {
-      await portal.home.goto();
-      await portal.layout.openSettings(user.name);
+      await page.goto(portal.home.path);
+      await portal.layout.menu.getByRole('button', { name: user.name }).click();
+      await portal.layout.settingsItem.click();
       const shows = "The Settings page shows the user's username and the role standard.";
       await expect(settings.username, shows).toHaveText(user.username);
       await expect(settings.roles, shows).toHaveText('standard');
@@ -22,7 +23,10 @@ test(
     await test.step('2. Choose Urgent in Default priority for new requests and select Save settings.', async () => {
       await settings.defaultPriority.selectOption('Urgent');
       await settings.saveButton.click();
-      await expect(portal.layout.message('Settings saved.'), 'The message "Settings saved." appears.').toBeVisible();
+      await expect(
+        portal.layout.alerts.filter({ hasText: 'Settings saved.' }),
+        'The message "Settings saved." appears.',
+      ).toBeVisible();
     });
 
     await test.step('3. Reload the page.', async () => {
@@ -33,12 +37,15 @@ test(
     });
 
     await test.step('4. Open New request, select Request access, choose HR records and Read only, and select Next.', async () => {
-      await portal.newRequest.goto();
+      await page.goto(portal.newRequest.path);
       await portal.newRequest.requestAccess.click();
       await wizard.system.selectOption('HR records');
-      await wizard.option('Read only').check();
+      await wizard.dialog.getByRole('radio', { name: 'Read only', exact: true }).check();
       await wizard.nextButton.click();
-      await expect(wizard.option('Urgent'), 'The Priority and reason step has Urgent selected.').toBeChecked();
+      await expect(
+        wizard.dialog.getByRole('radio', { name: 'Urgent', exact: true }),
+        'The Priority and reason step has Urgent selected.',
+      ).toBeChecked();
     });
 
     await test.step('5. Close the wizard with its X and select Discard.', async () => {
@@ -48,10 +55,13 @@ test(
     });
 
     await test.step('6. Open Settings, choose Normal in Default priority for new requests, and select Save settings.', async () => {
-      await settings.goto();
+      await page.goto(settings.path);
       await settings.defaultPriority.selectOption('Normal');
       await settings.saveButton.click();
-      await expect(portal.layout.message('Settings saved.'), 'The message "Settings saved." appears.').toBeVisible();
+      await expect(
+        portal.layout.alerts.filter({ hasText: 'Settings saved.' }),
+        'The message "Settings saved." appears.',
+      ).toBeVisible();
     });
   },
 );

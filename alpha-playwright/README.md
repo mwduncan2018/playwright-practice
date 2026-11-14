@@ -91,6 +91,44 @@ Each app's page objects go in a `pages` folder in that app's test folder. For ex
 pages, such as a menu, a dialog or a wizard, are component classes there that don't extend the base
 page.
 
+### What goes in a page object
+
+Page objects hold locators, and tests act on them with Playwright directly, so every click, fill and
+check shows up in the test and its report:
+
+```ts
+await page.goto(catalog.productForm.path);
+await catalog.productForm.name.fill(product.name);
+await catalog.productForm.createButton.click();
+```
+
+- **Locators are properties**: buttons, fields, headings, and fixed sets of values such as a product's
+  `price` or a request's `status`.
+- **A page's address is a `path` property**, opened with `page.goto(products.path)`. A page whose
+  address ends in a number has the start of it: `page.goto(request.path + requestNumber)`.
+- **Methods only for dynamic tables and lists**: rows that come and go, found by a value a test
+  creates or loops over, such as `products.row(sku)`, `approvals.approveButton(requestNumber)` or
+  `categories.productCount(name)`.
+- **No methods for flows**, such as signing in or filling in a form. Those steps go in the test, even
+  when they're long.
+- **Things that vary per test are found in the test** from a property, such as a radio button,
+  `wizard.dialog.getByRole('radio', { name: 'High', exact: true })`, or a message,
+  `layout.alerts.filter({ hasText: 'Comment posted.' })`.
+
+The base page's three methods are the team's agreed exception.
+
+Helpers outside page objects are only for tricks and test data: `fillSecret` in `shared/fill-secret.ts`
+types a password without it showing in the report, and the `test-data.ts` files make unique names,
+SKUs, dates and products.
+
+To check a download, start waiting for it before the click that starts it:
+
+```ts
+const downloading = page.waitForEvent('download');
+await products.exportCsv.click();
+const download = await downloading;
+```
+
 ## Signing in
 
 Before any test, the `setup` project (`shared/auth.setup.ts`) signs in every account once and saves

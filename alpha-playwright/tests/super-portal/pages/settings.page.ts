@@ -3,6 +3,7 @@ import type { Locator, Page } from '@playwright/test';
 import { BasePage } from '../../../shared/base.page';
 
 export class SettingsPage extends BasePage {
+  readonly path = '/settings';
   readonly username: Locator;
   readonly roles: Locator;
   readonly defaultPriority: Locator;
@@ -16,9 +17,5 @@ export class SettingsPage extends BasePage {
     this.defaultPriority = page.getByLabel('Default priority for new requests');
     this.rowsPerPage = page.getByLabel('Rows per page in request lists');
     this.saveButton = page.getByRole('button', { name: 'Save settings' });
-  }
-
-  async goto(): Promise<void> {
-    await this.page.goto('/settings');
   }
 }

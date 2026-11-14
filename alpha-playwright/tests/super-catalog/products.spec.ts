@@ -9,7 +9,7 @@ test(
     const { products } = catalog;
 
     await test.step('1. Open the Products page and enter "lamp" in Search.', async () => {
-      await products.goto();
+      await page.goto(products.path);
       await products.search.fill('lamp');
       await expect(
         products.productNames,
@@ -49,11 +49,11 @@ test(
 test(
   'SC-004 Sort, page through and export products',
   { tag: '@regression', annotation: plan('SC-004') },
-  async ({ catalog }) => {
+  async ({ page, catalog }) => {
     const { products } = catalog;
 
     await test.step('1. Open the Products page and choose Electronics in Category.', async () => {
-      await products.goto();
+      await page.goto(products.path);
       await products.category.selectOption('Electronics');
       await expect(products.summary, 'The page says "Showing 1–10 of 10 products".').toHaveText(
         'Showing 1–10 of 10 products',
@@ -81,7 +81,10 @@ test(
     });
 
     await test.step('4. Select Export CSV.', async () => {
-      const download = await products.exportToCsv();
+      // Start waiting for the download before clicking, so it can't finish before the wait begins.
+      const downloading = page.waitForEvent('download');
+      await products.exportCsv.click();
+      const download = await downloading;
       // The server names the file with today's date in UTC.
       const today = new Date().toISOString().slice(0, 10);
       expect(download.suggestedFilename(), "A file named products-<today's date>.csv downloads.").toBe(

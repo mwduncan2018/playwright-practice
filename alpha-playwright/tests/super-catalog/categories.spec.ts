@@ -6,13 +6,13 @@ test.use({ signedInAs: 'admin' });
 test(
   'SC-009 Add, rename and delete a category',
   { tag: '@regression', annotation: plan('SC-009') },
-  async ({ catalog }) => {
+  async ({ page, catalog }) => {
     const { categories } = catalog;
     const name = `Test category ${uniqueSuffix()}`;
     const newName = `${name} (renamed)`;
 
     await test.step('1. Open Categories and select New category.', async () => {
-      await categories.goto();
+      await page.goto(categories.path);
       await categories.newCategoryButton.click();
       await expect(categories.newCategoryDialog.dialog, 'The New category dialog opens.').toBeVisible();
     });
@@ -21,7 +21,7 @@ test(
       await categories.newCategoryDialog.name.fill(name);
       await categories.newCategoryDialog.saveButton.click();
       await expect(
-        catalog.layout.message(`Created the ${name} category.`),
+        catalog.layout.alerts.filter({ hasText: `Created the ${name} category.` }),
         'The message "Created the <name> category." appears.',
       ).toBeVisible();
       await expect(categories.productCount(name), 'The category is listed with 0 products.').toHaveText('0');
@@ -58,7 +58,7 @@ test(
       await categories.deleteButton(newName).click();
       await categories.deleteDialog.confirmButton.click();
       await expect(
-        catalog.layout.message(`Deleted the ${newName} category.`),
+        catalog.layout.alerts.filter({ hasText: `Deleted the ${newName} category.` }),
         'The message "Deleted the <new name> category." appears.',
       ).toBeVisible();
       await expect(categories.row(newName), 'The category is no longer listed.').toHaveCount(0);

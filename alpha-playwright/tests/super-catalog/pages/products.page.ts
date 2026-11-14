@@ -1,8 +1,9 @@
-import type { Download, Locator, Page } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
 
 import { BasePage } from '../../../shared/base.page';
 
 export class ProductsPage extends BasePage {
+  readonly path = '/products';
   readonly heading: Locator;
   readonly newProduct: Locator;
   readonly exportCsv: Locator;
@@ -19,7 +20,7 @@ export class ProductsPage extends BasePage {
   readonly table: Locator;
   /** The table's product rows, not its heading row. */
   readonly rows: Locator;
-  /** The product names, in table order. */
+  /** The product names, which link to each product, in table order. */
   readonly productNames: Locator;
   /** Product rows without a Low badge. */
   readonly rowsWithoutLowBadge: Locator;
@@ -51,17 +52,9 @@ export class ProductsPage extends BasePage {
     this.nextPage = this.pagination.getByRole('button', { name: 'Next' });
   }
 
-  async goto(): Promise<void> {
-    await this.page.goto('/products');
-  }
-
   /** A product's row. Rows carry test IDs with their SKU, such as product-row-ELE-1001. */
   row(sku: string): Locator {
     return this.page.getByTestId(`product-row-${sku}`);
-  }
-
-  productLink(name: string): Locator {
-    return this.table.getByRole('link', { name, exact: true });
   }
 
   /** A column heading. Its aria-sort says which way the column is sorted. */
@@ -76,11 +69,5 @@ export class ProductsPage extends BasePage {
   /** React Bootstrap marks the current page with hidden "(current)" text after its number. */
   currentPage(page: number): Locator {
     return this.pagination.getByText(`${page}(current)`);
-  }
-
-  async exportToCsv(): Promise<Download> {
-    const download = this.page.waitForEvent('download');
-    await this.exportCsv.click();
-    return download;
   }
 }

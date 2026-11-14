@@ -3,6 +3,7 @@ import type { Locator, Page } from '@playwright/test';
 import { BasePage } from '../../../shared/base.page';
 
 export class MyRequestsPage extends BasePage {
+  readonly path = '/requests';
   readonly search: Locator;
   readonly status: Locator;
   readonly type: Locator;
@@ -16,10 +17,6 @@ export class MyRequestsPage extends BasePage {
     this.status = filters.getByLabel('Status');
     this.type = filters.getByLabel('Type');
     this.summary = page.getByRole('status').filter({ hasText: /^(Showing|No requests)/ });
-  }
-
-  async goto(): Promise<void> {
-    await this.page.goto('/requests');
   }
 
   /** A request's row. Rows carry test IDs with the request number, such as request-row-REQ-1016. */

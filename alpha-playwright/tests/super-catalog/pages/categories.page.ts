@@ -19,6 +19,7 @@ export class CategoryDialog {
 }
 
 export class CategoriesPage extends BasePage {
+  readonly path = '/categories';
   readonly newCategoryButton: Locator;
   readonly table: Locator;
   readonly newCategoryDialog: CategoryDialog;
@@ -30,10 +31,6 @@ export class CategoriesPage extends BasePage {
     this.table = page.getByRole('table', { name: 'Categories' });
     this.newCategoryDialog = new CategoryDialog(page, 'New category');
     this.deleteDialog = new ConfirmDialog(page, 'Delete category');
-  }
-
-  async goto(): Promise<void> {
-    await this.page.goto('/categories');
   }
 
   row(name: string): Locator {

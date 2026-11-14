@@ -1,6 +1,6 @@
 /**
- * Super Catalog's tests import test and expect from here. The catalog fixture holds every page
- * object for the test's page.
+ * Super Catalog's tests import test and expect from here. The catalog fixture holds the test's page
+ * and every page object on it.
  */
 import type { Page } from '@playwright/test';
 
@@ -17,6 +17,7 @@ import { ProductsPage } from './pages/products.page';
 
 export function catalogPages(page: Page) {
   return {
+    page,
     layout: new CatalogLayout(page),
     dashboard: new DashboardPage(page),
     products: new ProductsPage(page),

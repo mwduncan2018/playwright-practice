@@ -6,14 +6,14 @@ test.use({ signedInAs: 'admin' });
 test(
   'SP-009 Schedule an announcement for standard users',
   { tag: '@regression', annotation: plan('SP-009') },
-  async ({ portal, openPortalAs }) => {
+  async ({ page, portal, openPortalAs }) => {
     const { announcements, announcement } = portal;
     const wizard = announcements.wizard;
     const title = `Test announcement ${uniqueSuffix()}`;
     const publishOn = dateFromToday(3);
 
     await test.step('1. As the admin, open Announcements and select New announcement.', async () => {
-      await announcements.goto();
+      await page.goto(announcements.path);
       await announcements.newAnnouncementButton.click();
       await expect(wizard.progress, 'The New announcement wizard opens at "Step 1 of 4".').toHaveText('Step 1 of 4');
     });
@@ -30,19 +30,23 @@ test(
       await wizard.title.fill(title);
       await wizard.message.fill('The cafeteria opens an hour later on Friday.');
       await wizard.nextButton.click();
-      await wizard.option('Standard users only').check();
+      await wizard.dialog.getByRole('radio', { name: 'Standard users only', exact: true }).check();
       await wizard.nextButton.click();
-      await wizard.option('Schedule for a later date').check();
+      await wizard.dialog.getByRole('radio', { name: 'Schedule for a later date', exact: true }).check();
       await wizard.publishOn.fill(publishOn);
       await wizard.pinned.check();
       await wizard.nextButton.click();
       const review = 'The Review step shows "Standard users only" and the date at 09:00 UTC.';
-      await expect(wizard.reviewSection('Audience'), review).toContainText('Standard users only');
-      await expect(wizard.reviewSection('Publishing'), review).toContainText(`${publishOn} at 09:00 UTC`);
+      await expect(wizard.dialog.getByRole('region', { name: 'Audience' }), review).toContainText(
+        'Standard users only',
+      );
+      await expect(wizard.dialog.getByRole('region', { name: 'Publishing' }), review).toContainText(
+        `${publishOn} at 09:00 UTC`,
+      );
     });
 
     await test.step('4. Select Schedule announcement, then select View announcement.', async () => {
-      await wizard.submitButton('Schedule announcement').click();
+      await wizard.scheduleButton.click();
       await wizard.viewAnnouncementButton.click();
       await expect(announcement.meta, "The announcement's page says it's scheduled.").toContainText('Scheduled for');
       await expect(announcement.audience, 'The audience is "Standard users only".').toHaveText('Standard users only');
@@ -50,7 +54,7 @@ test(
 
     await test.step('5. As the standard user, open Announcements.', async () => {
       const standardUser = await openPortalAs('standard');
-      await standardUser.announcements.goto();
+      await standardUser.page.goto(standardUser.announcements.path);
       // Wait for the list, so the check below isn't made before it has loaded.
       await expect(standardUser.announcements.summary).toBeVisible();
       await expect(standardUser.announcements.announcementLink(title), "The announcement isn't listed.").toHaveCount(0);
@@ -60,7 +64,7 @@ test(
       await announcement.deleteButton.click();
       await announcement.deleteDialog.confirmButton.click();
       await expect(
-        portal.layout.message('Deleted the announcement.'),
+        portal.layout.alerts.filter({ hasText: 'Deleted the announcement.' }),
         'The message "Deleted the announcement." appears.',
       ).toBeVisible();
     });

@@ -1,10 +1,19 @@
 import path from 'node:path';
 
 import { uniqueSku } from '../../shared/test-data';
-import type { ProductData } from './pages/product-form.page';
+
+export interface TestProduct {
+  sku: string;
+  name: string;
+  category: string;
+  supplier: string;
+  price: string;
+  stock: string;
+  status: 'Active' | 'Draft' | 'Discontinued';
+}
 
 /** The plan's test data for a new product (SC-005, SC-007, SC-008), with a SKU of its own. */
-export function newTestProduct(): ProductData {
+export function newTestProduct(): TestProduct {
   const sku = uniqueSku();
   return {
     sku,

@@ -4,6 +4,7 @@ import { BasePage } from '../../../shared/base.page';
 
 /** The admins' activity log. */
 export class ActivityLogPage extends BasePage {
+  readonly path = '/activity';
   readonly user: Locator;
   readonly action: Locator;
   readonly type: Locator;
@@ -16,10 +17,6 @@ export class ActivityLogPage extends BasePage {
     this.action = filters.getByLabel('Action');
     this.type = filters.getByLabel('Type');
     this.table = page.getByRole('table', { name: 'Activity log' });
-  }
-
-  async goto(): Promise<void> {
-    await this.page.goto('/activity');
   }
 
   /** Entries whose row mentions the text, such as a product's "SKU name" label. */

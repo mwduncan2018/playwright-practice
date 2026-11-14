@@ -4,22 +4,31 @@ test(
   'SC-002 Dashboard counts and low-stock products',
   { tag: '@smoke', annotation: plan('SC-002') },
   async ({ page, catalog }) => {
+    const { dashboard } = catalog;
+
     await test.step('1. Open the Dashboard.', async () => {
-      await catalog.dashboard.goto();
+      await page.goto(dashboard.path);
       await expect(page, 'The browser tab\'s title is "Dashboard · Super Catalog".').toHaveTitle(
         'Dashboard · Super Catalog',
       );
-      for (const count of ['products', 'active', 'low-stock', 'categories', 'suppliers'] as const) {
+      const counts = [
+        dashboard.productsCount,
+        dashboard.activeCount,
+        dashboard.lowStockCount,
+        dashboard.categoriesCount,
+        dashboard.suppliersCount,
+      ];
+      for (const count of counts) {
         await expect(
-          catalog.dashboard.count(count),
+          count,
           'Counts are shown for Products, Active products, Low stock, Categories and Suppliers.',
         ).toHaveText(/^\d+$/);
       }
-      await expect(catalog.dashboard.count('suppliers'), 'The Suppliers count is 8.').toHaveText('8');
+      await expect(dashboard.suppliersCount, 'The Suppliers count is 8.').toHaveText('8');
     });
 
     await test.step('2. Select "See all low-stock products".', async () => {
-      await catalog.dashboard.lowStockLink.click();
+      await dashboard.lowStockLink.click();
       await expect(
         catalog.products.lowStockOnly,
         'The Products page opens with "Low stock only" checked.',
