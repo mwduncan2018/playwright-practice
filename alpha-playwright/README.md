@@ -40,8 +40,8 @@ A variable set in the shell overrides `.env`. A pipeline has no `.env`, so it mu
 - `TEST_APP_FOLDER` and `TEST_APP_URL` go together. If they don't match, one app's tests run against
   the other app's site.
 - `TEST_PASSWORD_<USER>` is one variable per test account, named after its username, such as
-  `TEST_PASSWORD_ADMIN1` for admin1. Super Catalog and Super Portal's tests use admin1 to admin4 and
-  standard1 to standard4.
+  `TEST_PASSWORD_ADMIN1` for admin1. Super Catalog and Super Portal's tests use admin1, standard1 and
+  standard2.
 - `msedge` and `chrome` run the Microsoft Edge and Google Chrome installed on the machine. The other
   three are browsers Playwright downloads, which aren't digitally signed, so Windows Smart App Control
   can block them. Where it's turned on, use `msedge` or `chrome`.
@@ -93,10 +93,23 @@ page.
 
 ## Signing in
 
-Super Catalog and Super Portal's tests import `test` and `expect` from their app's `fixtures.ts`, which
-signs them in. Each test chooses who it's signed in as with `test.use({ signedInAs: ... })`:
-`'standard'` (the default), `'admin'`, or `'nobody'` for a test that signs in itself.
+Before any test, the `setup` project (`shared/auth.setup.ts`) signs in every account once and saves
+each session to `playwright/.auth`. That folder is git-ignored; keep it out of pipeline artifacts too,
+since the files hold sign-in cookies. The setup records no traces, and the report shows each sign-in
+as a test, so a failed sign-in is easy to spot.
 
-Every role signs in once per worker, before the worker's first test starts, and later tests reuse the
-session, so no sign-in or password shows in a report or trace. Each worker uses its own accounts:
-worker 1 gets admin1 and standard1, worker 2 gets admin2 and standard2, and so on up to four workers.
+Super Catalog and Super Portal's tests import `test` and `expect` from their app's `fixtures.ts`, and
+start from a saved session. Each test chooses whose with `test.use({ signedInAs: ... })`:
+
+| `signedInAs`      | Account   | Use it for                                                 |
+| ----------------- | --------- | ---------------------------------------------------------- |
+| `'standard'`      | standard1 | The default: shared by many tests at the same time         |
+| `'admin'`         | admin1    | Admin tests: also shared                                   |
+| `'standard-side'` | standard2 | A test that changes the user's own data, such as Settings  |
+| `'nobody'`        | none      | A test that signs in itself, such as the sign-in test      |
+
+Tests on a shared account run at the same time as each other, so they mustn't change anything stored
+for the user, such as settings or preferences. They create records with unique names and check only
+those, and they never sign out of the shared session. A test that has to change the user's own data
+uses a side account and is tagged `@side-account`, which runs it in the `side-accounts` project, one
+test at a time.

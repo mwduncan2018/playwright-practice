@@ -1,6 +1,7 @@
-/** The roles tests sign in as. */
-export const ROLES = ['admin', 'standard'] as const;
-export type Role = (typeof ROLES)[number];
+import path from 'node:path';
+
+/** The roles the apps have. */
+export type Role = 'admin' | 'standard';
 
 export interface Account {
   role: Role;
@@ -11,36 +12,27 @@ export interface Account {
 }
 
 /**
- * The test accounts for each role. Tests ask for a role, and each parallel worker gets its own
- * account. Passwords come from variables.
+ * The accounts tests sign in as. Many tests use a shared account at the same time, so those tests
+ * mustn't change anything stored for the user. A test that does, such as one that changes Settings,
+ * uses a side account instead and is tagged @side-account, which runs it one test at a time.
  */
-export const ACCOUNTS: Record<Role, Pick<Account, 'username' | 'name'>[]> = {
-  admin: [
-    { username: 'admin1', name: 'Admin One' },
-    { username: 'admin2', name: 'Admin Two' },
-    { username: 'admin3', name: 'Admin Three' },
-    { username: 'admin4', name: 'Admin Four' },
-  ],
-  standard: [
-    { username: 'standard1', name: 'Standard One' },
-    { username: 'standard2', name: 'Standard Two' },
-    { username: 'standard3', name: 'Standard Three' },
-    { username: 'standard4', name: 'Standard Four' },
-  ],
-};
+export const ACCOUNTS = {
+  admin: { role: 'admin', username: 'admin1', name: 'Admin One' },
+  standard: { role: 'standard', username: 'standard1', name: 'Standard One' },
+  'standard-side': { role: 'standard', username: 'standard2', name: 'Standard Two' },
+} as const satisfies Record<string, Omit<Account, 'password'>>;
+
+export type AccountName = keyof typeof ACCOUNTS;
+export const ACCOUNT_NAMES = Object.keys(ACCOUNTS) as AccountName[];
 
 /** The variable that holds an account's password: TEST_PASSWORD_ADMIN1 for admin1. */
 export function passwordVariable(username: string): string {
   return `TEST_PASSWORD_${username.toUpperCase().replace(/[^A-Z0-9]/g, '_')}`;
 }
 
-/**
- * The account a worker uses for a role. Worker 1 gets the role's first account, worker 2 the
- * second, and so on, so with four accounts per role, four workers never share one.
- */
-export function accountForWorker(role: Role, workerIndex: number): Account {
-  const accounts = ACCOUNTS[role];
-  const { username, name } = accounts[workerIndex % accounts.length];
+/** An account, with its password from its variable. */
+export function account(accountName: AccountName): Account {
+  const { role, username, name } = ACCOUNTS[accountName];
   const variable = passwordVariable(username);
   const password = process.env[variable];
   if (!password) {
@@ -50,4 +42,12 @@ export function accountForWorker(role: Role, workerIndex: number): Account {
     );
   }
   return { role, username, name, password };
+}
+
+/**
+ * Where the setup project saves an account's signed-in session, and where tests load it from. The
+ * folder is git-ignored. The files hold sign-in cookies, so keep them out of pipeline artifacts too.
+ */
+export function sessionFile(accountName: AccountName): string {
+  return path.join(__dirname, '..', 'playwright', '.auth', `${accountName}.json`);
 }

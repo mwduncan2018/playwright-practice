@@ -1,8 +1,12 @@
 import { expect, plan, test } from './fixtures';
 
+// This test changes the user's own settings, so it uses a side account rather than the shared one,
+// and its @side-account tag runs it in the project that runs one test at a time.
+test.use({ signedInAs: 'standard-side' });
+
 test(
   "SP-010 Settings set the wizard's default priority",
-  { tag: '@regression', annotation: plan('SP-010') },
+  { tag: ['@regression', '@side-account'], annotation: plan('SP-010') },
   async ({ page, portal, user }) => {
     const { settings } = portal;
     const wizard = portal.accessWizard;

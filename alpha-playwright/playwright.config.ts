@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 
-import { defineConfig, devices, type TraceMode } from '@playwright/test';
+import { defineConfig, devices, type Project, type TraceMode } from '@playwright/test';
 
 const envFile = path.join(__dirname, '.env');
 if (existsSync(envFile)) process.loadEnvFile(envFile);
@@ -17,6 +17,16 @@ const reportTitle = [
   process.env.TEST_BROWSER || 'browser not set',
   process.env.TEST_APP_URL || 'URL not set',
 ].join(' - ');
+
+const BROWSERS: Record<string, Project['use']> = {
+  chromium: { ...devices['Desktop Chrome'] },
+  firefox: { ...devices['Desktop Firefox'] },
+  webkit: { ...devices['Desktop Safari'] },
+  msedge: { ...devices['Desktop Edge'], channel: 'msedge' },
+  chrome: { ...devices['Desktop Chrome'], channel: 'chrome' },
+};
+const browserName = process.env.TEST_BROWSER ?? '';
+const browser = BROWSERS[browserName];
 
 export default defineConfig({
   testDir: process.env.TEST_APP_FOLDER,
@@ -60,31 +70,16 @@ export default defineConfig({
     trace: (process.env.TEST_TRACE || 'on-first-retry') as TraceMode,
   },
 
-  projects: [
-    {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
-    },
-
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
-    },
-
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
-
-    {
-      name: 'msedge',
-      use: { ...devices['Desktop Edge'], channel: 'msedge' },
-    },
-
-    {
-      name: 'chrome',
-      use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-    },
-  ].filter((project) => project.name === process.env.TEST_BROWSER),
-
+  // All three run in the browser TEST_BROWSER names. Without a known browser there are no projects,
+  // so Playwright says "No tests found".
+  projects: browser
+    ? [
+        // Signs in every account once and saves the sessions the tests start from.
+        { name: 'setup', testDir: './shared', testMatch: /auth\.setup\.ts/, use: browser },
+        // The tests on shared accounts: fully parallel when TEST_PARALLEL is true.
+        { name: browserName, use: browser, dependencies: ['setup'], grepInvert: /@side-account/ },
+        // The tests on side accounts change the user's own data, so they run one at a time.
+        { name: 'side-accounts', use: browser, dependencies: ['setup'], grep: /@side-account/, workers: 1 },
+      ]
+    : [],
 });
