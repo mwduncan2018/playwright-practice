@@ -46,7 +46,7 @@ export function accountForWorker(role: Role, workerIndex: number): Account {
   if (!password) {
     throw new Error(
       `${variable} isn't set, so the tests can't sign in as ${username}. ` +
-        'Set it in playwright/.env locally, or as a masked CI variable.',
+        'Set it in zed-playwright/.env locally, or as a masked CI variable.',
     );
   }
   return { role, username, name, password };

@@ -50,7 +50,7 @@ eslint.config.mjs, .prettierrc.json  code checks
 The local environment must be running. From the repo root: `docker compose up -d --build --wait`.
 
 ```bash
-cd playwright
+cd zed-playwright
 npm ci
 npx playwright install
 cp .env.example .env
@@ -304,7 +304,7 @@ doesn't support TypeScript 7 yet.
 ## Corporate certificates
 
 Behind a TLS-inspecting proxy, `npm ci` fails with `UNABLE_TO_GET_ISSUER_CERT_LOCALLY`, and Node
-can't reach https sites. Put the company's root CA certificate (`.crt`) in `playwright/certs/` and
+can't reach https sites. Put the company's root CA certificate (`.crt`) in `zed-playwright/certs/` and
 uncomment the three lines in the `Dockerfile`. They add it to the image's trust store and point Node
 at it with `NODE_EXTRA_CA_CERTS`. Browsers keep trust stores of their own, so if pages also fail
 with certificate errors, the image needs the CA added to them as well.
@@ -400,12 +400,12 @@ e2e:
     SUPER_PORTAL_URL: https://super-portal.test.yourcompany.com
     PLAYWRIGHT_BLOB_OUTPUT_DIR: reports/blob
   script:
-    - cd playwright
+    - cd zed-playwright
     - npm ci
     - npx playwright test --shard="$CI_NODE_INDEX/$CI_NODE_TOTAL" --reporter=blob
   artifacts:
     when: always
-    paths: [playwright/reports/blob/]
+    paths: [zed-playwright/reports/blob/]
     expire_in: 1 week
 
 e2e-report:
@@ -413,14 +413,14 @@ e2e-report:
   needs: [e2e]
   when: always
   script:
-    - cd playwright
+    - cd zed-playwright
     - npm ci
     - npm run merge-reports
   artifacts:
     when: always
-    paths: [playwright/reports/html/, playwright/reports/junit.xml]
+    paths: [zed-playwright/reports/html/, zed-playwright/reports/junit.xml]
     reports:
-      junit: playwright/reports/junit.xml
+      junit: zed-playwright/reports/junit.xml
 ```
 
 ### Example: a Kubernetes Indexed Job

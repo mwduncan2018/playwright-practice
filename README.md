@@ -5,7 +5,7 @@ signing in through Keycloak.
 
 | Folder | What it holds | Status |
 | --- | --- | --- |
-| `playwright/` | The test automation, with each app's manual test plan | Ready: 20 tests, see [playwright/README.md](playwright/README.md) |
+| `zed-playwright/` | The test automation, with each app's manual test plan | Ready: 20 tests, see [zed-playwright/README.md](zed-playwright/README.md) |
 | `super-catalog/` | Super Catalog: React front end, FastAPI back end | Ready at http://localhost:3001 |
 | `super-portal/` | Super Portal: React front end, FastAPI back end | Ready at http://localhost:3002 |
 
