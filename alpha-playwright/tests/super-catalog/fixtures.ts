@@ -1,10 +1,11 @@
 /**
- * Super Catalog's tests import test and expect from here. The catalog fixture holds the test's page
- * and every page object on it.
+ * Super Catalog's tests import test and expect from here. Each user a test asks for, such as standard
+ * or admin, has a browser of their own and every Super Catalog page object on it:
+ * admin.products.newProduct.
  */
 import type { Page } from '@playwright/test';
 
-import { expect, test as base } from '../../shared/fixtures';
+import { expect, testWithUsers } from '../../shared/fixtures';
 import { testPlan } from '../../shared/test-plan';
 import { AccessDeniedPage } from './pages/access-denied.page';
 import { ActivityLogPage } from './pages/activity-log.page';
@@ -15,9 +16,8 @@ import { ProductFormPage } from './pages/product-form.page';
 import { ProductPage } from './pages/product.page';
 import { ProductsPage } from './pages/products.page';
 
-export function catalogPages(page: Page) {
+function catalogPages(page: Page) {
   return {
-    page,
     layout: new CatalogLayout(page),
     dashboard: new DashboardPage(page),
     products: new ProductsPage(page),
@@ -29,13 +29,7 @@ export function catalogPages(page: Page) {
   };
 }
 
-export type CatalogPages = ReturnType<typeof catalogPages>;
-
-export const test = base.extend<{ catalog: CatalogPages }>({
-  catalog: async ({ page }, use) => {
-    await use(catalogPages(page));
-  },
-});
+export const test = testWithUsers(catalogPages);
 
 export { expect };
 

@@ -1,12 +1,11 @@
 /**
- * Super Portal's tests import test and expect from here. The portal fixture holds the test's page
- * and every page object on it; openPortalAs gives a second person their own browser, page and page
- * objects.
+ * Super Portal's tests import test and expect from here. Each user a test asks for, such as standard
+ * or admin, has a browser of their own and every Super Portal page object on it:
+ * standard.request.status.
  */
 import type { Page } from '@playwright/test';
 
-import type { Role } from '../../shared/accounts';
-import { expect, test as base } from '../../shared/fixtures';
+import { expect, testWithUsers } from '../../shared/fixtures';
 import { testPlan } from '../../shared/test-plan';
 import { AnnouncementPage, AnnouncementsPage } from './pages/announcements.page';
 import { ApprovalsPage } from './pages/approvals.page';
@@ -18,9 +17,8 @@ import { RequestWizard } from './pages/request-wizard';
 import { RequestPage } from './pages/request.page';
 import { SettingsPage } from './pages/settings.page';
 
-export function portalPages(page: Page) {
+function portalPages(page: Page) {
   return {
-    page,
     layout: new PortalLayout(page),
     home: new HomePage(page),
     newRequest: new NewRequestPage(page),
@@ -36,22 +34,7 @@ export function portalPages(page: Page) {
   };
 }
 
-export type PortalPages = ReturnType<typeof portalPages>;
-
-interface PortalFixtures {
-  portal: PortalPages;
-  /** Super Portal for a second person, signed in as another role in a browser of their own. */
-  openPortalAs: (role: Role) => Promise<PortalPages>;
-}
-
-export const test = base.extend<PortalFixtures>({
-  portal: async ({ page }, use) => {
-    await use(portalPages(page));
-  },
-  openPortalAs: async ({ openPageAs }, use) => {
-    await use(async (role) => portalPages(await openPageAs(role)));
-  },
-});
+export const test = testWithUsers(portalPages);
 
 export { expect };
 

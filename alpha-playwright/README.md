@@ -80,9 +80,9 @@ to `playwright-report` instead.
 Every page object extends the base page in `shared/base.page.ts`, which gives it:
 
 - `getCurrentUrl()`: the address the browser is on now. It reads the address once, without waiting, so
-  to check where a test ended up, use `await expect(page).toHaveURL(...)`, which waits for it.
+  to check where a test ended up, use `await expect(admin.page).toHaveURL(...)`, which waits for it.
 - `getTabTitle()`: the browser tab's title now. It reads the title once, without waiting, so to check
-  it, use `await expect(page).toHaveTitle(...)`, which waits for it.
+  it, use `await expect(admin.page).toHaveTitle(...)`, which waits for it.
 - `takeScreenshot(name)`: a full-page screenshot, added to the test's report under that name. It only
   works while a test is running.
 
@@ -94,26 +94,31 @@ page.
 ### What goes in a page object
 
 Page objects hold locators, and tests act on them with Playwright directly, so every click, fill and
-check shows up in the test and its report:
+check shows up in the test and its report. Each line names the user first:
+`<user>.<pageObject>.<locator>.<playwrightMethod>`.
 
 ```ts
-await page.goto(catalog.productForm.path);
-await catalog.productForm.name.fill(product.name);
-await catalog.productForm.createButton.click();
+await admin.page.goto(admin.productForm.path);
+await admin.productForm.name.fill(product.name);
+await admin.productForm.createButton.click();
 ```
 
 - **Locators are properties**: buttons, fields, headings, and fixed sets of values such as a product's
   `price` or a request's `status`.
-- **A page's address is a `path` property**, opened with `page.goto(products.path)`. A page whose
-  address ends in a number has the start of it: `page.goto(request.path + requestNumber)`.
+- **A page's address is a `path` property**, opened with `admin.page.goto(admin.products.path)`. A page
+  whose address ends in a number has the start of it:
+  `standard.page.goto(standard.request.path + requestNumber)`.
 - **Methods only for dynamic tables and lists**: rows that come and go, found by a value a test
-  creates or loops over, such as `products.row(sku)`, `approvals.approveButton(requestNumber)` or
-  `categories.productCount(name)`.
+  creates or loops over, such as `admin.products.row(sku)`, `admin.approvals.approveButton(requestNumber)`
+  or `admin.categories.productCount(name)`.
 - **No methods for flows**, such as signing in or filling in a form. Those steps go in the test, even
   when they're long.
 - **Things that vary per test are found in the test** from a property, such as a radio button,
-  `wizard.dialog.getByRole('radio', { name: 'High', exact: true })`, or a message,
-  `layout.alerts.filter({ hasText: 'Comment posted.' })`.
+  `standard.equipmentWizard.dialog.getByRole('radio', { name: 'High', exact: true })`, or a message,
+  `standard.layout.alerts.filter({ hasText: 'Comment posted.' })`.
+- **The user is written out every time**: `standard.equipmentWizard.item`, not a shortcut such as
+  `const wizard = standard.equipmentWizard`, so every line says whose browser it acts in.
+- **Assertions keep Playwright's shape**: `await expect(admin.request.status).toHaveText('Rejected')`.
 
 The base page's three methods are the team's agreed exception.
 
@@ -124,8 +129,8 @@ SKUs, dates and products.
 To check a download, start waiting for it before the click that starts it:
 
 ```ts
-const downloading = page.waitForEvent('download');
-await products.exportCsv.click();
+const downloading = standard.page.waitForEvent('download');
+await standard.products.exportCsv.click();
 const download = await downloading;
 ```
 
@@ -136,18 +141,28 @@ each session to `playwright/.auth`. That folder is git-ignored; keep it out of p
 since the files hold sign-in cookies. The setup records no traces, and the report shows each sign-in
 as a test, so a failed sign-in is easy to spot.
 
-Super Catalog and Super Portal's tests import `test` and `expect` from their app's `fixtures.ts`, and
-start from a saved session. Each test chooses whose with `test.use({ signedInAs: ... })`:
+Super Catalog and Super Portal's tests import `test` and `expect` from their app's `fixtures.ts`. A
+test asks for the users it needs by name, the same way it asks for any fixture:
 
-| `signedInAs`      | Account   | Use it for                                                 |
-| ----------------- | --------- | ---------------------------------------------------------- |
-| `'standard'`      | standard1 | The default: shared by many tests at the same time         |
-| `'admin'`         | admin1    | Admin tests: also shared                                   |
-| `'standard-side'` | standard2 | A test that changes the user's own data, such as Settings  |
-| `'nobody'`        | none      | A test that signs in itself, such as the sign-in test      |
+```ts
+test('SP-006 An admin approves a request', { tag: '@smoke' }, async ({ standard, admin }) => {
+```
+
+Each user has a browser of their own, started from their saved session, with every page object for
+the app on it. Each also has their `page`, their `account` (such as `admin.account.name`) and
+`keycloak`, Keycloak's sign-in page. Playwright only opens browsers for the users a test asks for, and
+the trace shows every user's page.
+
+| User           | Account   | Use it for                                                                        |
+| -------------- | --------- | --------------------------------------------------------------------------------- |
+| `standard`     | standard1 | Most tests: shared by many tests at the same time                                 |
+| `admin`        | admin1    | Admin tests: also shared                                                          |
+| `standardSide` | standard2 | A test that changes the user's own data, such as Settings. Tag it `@side-account` |
+| `signedOut`    | none      | A test that signs in itself, such as the sign-in test                             |
 
 Tests on a shared account run at the same time as each other, so they mustn't change anything stored
 for the user, such as settings or preferences. They create records with unique names and check only
 those, and they never sign out of the shared session. A test that has to change the user's own data
-uses a side account and is tagged `@side-account`, which runs it in the `side-accounts` project, one
-test at a time.
+uses `standardSide` and is tagged `@side-account`, which runs it in the `side-accounts` project, one
+test at a time. A test that uses `standardSide` without the tag fails straight away, before it opens
+a browser.
