@@ -41,7 +41,6 @@ test('SP-009 Schedule an announcement for standard users', { tag: '@regression',
 
   await test.step('5. As the standard user, open Announcements.', async () => {
     await standardUser.page.goto(standardUser.announcementsPage.path);
-    // Wait for the list, so the check below isn't made before it has loaded.
     await expect(standardUser.announcementsPage.summaryText).toBeVisible();
     await expect(standardUser.announcementsPage.announcementLink(announcementTitle), "The announcement isn't listed.").toHaveCount(0);
   });

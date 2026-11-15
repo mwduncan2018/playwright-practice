@@ -2,7 +2,6 @@ import type { Locator, Page } from '@playwright/test';
 
 import { BasePage } from '../../../shared/base.page';
 
-/** The admins' activity log. */
 export class ActivityLogPage extends BasePage {
   readonly path = '/activity';
   readonly userSelect: Locator;
@@ -19,7 +18,6 @@ export class ActivityLogPage extends BasePage {
     this.activityLogTable = page.getByRole('table', { name: 'Activity log' });
   }
 
-  /** Entries whose row mentions the text, such as a product's "SKU name" label. */
   entryRows(text: string): Locator {
     return this.activityLogTable.getByRole('row').filter({ hasText: text });
   }

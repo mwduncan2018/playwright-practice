@@ -53,11 +53,9 @@ test('SC-004 Sort, page through and export products', { tag: '@regression', anno
   });
 
   await test.step('4. Select Export CSV.', async () => {
-    // Start waiting for the download before clicking, so it can't finish before the wait begins.
     const downloadPromise = standardUser.page.waitForEvent('download');
     await standardUser.productsPage.exportCsvButton.click();
     const csvDownload = await downloadPromise;
-    // The server names the file with today's date in UTC.
     const todaysDate = new Date().toISOString().slice(0, 10);
     expect(csvDownload.suggestedFilename(), "A file named products-<today's date>.csv downloads.").toBe(`products-${todaysDate}.csv`);
     const csvLines = (await readFile(await csvDownload.path(), 'utf8')).trim().split('\n');

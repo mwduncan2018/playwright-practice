@@ -2,9 +2,7 @@ import type { Locator, Page } from '@playwright/test';
 
 import { BasePage } from '../../../shared/base.page';
 
-/** One announcement's page. */
 export class AnnouncementPage extends BasePage {
-  /** "Posted ..." or "Scheduled for ...", with the author. */
   readonly bylineText: Locator;
   readonly audienceBadge: Locator;
   readonly deleteButton: Locator;

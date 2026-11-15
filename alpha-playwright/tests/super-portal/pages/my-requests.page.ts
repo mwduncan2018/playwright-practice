@@ -7,7 +7,6 @@ export class MyRequestsPage extends BasePage {
   readonly searchInput: Locator;
   readonly statusSelect: Locator;
   readonly typeSelect: Locator;
-  /** "Showing 1–7 of 7 requests", or "No requests match these filters." */
   readonly summaryText: Locator;
 
   constructor(page: Page) {
@@ -19,7 +18,6 @@ export class MyRequestsPage extends BasePage {
     this.summaryText = page.getByRole('status').filter({ hasText: /^(Showing|No requests)/ });
   }
 
-  /** A request's row. Rows carry test IDs with the request number, such as request-row-REQ-1016. */
   requestRow(requestNumber: string): Locator {
     return this.page.getByTestId(`request-row-${requestNumber}`);
   }

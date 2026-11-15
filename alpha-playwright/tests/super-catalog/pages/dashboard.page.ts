@@ -5,7 +5,6 @@ import { BasePage } from '../../../shared/base.page';
 export class DashboardPage extends BasePage {
   readonly path = '/';
   readonly heading: Locator;
-  /** "Welcome, <the signed-in user's name>." */
   readonly welcomeText: Locator;
   readonly lowStockLink: Locator;
   readonly productsCardNumber: Locator;
@@ -19,8 +18,6 @@ export class DashboardPage extends BasePage {
     this.heading = page.getByRole('heading', { name: 'Dashboard', level: 1 });
     this.welcomeText = page.getByText(/^Welcome, .+\.$/);
     this.lowStockLink = page.getByRole('link', { name: 'See all low-stock products' });
-    // The number on each count card. The cards have no role or label of their own, so they carry
-    // test IDs such as stat-products.
     const cardNumber = (name: string) => page.getByTestId(`stat-${name}`).getByText(/^\d+$/);
     this.productsCardNumber = cardNumber('products');
     this.activeProductsCardNumber = cardNumber('active');

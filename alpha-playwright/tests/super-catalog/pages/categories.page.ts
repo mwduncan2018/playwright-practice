@@ -17,7 +17,6 @@ export class CategoriesPage extends BasePage {
     return this.categoriesTable.getByRole('row').filter({ has: this.page.getByRole('cell', { name, exact: true }) });
   }
 
-  /** The number of products in the category, which links to them. */
   productCountLink(name: string): Locator {
     return this.categoryRow(name).getByRole('link');
   }

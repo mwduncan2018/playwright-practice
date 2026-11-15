@@ -2,7 +2,6 @@ import type { Locator, Page } from '@playwright/test';
 
 import { BasePage } from '../../../shared/base.page';
 
-/** The New request page, where each request type's button opens its wizard. */
 export class NewRequestPage extends BasePage {
   readonly path = '/catalog';
   readonly requestEquipmentButton: Locator;

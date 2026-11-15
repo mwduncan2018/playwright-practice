@@ -2,14 +2,8 @@ import type { Locator, Page } from '@playwright/test';
 
 import { BasePage } from '../../../shared/base.page';
 
-/**
- * The admins' New announcement wizard. Its choices, an audience or when to publish, are radio
- * buttons in a group named by the group's question. The Review step has a region for each step's
- * answers, named after the step, and an "Edit <step>" button for each.
- */
 export class AnnouncementWizard extends BasePage {
   readonly dialog: Locator;
-  /** "Step 2 of 4" */
   readonly progressText: Locator;
   readonly nextButton: Locator;
   readonly titleInput: Locator;
@@ -17,23 +11,18 @@ export class AnnouncementWizard extends BasePage {
   readonly publishOnInput: Locator;
   readonly pinnedCheckbox: Locator;
   readonly publishButton: Locator;
-  /** The Review step's button for an announcement with a later date. */
   readonly scheduleButton: Locator;
   readonly scheduledHeading: Locator;
   readonly publishedHeading: Locator;
   readonly viewAnnouncementButton: Locator;
-  // Who should see it?
   readonly everyoneAudienceRadio: Locator;
   readonly adminsOnlyAudienceRadio: Locator;
   readonly standardUsersOnlyAudienceRadio: Locator;
-  // When should it appear?
   readonly publishNowRadio: Locator;
   readonly scheduleForLaterDateRadio: Locator;
-  // The Review step's answers for each step.
   readonly messageReviewRegion: Locator;
   readonly audienceReviewRegion: Locator;
   readonly publishingReviewRegion: Locator;
-  // The Review step's Edit button for each step, which goes back to that step.
   readonly editMessageButton: Locator;
   readonly editAudienceButton: Locator;
   readonly editPublishingButton: Locator;
@@ -53,7 +42,6 @@ export class AnnouncementWizard extends BasePage {
     this.publishedHeading = this.dialog.getByRole('heading', { name: 'Announcement published' });
     this.viewAnnouncementButton = this.dialog.getByRole('button', { name: 'View announcement' });
 
-    // Each radio button is found inside its group, the fieldset named by the group's question.
     const radioInGroup = (groupQuestion: string, radioLabel: string) =>
       this.dialog
         .getByRole('group', { name: groupQuestion, exact: true })
@@ -64,7 +52,6 @@ export class AnnouncementWizard extends BasePage {
     this.publishNowRadio = radioInGroup('When should it appear?', 'Publish now');
     this.scheduleForLaterDateRadio = radioInGroup('When should it appear?', 'Schedule for a later date');
 
-    // Each step's region on the Review step is named after the step, and so is its Edit button.
     const reviewRegion = (stepTitle: string) => this.dialog.getByRole('region', { name: stepTitle, exact: true });
     const editStepButton = (stepTitle: string) =>
       this.dialog.getByRole('button', { name: `Edit ${stepTitle}`, exact: true });

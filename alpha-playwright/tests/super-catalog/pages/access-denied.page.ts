@@ -2,7 +2,6 @@ import type { Locator, Page } from '@playwright/test';
 
 import { BasePage } from '../../../shared/base.page';
 
-/** What a standard user sees on an admin page. */
 export class AccessDeniedPage extends BasePage {
   readonly heading: Locator;
 

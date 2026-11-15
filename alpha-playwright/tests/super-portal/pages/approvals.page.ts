@@ -2,10 +2,8 @@ import type { Locator, Page } from '@playwright/test';
 
 import { BasePage } from '../../../shared/base.page';
 
-/** The admins' queue of requests waiting for a decision. */
 export class ApprovalsPage extends BasePage {
   readonly path = '/approvals';
-  /** "6 requests waiting", or "Nothing is waiting for approval." */
   readonly summaryText: Locator;
 
   constructor(page: Page) {

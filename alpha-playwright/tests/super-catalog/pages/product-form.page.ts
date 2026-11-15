@@ -2,7 +2,6 @@ import type { Locator, Page } from '@playwright/test';
 
 import { BasePage } from '../../../shared/base.page';
 
-/** The New product and Edit product form. */
 export class ProductFormPage extends BasePage {
   readonly path = '/products/new';
   readonly newProductHeading: Locator;
@@ -14,11 +13,9 @@ export class ProductFormPage extends BasePage {
   readonly priceInput: Locator;
   readonly stockInput: Locator;
   readonly reorderLevelInput: Locator;
-  // Status, radio buttons in the Status group.
   readonly activeStatusRadio: Locator;
   readonly draftStatusRadio: Locator;
   readonly discontinuedStatusRadio: Locator;
-  /** Labelled "Image", or "Replace the image" when the product already has one. */
   readonly imageInput: Locator;
   readonly createButton: Locator;
   readonly saveButton: Locator;

@@ -2,13 +2,9 @@ import { account } from '../../shared/accounts';
 import { fillSecret } from '../../shared/fill-secret';
 import { expect, plan, test } from './fixtures';
 
-// This test signs in through Keycloak itself, so it starts signed out. It also types a password,
-// and a trace records what's typed and sent, so it records no trace. A failure still gets a
-// screenshot, which shows the password as dots.
 test.use({ trace: 'off' });
 
 test('SC-001 Sign in and sign out', { tag: '@smoke', annotation: plan('SC-001') }, async ({ signedOutUser }) => {
-  // The account the test signs in with.
   const standardAccount = account('standard');
 
   await test.step('1. Open Super Catalog.', async () => {

@@ -15,17 +15,12 @@ export class ProductsPage extends BasePage {
   readonly maxPriceInput: Locator;
   readonly lowStockOnlyCheckbox: Locator;
   readonly clearFiltersButton: Locator;
-  /** "Showing 1–10 of 60 products", or "No products match these filters." */
   readonly summaryText: Locator;
   readonly productsTable: Locator;
-  /** The table's product rows, not its heading row. */
   readonly productRows: Locator;
   readonly firstProductRow: Locator;
-  /** The product names, which link to each product, in table order. */
   readonly productNameLinks: Locator;
-  /** Adjustable Dumbbells, SPO-1002, one of the products every run starts with. */
   readonly adjustableDumbbellsLink: Locator;
-  /** Product rows without a Low badge. */
   readonly productRowsWithoutLowBadge: Locator;
   readonly rowsPerPageSelect: Locator;
   readonly pagination: Locator;
@@ -57,12 +52,10 @@ export class ProductsPage extends BasePage {
     this.nextPageButton = this.pagination.getByRole('button', { name: 'Next' });
   }
 
-  /** A product's row. Rows carry test IDs with their SKU, such as product-row-ELE-1001. */
   productRow(sku: string): Locator {
     return this.page.getByTestId(`product-row-${sku}`);
   }
 
-  /** A column heading. Its aria-sort says which way the column is sorted. */
   columnHeader(name: string): Locator {
     return this.productsTable.getByRole('columnheader', { name });
   }
@@ -71,7 +64,6 @@ export class ProductsPage extends BasePage {
     await this.columnHeader(column).getByRole('button').click();
   }
 
-  /** React Bootstrap marks the current page with hidden "(current)" text after its number. */
   currentPageNumber(page: number): Locator {
     return this.pagination.getByText(`${page}(current)`);
   }

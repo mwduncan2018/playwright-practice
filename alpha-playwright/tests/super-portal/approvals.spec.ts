@@ -104,7 +104,6 @@ test("SP-008 Admins can't decide on their own requests", { tag: '@regression', a
 
   await test.step('2. Open Approvals.', async () => {
     await adminUser.page.goto(adminUser.approvalsPage.path);
-    // Wait for the queue, so the check below isn't made before it has loaded.
     await expect(adminUser.approvalsPage.summaryText).toBeVisible();
     await expect(adminUser.approvalsPage.requestRow(requestNumber), "The request isn't listed.").toHaveCount(0);
   });

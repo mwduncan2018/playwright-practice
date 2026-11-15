@@ -1,7 +1,5 @@
 import { expect, plan, test } from './fixtures';
 
-// This test changes the user's own settings, so it uses standardSideUser, on a side account, rather than a
-// shared one. Its @side-account tag runs it in the project that runs one test at a time.
 test("SP-010 Settings set the wizard's default priority", { tag: ['@regression', '@side-account'], annotation: plan('SP-010') }, async ({ standardSideUser }) => {
   await test.step('1. Open the user menu and select Settings.', async () => {
     await standardSideUser.page.goto(standardSideUser.homePage.path);

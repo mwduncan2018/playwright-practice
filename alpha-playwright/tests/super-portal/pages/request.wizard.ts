@@ -2,30 +2,19 @@ import type { Locator, Page } from '@playwright/test';
 
 import { BasePage } from '../../../shared/base.page';
 
-/**
- * A request wizard: the Request equipment, Request software or Request access dialog. Its choices,
- * such as a delivery method, license length, access level or priority, are radio buttons in a group
- * named by the group's question. The Review step has a region for each step's answers, named after
- * the step, and an "Edit <step>" button for each. The three wizards share this class, so each has
- * the locators of the others too; they just don't match anything in that wizard.
- */
 export class RequestWizard extends BasePage {
   readonly dialog: Locator;
-  /** "Step 2 of 4" */
   readonly progressText: Locator;
-  /** The list of steps at the top. */
   readonly stepsList: Locator;
   readonly nextButton: Locator;
   readonly backButton: Locator;
   readonly cancelButton: Locator;
-  /** The X at the top right. */
   readonly closeButton: Locator;
   readonly submitButton: Locator;
   readonly discardQuestionHeading: Locator;
   readonly keepEditingButton: Locator;
   readonly discardButton: Locator;
   readonly submittedHeading: Locator;
-  /** The new request's number, such as REQ-1021, which carries a test ID because nothing else names it. */
   readonly newRequestNumberText: Locator;
   readonly viewRequestButton: Locator;
   readonly itemSelect: Locator;
@@ -38,24 +27,19 @@ export class RequestWizard extends BasePage {
   readonly trainingCompletedCheckbox: Locator;
   readonly neededByInput: Locator;
   readonly reasonTextarea: Locator;
-  // How do you want to get it? (Request equipment)
   readonly deliverToMyDeskRadio: Locator;
   readonly shipToAnAddressRadio: Locator;
   readonly pickUpAtTheItDeskRadio: Locator;
-  // License length (Request software)
   readonly oneMonthLicenseRadio: Locator;
   readonly sixMonthsLicenseRadio: Locator;
   readonly oneYearLicenseRadio: Locator;
-  // Access level (Request access)
   readonly readOnlyAccessRadio: Locator;
   readonly readAndWriteAccessRadio: Locator;
   readonly administratorAccessRadio: Locator;
-  // Priority (every wizard)
   readonly lowPriorityRadio: Locator;
   readonly normalPriorityRadio: Locator;
   readonly highPriorityRadio: Locator;
   readonly urgentPriorityRadio: Locator;
-  // The Review step's answers for each step.
   readonly equipmentReviewRegion: Locator;
   readonly deliveryReviewRegion: Locator;
   readonly softwareReviewRegion: Locator;
@@ -63,7 +47,6 @@ export class RequestWizard extends BasePage {
   readonly systemAndAccessReviewRegion: Locator;
   readonly securityReviewRegion: Locator;
   readonly priorityAndReasonReviewRegion: Locator;
-  // The Review step's Edit button for each step, which goes back to that step.
   readonly editEquipmentButton: Locator;
   readonly editDeliveryButton: Locator;
   readonly editSoftwareButton: Locator;
@@ -99,7 +82,6 @@ export class RequestWizard extends BasePage {
     this.neededByInput = this.dialog.getByLabel('Needed by (optional)');
     this.reasonTextarea = this.dialog.getByLabel('Why do you need this?');
 
-    // Each radio button is found inside its group, the fieldset named by the group's question.
     const radioInGroup = (groupQuestion: string, radioLabel: string) =>
       this.dialog
         .getByRole('group', { name: groupQuestion, exact: true })
@@ -118,7 +100,6 @@ export class RequestWizard extends BasePage {
     this.highPriorityRadio = radioInGroup('Priority', 'High');
     this.urgentPriorityRadio = radioInGroup('Priority', 'Urgent');
 
-    // Each step's region on the Review step is named after the step, and so is its Edit button.
     const reviewRegion = (stepTitle: string) => this.dialog.getByRole('region', { name: stepTitle, exact: true });
     const editStepButton = (stepTitle: string) =>
       this.dialog.getByRole('button', { name: `Edit ${stepTitle}`, exact: true });

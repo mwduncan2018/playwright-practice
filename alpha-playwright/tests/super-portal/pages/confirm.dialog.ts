@@ -2,7 +2,6 @@ import type { Locator, Page } from '@playwright/test';
 
 import { BasePage } from '../../../shared/base.page';
 
-/** A dialog that asks before something that can't be undone, such as "Cancel request". */
 export class ConfirmDialog extends BasePage {
   readonly dialog: Locator;
   readonly confirmButton: Locator;

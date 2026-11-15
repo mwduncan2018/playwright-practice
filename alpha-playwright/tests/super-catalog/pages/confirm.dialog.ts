@@ -2,13 +2,11 @@ import type { Locator, Page } from '@playwright/test';
 
 import { BasePage } from '../../../shared/base.page';
 
-/** A dialog that asks before deleting, such as "Delete product". It shows the server's reason if it refuses. */
 export class ConfirmDialog extends BasePage {
   readonly dialog: Locator;
   readonly confirmButton: Locator;
   readonly cancelButton: Locator;
   readonly okButton: Locator;
-  /** Why the server refused, such as a category that still has products. */
   readonly problemAlert: Locator;
 
   constructor(page: Page, title: string, confirmLabel = 'Delete') {
