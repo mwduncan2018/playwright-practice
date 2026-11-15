@@ -23,15 +23,15 @@ so `docker compose restart super-portal` puts it back as it was.
 | Home | `/` | Everyone. Open requests, approvals waiting (admins), recent requests and the latest announcements. |
 | New request | `/catalog` | Everyone. Each request type opens its wizard. `/catalog?new=Equipment` (or `Software`, `Access`) opens one directly. |
 | My requests | `/requests` | Everyone. Search, and filter by status and type. |
-| Request details | `/requests/REQ-1016` | The requester and admins. History, comments, cancel, approve and reject. |
+| Request details | `/requests/REQ-1096` | The requester and admins. History, comments, cancel, approve and reject. |
 | Approvals | `/approvals` | Admins. Requests waiting for a decision, oldest first, approved or rejected in a dialog. |
-| All requests | `/all-requests` | Admins. Everyone's requests, also filtered by priority and requester. |
+| All requests | `/all-requests` | Admins. Everyone's requests, also filtered by priority and requester. Columns chooses the columns and their order. |
 | Reports | `/reports` | Admins. Requests by status, type and priority, and the average time to a decision. |
 | Announcements | `/announcements` | Everyone. Admins add them with a wizard. |
 | Announcement | `/announcements/:id` | Everyone. Admins can delete it. |
 | People | `/people` | Everyone. Search, and filter by department. |
 | Person | `/people/:username` | Everyone. Admins also see that person's requests. |
-| Settings | `/settings` | Everyone. The account, email switches, default priority and rows per page; sign out. |
+| Settings | `/settings` | Everyone. The account, email switches, default priority and rows per page (10, 25, 50 or 100); sign out. |
 
 A standard user who opens an admin page by its address sees "You don't have access to this page",
 and the API refuses admin actions with a 403.
@@ -55,11 +55,26 @@ How they behave:
 - Review shows every answer, with an Edit button that goes back to that step.
 - Closing (Cancel, the X or Esc) after entering anything asks "Discard this request?", with Keep
   editing and Discard.
-- Submit request shows the new request's number, such as REQ-1021, and a View request button.
+- Submit request shows the new request's number, such as REQ-1101, and a View request button.
 - Priority starts at the default priority from the user's Settings.
 
 Admins also have a New announcement wizard on the Announcements page: Message → Audience →
 Publishing (now, or on a later date at 09:00 UTC, and whether to pin it) → Review.
+
+## The All requests columns
+
+All requests starts with Number, Title, Type, Requester, Priority, Status and Submitted. Columns
+opens a Choose columns dialog, where each column has a checkbox that shows it and Move up and Move
+down buttons:
+
+- Needed by, Updated and Decided by start hidden. Needed by shows the date, or "—" when there's
+  none. Decided by shows the admin who approved or rejected the request, or "—".
+- Number is always shown, but it can move.
+- Save columns applies the choice, Cancel (or the X or Esc) drops it, and Reset to default puts the
+  columns back as they started.
+- The choice is saved in the browser for each user, so it lasts across reloads but not into another
+  browser. Each new Playwright browser context starts with the default columns.
+- My requests, Home and a person's page keep their fixed columns.
 
 ## Rules the app enforces
 
@@ -77,9 +92,11 @@ Publishing (now, or on a later date at 09:00 UTC, and whether to pin it) → Rev
 
 ## Sample data
 
-- 20 requests, REQ-1001 to REQ-1020: 9 approved, 3 rejected, 2 cancelled and 6 waiting
-  (REQ-1015 to REQ-1020). REQ-1017 is admin3's own request.
-- standard1 has 6 requests, 2 of them waiting. REQ-1004, REQ-1016 and REQ-1018 have comments.
+- 100 requests from the past year, REQ-1001 to REQ-1100: 73 approved, 11 rejected, 10 cancelled
+  and 6 waiting (REQ-1095 to REQ-1100). REQ-1097 is admin3's own request.
+- REQ-1001 to REQ-1080 are older, decided or cancelled requests made from templates in
+  `backend/app/seed.py`, 10 for each user. REQ-1081 to REQ-1100 are the recent ones.
+- standard1 has 16 requests, 2 of them waiting. REQ-1084, REQ-1096 and REQ-1098 have comments.
 - 6 announcements: 2 pinned, 1 for admins only and 1 for standard users only.
 - The people directory lists the 8 users with their departments and job titles.
 - Everyone starts with the default settings: decision and comment emails on, weekly summary off,

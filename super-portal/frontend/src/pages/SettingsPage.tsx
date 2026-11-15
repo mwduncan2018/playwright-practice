@@ -3,7 +3,7 @@ import { Alert, Badge, Button, Card, Col, Form, Row } from 'react-bootstrap';
 
 import { asApiError, useApi, useLoad } from '../api';
 import { useAuth } from '../auth';
-import { PRIORITIES } from '../choices';
+import { PAGE_SIZES, PRIORITIES } from '../choices';
 import { Detail } from '../components/Detail';
 import { ErrorMessage, Loading } from '../components/Feedback';
 import { Field } from '../components/Field';
@@ -136,7 +136,7 @@ export default function SettingsPage() {
                     <Col md={6}>
                       <Field id="setting-page-size" label="Rows per page in request lists">
                         <Form.Select value={values.page_size} onChange={(event) => change('page_size', Number(event.target.value))}>
-                          {[10, 25, 50].map((size) => (
+                          {PAGE_SIZES.map((size) => (
                             <option key={size} value={size}>
                               {size}
                             </option>

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Table } from 'react-bootstrap';
 import { Link } from 'react-router';
 
@@ -5,44 +6,82 @@ import { formatDate } from '../format';
 import type { RequestSummary } from '../types';
 import { PriorityBadge, RequestStatusBadge } from './Feedback';
 
+export type RequestColumnKey =
+  | 'number'
+  | 'title'
+  | 'type'
+  | 'requester'
+  | 'priority'
+  | 'status'
+  | 'submitted'
+  | 'neededBy'
+  | 'updated'
+  | 'decidedBy';
+
+export interface RequestColumn {
+  key: RequestColumnKey;
+  label: string;
+  className?: string;
+  render(request: RequestSummary): ReactNode;
+}
+
+/** Every column a requests table can show, in the default order. */
+export const REQUEST_COLUMNS: RequestColumn[] = [
+  {
+    key: 'number',
+    label: 'Number',
+    className: 'text-nowrap',
+    render: (request) => <Link to={`/requests/${request.number}`}>{request.number}</Link>,
+  },
+  { key: 'title', label: 'Title', render: (request) => request.title },
+  { key: 'type', label: 'Type', render: (request) => request.type },
+  { key: 'requester', label: 'Requester', className: 'text-nowrap', render: (request) => request.requester_name },
+  { key: 'priority', label: 'Priority', render: (request) => <PriorityBadge priority={request.priority} /> },
+  { key: 'status', label: 'Status', render: (request) => <RequestStatusBadge status={request.status} /> },
+  {
+    key: 'submitted',
+    label: 'Submitted',
+    className: 'text-nowrap',
+    render: (request) => formatDate(request.created_at),
+  },
+  { key: 'neededBy', label: 'Needed by', className: 'text-nowrap', render: (request) => request.needed_by ?? '—' },
+  { key: 'updated', label: 'Updated', className: 'text-nowrap', render: (request) => formatDate(request.updated_at) },
+  { key: 'decidedBy', label: 'Decided by', className: 'text-nowrap', render: (request) => request.decided_by ?? '—' },
+];
+
+/** The columns for a person's own requests, where Requester would always be the same. */
+export const OWN_REQUEST_COLUMNS: RequestColumnKey[] = ['number', 'title', 'type', 'priority', 'status', 'submitted'];
+
 interface Props {
   requests: RequestSummary[];
   /** The table's accessible name, for example "My requests". */
   label: string;
-  showRequester?: boolean;
+  /** The columns to show, in order. */
+  columns?: RequestColumnKey[];
 }
 
 /** Requests in a table. Each row carries a test ID with its request number. */
-export function RequestsTable({ requests, label, showRequester }: Props) {
+export function RequestsTable({ requests, label, columns = OWN_REQUEST_COLUMNS }: Props) {
+  const shown = columns.flatMap((key) => REQUEST_COLUMNS.filter((column) => column.key === key));
   return (
     <Table striped hover responsive className="align-middle" aria-label={label}>
       <thead>
         <tr>
-          <th scope="col">Number</th>
-          <th scope="col">Title</th>
-          <th scope="col">Type</th>
-          {showRequester && <th scope="col">Requester</th>}
-          <th scope="col">Priority</th>
-          <th scope="col">Status</th>
-          <th scope="col">Submitted</th>
+          {shown.map((column) => (
+            <th key={column.key} scope="col">
+              {column.label}
+            </th>
+          ))}
         </tr>
       </thead>
       <tbody>
         {requests.map((request) => (
           <tr key={request.number} data-testid={`request-row-${request.number}`}>
-            <td className="text-nowrap">
-              <Link to={`/requests/${request.number}`}>{request.number}</Link>
-            </td>
-            <td>{request.title}</td>
-            <td>{request.type}</td>
-            {showRequester && <td className="text-nowrap">{request.requester_name}</td>}
-            <td>
-              <PriorityBadge priority={request.priority} />
-            </td>
-            <td>
-              <RequestStatusBadge status={request.status} />
-            </td>
-            <td className="text-nowrap">{formatDate(request.created_at)}</td>
+            {shown.map((column) => (
+              <td key={column.key} className={column.className}>
+                {column.render(request)}
+              </td>
+            ))}
           </tr>
         ))}
       </tbody>

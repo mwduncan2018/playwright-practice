@@ -9,6 +9,7 @@ export const SOFTWARE = ['Adobe Acrobat Pro', 'Figma', 'JetBrains IntelliJ IDEA'
 export const SYSTEMS = ['Customer CRM', 'Finance reporting', 'HR records', 'Production database', 'Source code repository'];
 export const LICENSES = ['1 month', '6 months', '1 year'];
 export const ACCESS_LEVELS = ['Read only', 'Read and write', 'Administrator'];
+export const PAGE_SIZES = [10, 25, 50, 100];
 
 export interface Choice {
   value: string;

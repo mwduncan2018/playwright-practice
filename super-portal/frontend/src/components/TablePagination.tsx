@@ -1,5 +1,7 @@
 import { Form, Pagination } from 'react-bootstrap';
 
+import { PAGE_SIZES } from '../choices';
+
 interface Props {
   /** Used for element IDs, for example "products". */
   name: string;
@@ -12,8 +14,6 @@ interface Props {
   /** Leave out to hide the "Rows per page" choice. */
   onPageSize?(pageSize: number): void;
 }
-
-const PAGE_SIZES = [10, 25, 50];
 
 export function TablePagination({ name, label, page, pageSize, total, onPage, onPageSize }: Props) {
   const pages = Math.max(1, Math.ceil(total / pageSize));

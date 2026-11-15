@@ -39,9 +39,71 @@ def _access(system: str, level: str, security_justification: str = "") -> dict:
     }
 
 
-# In number order from REQ-1001: requester, days ago, priority, details, reason, outcome.
+# The year before the recent requests: 80 more, all decided or cancelled long ago, so All requests
+# starts with 100 rows across several pages. They're made from these templates in turn.
+OLDER_REQUEST_COUNT = 80
+
+# details, reason
+OLDER_TEMPLATES = [
+    (_equipment("Laptop", 1, "Desk"), "My laptop's battery lasts less than an hour away from the charger."),
+    (_equipment("Monitor", 1, "Desk"), "A second screen would let me keep the specification open while I work."),
+    (_equipment("Keyboard", 1, "Pickup"), "I'd like an ergonomic keyboard after a wrist strain."),
+    (_equipment("Mouse", 2, "Desk"), "One mouse for my desk and one for the meeting room laptop."),
+    (_equipment("Headset", 1, "Ship", "88 Lake Shore Drive, Chicago, IL 60611"),
+     "I work from home on Fridays and join calls all day."),
+    (_equipment("Docking station", 1, "Desk"), "I switch between two desks and need a dock at the second one."),
+    (_equipment("Webcam", 1, "Pickup"), "My laptop's built-in camera is too dark for customer demos."),
+    (_software("Adobe Acrobat Pro", "1 year"), "I edit and sign supplier agreements every week."),
+    (_software("Figma", "6 months"), "I'm reviewing the new onboarding screens with the design team."),
+    (_software("JetBrains IntelliJ IDEA", "1 year"), "I maintain the Java services for the billing team."),
+    (_software("Microsoft Visio", "1 month"), "I need to update the office floor plans before the move."),
+    (_software("Miro", "1 year", 5), "Our team of five runs its retrospectives on a shared board."),
+    (_software("Tableau", "6 months"), "I'm building the quarterly sales dashboards."),
+    (_software("Figma", "1 month"), "I'm helping with one marketing campaign's mockups."),
+    (_access("Customer CRM", "Read only"), "I need to look up customer contacts before support calls."),
+    (_access("Finance reporting", "Read only"), "I review department spending against the budget each month."),
+    (_access("HR records", "Read only"), "I'm checking holiday balances for my team's schedule."),
+    (_access("Source code repository", "Read and write"), "I joined the web team and need to push changes."),
+    (_access("Production database", "Read only"), "I investigate slow queries that customers report."),
+    (_access("Customer CRM", "Read and write"), "I took over a sales territory and need to update its accounts."),
+    (_access("Source code repository", "Read only"), "I review pull requests for the documentation site."),
+]
+OLDER_PRIORITIES = ["Normal", "Low", "High", "Normal", "Urgent"]
+OLDER_REJECTIONS = [
+    "We have spare stock of this. Pick one up at the IT desk.",
+    "This needs your manager's approval first. Ask them to email me, then submit again.",
+    "Your team's budget for this quarter is spent. Submit again next quarter.",
+    "Please use the tool we already have a site license for.",
+]
+
+
+def _older_requests() -> list[tuple]:
+    """Oldest first, a few days apart. Every 10 requests: 8 approved, 1 rejected and 1 cancelled."""
+    usernames = [person[0] for person in PEOPLE]
+    admins = [person[0] for person in PEOPLE if person[2] == "admin"]
+    requests = []
+    for index in range(OLDER_REQUEST_COUNT):
+        requester = usernames[index % len(usernames)]
+        details, reason = OLDER_TEMPLATES[index % len(OLDER_TEMPLATES)]
+        days_ago = 41 + (OLDER_REQUEST_COUNT - 1 - index) * 4 + index % 3
+        priority = OLDER_PRIORITIES[index % len(OLDER_PRIORITIES)]
+        # Admins can't decide their own requests, so another admin does.
+        decider = admins[(index // len(usernames)) % len(admins)]
+        if decider == requester:
+            decider = admins[(admins.index(decider) + 1) % len(admins)]
+        if index % 10 == 9:
+            outcome = ("Cancelled", None, "")
+        elif index % 10 == 7:
+            outcome = ("Rejected", decider, OLDER_REJECTIONS[(index // 10) % len(OLDER_REJECTIONS)])
+        else:
+            outcome = ("Approved", decider, "")
+        requests.append((requester, days_ago, priority, dict(details), reason, outcome))
+    return requests
+
+
+# The recent requests, after the older ones: requester, days ago, priority, details, reason, outcome.
 # An outcome is (status, deciding admin, note). High and Urgent requests are needed within a week.
-REQUESTS = [
+RECENT_REQUESTS = [
     ("standard1", 40, "Normal", _equipment("Laptop", 1, "Desk"),
      "My current laptop is five years old and can't run our build tools.", ("Approved", "admin1", "")),
     ("standard2", 35, "Normal", _software("Figma", "1 year"),
@@ -89,12 +151,16 @@ REQUESTS = [
      "I have to reconcile the payments report before Monday's audit.", ("Submitted", None, "")),
 ]
 
+# In number order from REQ-1001: the older requests are REQ-1001 to REQ-1080 and the recent ones
+# REQ-1081 to REQ-1100.
+REQUESTS = _older_requests() + RECENT_REQUESTS
+
 # Request number, hours after the request was made, username, comment
 COMMENTS = [
-    ("REQ-1004", 22, "standard1", "Thanks, I'll use the other tool."),
-    ("REQ-1016", 20, "admin1", "We have a laptop in stock in Seattle. I'll approve it once your manager confirms the move."),
-    ("REQ-1016", 26, "standard1", "My manager confirmed the move by email this morning."),
-    ("REQ-1018", 5, "admin2", "Which customer accounts do you need to look at?"),
+    ("REQ-1084", 22, "standard1", "Thanks, I'll use the other tool."),
+    ("REQ-1096", 20, "admin1", "We have a laptop in stock in Seattle. I'll approve it once your manager confirms the move."),
+    ("REQ-1096", 26, "standard1", "My manager confirmed the move by email this morning."),
+    ("REQ-1098", 5, "admin2", "Which customer accounts do you need to look at?"),
 ]
 
 # title, body, audience, pinned, days ago, author

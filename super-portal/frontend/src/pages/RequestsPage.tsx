@@ -1,11 +1,15 @@
+import { useState } from 'react';
 import { Button, Card, Col, Form, Row } from 'react-bootstrap';
 import { useSearchParams } from 'react-router';
 
 import { useLoad } from '../api';
+import { useAuth } from '../auth';
 import { PRIORITIES, REQUEST_TYPES, STATUSES } from '../choices';
+import { type ColumnChoice, loadColumnChoices, saveColumnChoices, shownColumns } from '../columnLayout';
+import { ColumnsDialog } from '../components/ColumnsDialog';
 import { ErrorMessage, Loading } from '../components/Feedback';
 import { LinkButton } from '../components/LinkButton';
-import { RequestsTable } from '../components/RequestsTable';
+import { OWN_REQUEST_COLUMNS, RequestsTable } from '../components/RequestsTable';
 import { TablePagination } from '../components/TablePagination';
 import { showing } from '../format';
 import { useParamState, useParamUpdater } from '../searchParams';
@@ -20,11 +24,18 @@ export function AllRequestsPage() {
   return <RequestsList scope="all" />;
 }
 
-/** My requests, or (for admins) everyone's. Filters live in the address; rows per page come from Settings. */
+/**
+ * My requests, or (for admins) everyone's. Filters live in the address; rows per page come from
+ * Settings. All requests also has a Columns button, and the columns chosen are saved in the browser.
+ */
 function RequestsList({ scope }: { scope: 'mine' | 'all' }) {
   const everyone = scope === 'all';
   const title = everyone ? 'All requests' : 'My requests';
   usePageTitle(title);
+  const { user } = useAuth();
+  const [columnChoices, setColumnChoices] = useState(() => loadColumnChoices(user.username));
+  // A new key each time the dialog opens, so it starts from the table's columns, not from what was last cancelled.
+  const [columnsDialog, setColumnsDialog] = useState({ show: false, key: 0 });
   const [params, setParams] = useSearchParams();
   const update = useParamUpdater(setParams);
   const [search, setSearch] = useParamState(params, 'search', update, 300);
@@ -46,6 +57,12 @@ function RequestsList({ scope }: { scope: 'mine' | 'all' }) {
   query.set('page_size', String(settings.data?.page_size ?? 10));
   const result = useLoad<Page<RequestSummary>>(settings.loading ? null : `/api/requests?${query}`);
   const hasFilters = filters.some((key) => params.has(key));
+
+  function saveColumns(choices: ColumnChoice[]) {
+    setColumnChoices(choices);
+    saveColumnChoices(user.username, choices);
+    setColumnsDialog({ ...columnsDialog, show: false });
+  }
 
   return (
     <>
@@ -133,15 +150,39 @@ function RequestsList({ scope }: { scope: 'mine' | 'all' }) {
         </Card.Body>
       </Card>
 
-      <p role="status" className="text-body-secondary mb-2">
-        {result.data &&
-          showing(result.data.page, result.data.page_size, result.data.total, 'request', 'No requests match these filters.')}
-      </p>
+      <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+        <p role="status" className="text-body-secondary mb-0">
+          {result.data &&
+            showing(result.data.page, result.data.page_size, result.data.total, 'request', 'No requests match these filters.')}
+        </p>
+        {everyone && (
+          <Button
+            variant="outline-secondary"
+            size="sm"
+            onClick={() => setColumnsDialog({ show: true, key: columnsDialog.key + 1 })}
+          >
+            Columns
+          </Button>
+        )}
+      </div>
+      {everyone && (
+        <ColumnsDialog
+          key={columnsDialog.key}
+          show={columnsDialog.show}
+          choices={columnChoices}
+          onSave={saveColumns}
+          onClose={() => setColumnsDialog({ ...columnsDialog, show: false })}
+        />
+      )}
       {result.error && <ErrorMessage error={result.error} onRetry={result.reload} />}
       {(settings.loading || (result.loading && !result.data)) && <Loading />}
       {result.data && (
         <>
-          <RequestsTable requests={result.data.items} label={title} showRequester={everyone} />
+          <RequestsTable
+            requests={result.data.items}
+            label={title}
+            columns={everyone ? shownColumns(columnChoices) : OWN_REQUEST_COLUMNS}
+          />
           <TablePagination
             name="requests"
             label={`${title} pages`}

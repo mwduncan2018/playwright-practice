@@ -183,7 +183,7 @@ class SettingsIn(BaseModel):
     email_on_comment: bool
     weekly_summary: bool
     default_priority: Priority
-    page_size: Literal[10, 25, 50]
+    page_size: Literal[10, 25, 50, 100]
 
 
 class SettingsOut(SettingsIn):
