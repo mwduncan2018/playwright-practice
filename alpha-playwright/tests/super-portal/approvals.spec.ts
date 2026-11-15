@@ -8,7 +8,7 @@ test('SP-006 An admin approves a request', { tag: '@smoke', annotation: plan('SP
     await standardUser.newRequestPage.requestSoftwareButton.click();
     await standardUser.softwareWizard.softwareSelect.selectOption('Tableau');
     await standardUser.softwareWizard.nextButton.click();
-    await standardUser.softwareWizard.dialog.getByRole('radio', { name: '6 months', exact: true }).check();
+    await standardUser.softwareWizard.sixMonthsLicenseRadio.check();
     await standardUser.softwareWizard.seatsInput.fill('1');
     await standardUser.softwareWizard.nextButton.click();
     await standardUser.softwareWizard.reasonTextarea.fill('I build the sales dashboards each quarter.');
@@ -37,7 +37,7 @@ test('SP-006 An admin approves a request', { tag: '@smoke', annotation: plan('SP
     const expectedResult = 'The page says the admin approved it, with the note.';
     await expect(standardUser.requestPage.decisionAlert, expectedResult).toContainText(`Approved by ${adminUser.account.name}`);
     await expect(standardUser.requestPage.decisionAlert, expectedResult).toContainText(`Note: ${approvalNote}`);
-    await expect(standardUser.requestPage.historyListItems.last(), 'The history ends with Approved.').toContainText('Approved');
+    await expect(standardUser.requestPage.lastHistoryListItem, 'The history ends with Approved.').toContainText('Approved');
   });
 });
 
@@ -48,7 +48,7 @@ test('SP-007 An admin rejects a request', { tag: '@regression', annotation: plan
     await standardUser.page.goto(standardUser.newRequestPage.path);
     await standardUser.newRequestPage.requestAccessButton.click();
     await standardUser.accessWizard.systemSelect.selectOption('Customer CRM');
-    await standardUser.accessWizard.dialog.getByRole('radio', { name: 'Read only', exact: true }).check();
+    await standardUser.accessWizard.readOnlyAccessRadio.check();
     await standardUser.accessWizard.nextButton.click();
     await standardUser.accessWizard.reasonTextarea.fill('I need to read customer records for support tickets.');
     await standardUser.accessWizard.nextButton.click();
@@ -93,7 +93,7 @@ test("SP-008 Admins can't decide on their own requests", { tag: '@regression', a
     await adminUser.equipmentWizard.itemSelect.selectOption('Headset');
     await adminUser.equipmentWizard.quantityInput.fill('1');
     await adminUser.equipmentWizard.nextButton.click();
-    await adminUser.equipmentWizard.dialog.getByRole('radio', { name: 'Pick up at the IT desk', exact: true }).check();
+    await adminUser.equipmentWizard.pickUpAtTheItDeskRadio.check();
     await adminUser.equipmentWizard.nextButton.click();
     await adminUser.equipmentWizard.reasonTextarea.fill("My headset's microphone stopped working.");
     await adminUser.equipmentWizard.nextButton.click();
@@ -111,7 +111,7 @@ test("SP-008 Admins can't decide on their own requests", { tag: '@regression', a
 
   await test.step('3. Open the request.', async () => {
     await adminUser.page.goto(adminUser.requestPage.path + requestNumber);
-    await expect(adminUser.alertsPage.alertMessages.filter({ hasText: "You can't approve or reject your own request. Another admin will decide on it." }), 'The page says "You can\'t approve or reject your own request. Another admin will decide on it."').toBeVisible();
+    await expect(adminUser.requestPage.ownRequestNoticeAlert, 'The page says "You can\'t approve or reject your own request. Another admin will decide on it."').toBeVisible();
     const expectedResult = 'There are no Approve or Reject buttons.';
     await expect(adminUser.requestPage.approveButton, expectedResult).toHaveCount(0);
     await expect(adminUser.requestPage.rejectButton, expectedResult).toHaveCount(0);

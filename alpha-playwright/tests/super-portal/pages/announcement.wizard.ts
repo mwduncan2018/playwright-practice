@@ -4,7 +4,8 @@ import { BasePage } from '../../../shared/base.page';
 
 /**
  * The admins' New announcement wizard. Its choices, an audience or when to publish, are radio
- * buttons in the dialog. The Review step has a region for each step's answers, named after the step.
+ * buttons in a group named by the group's question. The Review step has a region for each step's
+ * answers, named after the step, and an "Edit <step>" button for each.
  */
 export class AnnouncementWizard extends BasePage {
   readonly dialog: Locator;
@@ -21,6 +22,21 @@ export class AnnouncementWizard extends BasePage {
   readonly scheduledHeading: Locator;
   readonly publishedHeading: Locator;
   readonly viewAnnouncementButton: Locator;
+  // Who should see it?
+  readonly everyoneAudienceRadio: Locator;
+  readonly adminsOnlyAudienceRadio: Locator;
+  readonly standardUsersOnlyAudienceRadio: Locator;
+  // When should it appear?
+  readonly publishNowRadio: Locator;
+  readonly scheduleForLaterDateRadio: Locator;
+  // The Review step's answers for each step.
+  readonly messageReviewRegion: Locator;
+  readonly audienceReviewRegion: Locator;
+  readonly publishingReviewRegion: Locator;
+  // The Review step's Edit button for each step, which goes back to that step.
+  readonly editMessageButton: Locator;
+  readonly editAudienceButton: Locator;
+  readonly editPublishingButton: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -36,5 +52,27 @@ export class AnnouncementWizard extends BasePage {
     this.scheduledHeading = this.dialog.getByRole('heading', { name: 'Announcement scheduled' });
     this.publishedHeading = this.dialog.getByRole('heading', { name: 'Announcement published' });
     this.viewAnnouncementButton = this.dialog.getByRole('button', { name: 'View announcement' });
+
+    // Each radio button is found inside its group, the fieldset named by the group's question.
+    const radioInGroup = (groupQuestion: string, radioLabel: string) =>
+      this.dialog
+        .getByRole('group', { name: groupQuestion, exact: true })
+        .getByRole('radio', { name: radioLabel, exact: true });
+    this.everyoneAudienceRadio = radioInGroup('Who should see it?', 'Everyone');
+    this.adminsOnlyAudienceRadio = radioInGroup('Who should see it?', 'Admins only');
+    this.standardUsersOnlyAudienceRadio = radioInGroup('Who should see it?', 'Standard users only');
+    this.publishNowRadio = radioInGroup('When should it appear?', 'Publish now');
+    this.scheduleForLaterDateRadio = radioInGroup('When should it appear?', 'Schedule for a later date');
+
+    // Each step's region on the Review step is named after the step, and so is its Edit button.
+    const reviewRegion = (stepTitle: string) => this.dialog.getByRole('region', { name: stepTitle, exact: true });
+    const editStepButton = (stepTitle: string) =>
+      this.dialog.getByRole('button', { name: `Edit ${stepTitle}`, exact: true });
+    this.messageReviewRegion = reviewRegion('Message');
+    this.audienceReviewRegion = reviewRegion('Audience');
+    this.publishingReviewRegion = reviewRegion('Publishing');
+    this.editMessageButton = editStepButton('Message');
+    this.editAudienceButton = editStepButton('Audience');
+    this.editPublishingButton = editStepButton('Publishing');
   }
 }

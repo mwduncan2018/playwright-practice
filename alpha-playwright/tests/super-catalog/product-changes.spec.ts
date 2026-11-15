@@ -17,7 +17,7 @@ test('SC-005 Create a product', { tag: '@smoke', annotation: plan('SC-005') }, a
     await adminUser.productFormPage.supplierSelect.selectOption(testProduct.supplier);
     await adminUser.productFormPage.priceInput.fill(testProduct.price);
     await adminUser.productFormPage.stockInput.fill(testProduct.stock);
-    await adminUser.page.getByRole('radio', { name: testProduct.status, exact: true }).check();
+    await adminUser.productFormPage.draftStatusRadio.check();
     await adminUser.productFormPage.createButton.click();
     await expect(adminUser.alertsPage.alertMessages.filter({ hasText: `Created ${testProduct.sku} ${testProduct.name}.` }), 'The message "Created <SKU> <name>." appears.').toBeVisible();
     const expectedResult = "The product's page shows price $19.99, stock 25, status Draft and supplier Granite Works.";
@@ -76,7 +76,7 @@ test('SC-007 Edit a product and add an image', { tag: '@regression', annotation:
     await adminUser.productFormPage.supplierSelect.selectOption(testProduct.supplier);
     await adminUser.productFormPage.priceInput.fill(testProduct.price);
     await adminUser.productFormPage.stockInput.fill(testProduct.stock);
-    await adminUser.page.getByRole('radio', { name: testProduct.status, exact: true }).check();
+    await adminUser.productFormPage.draftStatusRadio.check();
     await adminUser.productFormPage.createButton.click();
     await expect(adminUser.productPage.heading, "The product's page opens.").toHaveText(testProduct.name);
   });
@@ -112,7 +112,7 @@ test('SC-008 Delete a product', { tag: '@regression', annotation: plan('SC-008')
     await adminUser.productFormPage.supplierSelect.selectOption(testProduct.supplier);
     await adminUser.productFormPage.priceInput.fill(testProduct.price);
     await adminUser.productFormPage.stockInput.fill(testProduct.stock);
-    await adminUser.page.getByRole('radio', { name: testProduct.status, exact: true }).check();
+    await adminUser.productFormPage.draftStatusRadio.check();
     await adminUser.productFormPage.createButton.click();
     await expect(adminUser.productPage.heading, "The product's page opens.").toHaveText(testProduct.name);
   });

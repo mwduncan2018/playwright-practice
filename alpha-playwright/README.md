@@ -112,6 +112,12 @@ await adminUser.productFormPage.createButton.click();
 
 - **Locators are properties**: buttons, fields, headings, and fixed sets of values such as a product's
   `priceValue` or a request's `statusValue`.
+- **Location strategies belong in page objects, not tests.** `getByRole`, `getByLabel`, `getByText`,
+  `filter`, `first()` and the like are written in the page object, and the test only names the
+  locator. Anything that's the same on every run gets a property of its own, even one of a set: each
+  radio button (`highPriorityRadio`, `urgentPriorityRadio`), each Review step section
+  (`softwareReviewRegion`), each fixed message (`settingsSavedAlert`), the first row
+  (`firstProductRow`).
 - **A page's address is a `path` property**, opened with
   `adminUser.page.goto(adminUser.productsPage.path)`. A page whose address ends in a number has the
   start of it: `standardUser.page.goto(standardUser.requestPage.path + requestNumber)`.
@@ -130,9 +136,10 @@ await adminUser.productFormPage.createButton.click();
 - **One class per file**: every page object, dialog, wizard or other component has a file of its own,
   named after it and ending in what it is: `home.page.ts` for a page, `announcement.wizard.ts` for a
   wizard, and `confirm.dialog.ts` for a dialog.
-- **Things that vary per test are found in the test** from a property, such as a radio button,
-  `standardUser.equipmentWizard.dialog.getByRole('radio', { name: 'High', exact: true })`, or a message,
-  `standardUser.alertsPage.alertMessages.filter({ hasText: 'Comment posted.' })`.
+- **Things that depend on the test's own data** are still found in the test for now: a message that
+  names what the test created, such as
+  `adminUser.alertsPage.alertMessages.filter({ hasText: \`Approved ${requestNumber}.\` })`, and the
+  activity log entry for a new product. How to move those into page objects is still to be decided.
 - **The user is written out every time**: `standardUser.equipmentWizard.itemSelect`, not a shortcut
   such as `const wizard = standardUser.equipmentWizard`, so every line says whose browser it acts in.
 - **Every locator says what it is**, by the element it finds, or for a plain `div` or `span`, by what

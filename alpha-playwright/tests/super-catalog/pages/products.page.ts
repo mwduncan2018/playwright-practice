@@ -20,8 +20,11 @@ export class ProductsPage extends BasePage {
   readonly productsTable: Locator;
   /** The table's product rows, not its heading row. */
   readonly productRows: Locator;
+  readonly firstProductRow: Locator;
   /** The product names, which link to each product, in table order. */
   readonly productNameLinks: Locator;
+  /** Adjustable Dumbbells, SPO-1002, one of the products every run starts with. */
+  readonly adjustableDumbbellsLink: Locator;
   /** Product rows without a Low badge. */
   readonly productRowsWithoutLowBadge: Locator;
   readonly rowsPerPageSelect: Locator;
@@ -45,7 +48,9 @@ export class ProductsPage extends BasePage {
     this.summaryText = page.getByRole('status').filter({ hasText: /^(Showing|No products)/ });
     this.productsTable = page.getByRole('table', { name: 'Products' });
     this.productRows = this.productsTable.getByRole('row').filter({ has: page.getByRole('cell') });
+    this.firstProductRow = this.productRows.first();
     this.productNameLinks = this.productsTable.getByRole('link');
+    this.adjustableDumbbellsLink = this.productsTable.getByRole('link', { name: 'Adjustable Dumbbells', exact: true });
     this.productRowsWithoutLowBadge = this.productRows.filter({ hasNot: page.getByText('Low', { exact: true }) });
     this.rowsPerPageSelect = page.getByLabel('Rows per page');
     this.pagination = page.getByRole('navigation', { name: 'Product pages' });

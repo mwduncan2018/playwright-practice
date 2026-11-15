@@ -17,6 +17,10 @@ export class RequestPage extends BasePage {
   readonly postCommentButton: Locator;
   readonly historyList: Locator;
   readonly historyListItems: Locator;
+  /** The newest entry in the history. */
+  readonly lastHistoryListItem: Locator;
+  /** The notice an admin sees on their own request: "You can't approve or reject your own request. …" */
+  readonly ownRequestNoticeAlert: Locator;
   readonly statusValue: Locator;
   /** Equipment requests' delivery address. */
   readonly deliveryAddressValue: Locator;
@@ -40,6 +44,10 @@ export class RequestPage extends BasePage {
     this.postCommentButton = page.getByRole('button', { name: 'Post comment' });
     this.historyList = page.getByRole('list', { name: 'History' });
     this.historyListItems = this.historyList.getByRole('listitem');
+    this.lastHistoryListItem = this.historyListItems.last();
+    this.ownRequestNoticeAlert = mainRegion
+      .getByRole('alert')
+      .filter({ hasText: "You can't approve or reject your own request. Another admin will decide on it." });
     // The values carry test IDs: request-<name> in the Request card, request-detail-<name> in the
     // type's own details.
     this.statusValue = page.getByTestId('request-status');

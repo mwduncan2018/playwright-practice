@@ -21,15 +21,15 @@ test('SP-009 Schedule an announcement for standard users', { tag: '@regression',
     await adminUser.announcementWizard.titleInput.fill(announcementTitle);
     await adminUser.announcementWizard.messageTextarea.fill('The cafeteria opens an hour later on Friday.');
     await adminUser.announcementWizard.nextButton.click();
-    await adminUser.announcementWizard.dialog.getByRole('radio', { name: 'Standard users only', exact: true }).check();
+    await adminUser.announcementWizard.standardUsersOnlyAudienceRadio.check();
     await adminUser.announcementWizard.nextButton.click();
-    await adminUser.announcementWizard.dialog.getByRole('radio', { name: 'Schedule for a later date', exact: true }).check();
+    await adminUser.announcementWizard.scheduleForLaterDateRadio.check();
     await adminUser.announcementWizard.publishOnInput.fill(publishDate);
     await adminUser.announcementWizard.pinnedCheckbox.check();
     await adminUser.announcementWizard.nextButton.click();
     const expectedResult = 'The Review step shows "Standard users only" and the date at 09:00 UTC.';
-    await expect(adminUser.announcementWizard.dialog.getByRole('region', { name: 'Audience' }), expectedResult).toContainText('Standard users only');
-    await expect(adminUser.announcementWizard.dialog.getByRole('region', { name: 'Publishing' }), expectedResult).toContainText(`${publishDate} at 09:00 UTC`);
+    await expect(adminUser.announcementWizard.audienceReviewRegion, expectedResult).toContainText('Standard users only');
+    await expect(adminUser.announcementWizard.publishingReviewRegion, expectedResult).toContainText(`${publishDate} at 09:00 UTC`);
   });
 
   await test.step('4. Select Schedule announcement, then select View announcement.', async () => {
@@ -49,6 +49,6 @@ test('SP-009 Schedule an announcement for standard users', { tag: '@regression',
   await test.step('6. As the admin, delete the announcement.', async () => {
     await adminUser.announcementPage.deleteButton.click();
     await adminUser.deleteAnnouncementDialog.confirmButton.click();
-    await expect(adminUser.alertsPage.alertMessages.filter({ hasText: 'Deleted the announcement.' }), 'The message "Deleted the announcement." appears.').toBeVisible();
+    await expect(adminUser.alertsPage.announcementDeletedAlert, 'The message "Deleted the announcement." appears.').toBeVisible();
   });
 });

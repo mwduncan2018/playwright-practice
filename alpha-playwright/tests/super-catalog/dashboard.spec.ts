@@ -15,7 +15,7 @@ test('SC-002 Dashboard counts and low-stock products', { tag: '@smoke', annotati
     await standardUser.dashboardPage.lowStockLink.click();
     await expect(standardUser.productsPage.lowStockOnlyCheckbox, 'The Products page opens with "Low stock only" checked.').toBeChecked();
     const expectedResult = 'Every product listed has a Low badge.';
-    await expect(standardUser.productsPage.productRows.first(), expectedResult).toBeVisible();
+    await expect(standardUser.productsPage.firstProductRow, expectedResult).toBeVisible();
     await expect(standardUser.productsPage.productRowsWithoutLowBadge, expectedResult).toHaveCount(0);
   });
 });

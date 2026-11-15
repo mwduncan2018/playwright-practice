@@ -24,7 +24,7 @@ test('SP-001 Request equipment shipped to an address', { tag: '@smoke', annotati
   });
 
   await test.step('4. Choose Ship to an address and select Next without entering an address.', async () => {
-    await standardUser.equipmentWizard.dialog.getByRole('radio', { name: 'Ship to an address', exact: true }).check();
+    await standardUser.equipmentWizard.shipToAnAddressRadio.check();
     await standardUser.equipmentWizard.nextButton.click();
     await expect(standardUser.equipmentWizard.deliveryAddressTextarea, 'Delivery address says "Enter the full delivery address."').toHaveAccessibleErrorMessage('Enter the full delivery address.');
   });
@@ -36,14 +36,14 @@ test('SP-001 Request equipment shipped to an address', { tag: '@smoke', annotati
   });
 
   await test.step('6. Choose the priority, enter the reason, and select Next.', async () => {
-    await standardUser.equipmentWizard.dialog.getByRole('radio', { name: 'High', exact: true }).check();
+    await standardUser.equipmentWizard.highPriorityRadio.check();
     await standardUser.equipmentWizard.reasonTextarea.fill(requestReason);
     await standardUser.equipmentWizard.nextButton.click();
     const expectedResult = 'The Review step shows the item, quantity, delivery, address, priority and reason.';
-    await expect(standardUser.equipmentWizard.dialog.getByRole('region', { name: 'Equipment' }), expectedResult).toContainText(/Item\s*Monitor\s*Quantity\s*2/);
-    await expect(standardUser.equipmentWizard.dialog.getByRole('region', { name: 'Delivery' }), expectedResult).toContainText(`Ship to an address${'Address'}${deliveryAddress}`);
-    await expect(standardUser.equipmentWizard.dialog.getByRole('region', { name: 'Priority and reason' }), expectedResult).toContainText(/Priority\s*High/);
-    await expect(standardUser.equipmentWizard.dialog.getByRole('region', { name: 'Priority and reason' }), expectedResult).toContainText(requestReason);
+    await expect(standardUser.equipmentWizard.equipmentReviewRegion, expectedResult).toContainText(/Item\s*Monitor\s*Quantity\s*2/);
+    await expect(standardUser.equipmentWizard.deliveryReviewRegion, expectedResult).toContainText(`Ship to an address${'Address'}${deliveryAddress}`);
+    await expect(standardUser.equipmentWizard.priorityAndReasonReviewRegion, expectedResult).toContainText(/Priority\s*High/);
+    await expect(standardUser.equipmentWizard.priorityAndReasonReviewRegion, expectedResult).toContainText(requestReason);
   });
 
   const requestNumber = await test.step('7. Select Submit request.', async () => {
@@ -72,7 +72,7 @@ test('SP-002 Change answers with Back and Edit', { tag: '@regression', annotatio
   await test.step('2. Choose Figma and select Next, then choose 1 year and 3 seats and select Next.', async () => {
     await standardUser.softwareWizard.softwareSelect.selectOption('Figma');
     await standardUser.softwareWizard.nextButton.click();
-    await standardUser.softwareWizard.dialog.getByRole('radio', { name: '1 year', exact: true }).check();
+    await standardUser.softwareWizard.oneYearLicenseRadio.check();
     await standardUser.softwareWizard.seatsInput.fill('3');
     await standardUser.softwareWizard.nextButton.click();
     await expect(standardUser.softwareWizard.progressText, 'The Priority and reason step opens at "Step 3 of 4".').toHaveText('Step 3 of 4');
@@ -81,7 +81,7 @@ test('SP-002 Change answers with Back and Edit', { tag: '@regression', annotatio
   await test.step('3. Select Back.', async () => {
     await standardUser.softwareWizard.backButton.click();
     const expectedResult = 'The License step still shows 1 year and 3 seats.';
-    await expect(standardUser.softwareWizard.dialog.getByRole('radio', { name: '1 year', exact: true }), expectedResult).toBeChecked();
+    await expect(standardUser.softwareWizard.oneYearLicenseRadio, expectedResult).toBeChecked();
     await expect(standardUser.softwareWizard.seatsInput, expectedResult).toHaveValue('3');
   });
 
@@ -90,17 +90,17 @@ test('SP-002 Change answers with Back and Edit', { tag: '@regression', annotatio
     await standardUser.softwareWizard.reasonTextarea.fill('Our team plans projects on a shared whiteboard.');
     await standardUser.softwareWizard.nextButton.click();
     const expectedResult = 'The Review step shows Figma, 1 year and 3 seats.';
-    await expect(standardUser.softwareWizard.dialog.getByRole('region', { name: 'Software' }), expectedResult).toContainText(/Software\s*Figma/);
-    await expect(standardUser.softwareWizard.dialog.getByRole('region', { name: 'License' }), expectedResult).toContainText(/License length\s*1 year\s*Seats\s*3/);
+    await expect(standardUser.softwareWizard.softwareReviewRegion, expectedResult).toContainText(/Software\s*Figma/);
+    await expect(standardUser.softwareWizard.licenseReviewRegion, expectedResult).toContainText(/License length\s*1 year\s*Seats\s*3/);
   });
 
   await test.step('5. Select Edit for Software, choose Miro, and select Next until the Review step.', async () => {
-    await standardUser.softwareWizard.dialog.getByRole('button', { name: 'Edit Software' }).click();
+    await standardUser.softwareWizard.editSoftwareButton.click();
     await standardUser.softwareWizard.softwareSelect.selectOption('Miro');
     await standardUser.softwareWizard.nextButton.click();
     await standardUser.softwareWizard.nextButton.click();
     await standardUser.softwareWizard.nextButton.click();
-    await expect(standardUser.softwareWizard.dialog.getByRole('region', { name: 'Software' }), 'The Review step shows Miro.').toContainText(/Software\s*Miro/);
+    await expect(standardUser.softwareWizard.softwareReviewRegion, 'The Review step shows Miro.').toContainText(/Software\s*Miro/);
   });
 
   await test.step('6. Select Submit request, then select View request.', async () => {
@@ -121,7 +121,7 @@ test('SP-003 Administrator access adds a security review', { tag: '@regression',
 
   await test.step('2. Choose the system and the access level.', async () => {
     await standardUser.accessWizard.systemSelect.selectOption('Production database');
-    await standardUser.accessWizard.dialog.getByRole('radio', { name: 'Administrator', exact: true }).check();
+    await standardUser.accessWizard.administratorAccessRadio.check();
     await expect(standardUser.accessWizard.progressText, 'The wizard now says "Step 1 of 4".').toHaveText('Step 1 of 4');
     await expect(standardUser.accessWizard.stepsList, 'A Security review step is added to the list of steps.').toContainText('Security review');
   });

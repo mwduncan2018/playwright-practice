@@ -4,12 +4,12 @@ test('SC-010 Standard users can view but not change', { tag: '@smoke', annotatio
   await test.step('1. Open the Products page.', async () => {
     await standardUser.page.goto(standardUser.productsPage.path);
     // Wait for the list, so the check below isn't made before the page has drawn.
-    await expect(standardUser.productsPage.productRows.first()).toBeVisible();
+    await expect(standardUser.productsPage.firstProductRow).toBeVisible();
     await expect(standardUser.productsPage.newProductLink, "There's no New product button.").toHaveCount(0);
   });
 
   await test.step('2. Open Adjustable Dumbbells.', async () => {
-    await standardUser.productsPage.productsTable.getByRole('link', { name: 'Adjustable Dumbbells', exact: true }).click();
+    await standardUser.productsPage.adjustableDumbbellsLink.click();
     await expect(standardUser.productPage.skuValue, "The product's page shows SKU SPO-1002.").toHaveText('SPO-1002');
     const expectedResult = 'There are no Edit or Delete buttons.';
     await expect(standardUser.productPage.editLink, expectedResult).toHaveCount(0);

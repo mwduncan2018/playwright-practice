@@ -9,10 +9,13 @@ export interface TestProduct {
   supplier: string;
   price: string;
   stock: string;
-  status: 'Active' | 'Draft' | 'Discontinued';
 }
 
-/** The plan's test data for a new product (SC-005, SC-007, SC-008), with a SKU of its own. */
+/**
+ * The plan's test data for a new product (SC-005, SC-007, SC-008), with a SKU of its own. Its status,
+ * Draft, is chosen in the tests with productFormPage.draftStatusRadio, since each status is a fixed
+ * radio button with its own locator.
+ */
 export function newTestProduct(): TestProduct {
   const sku = uniqueSku();
   return {
@@ -22,7 +25,6 @@ export function newTestProduct(): TestProduct {
     supplier: 'Granite Works',
     price: '19.99',
     stock: '25',
-    status: 'Draft',
   };
 }
 

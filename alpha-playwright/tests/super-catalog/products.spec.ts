@@ -44,12 +44,12 @@ test('SC-004 Sort, page through and export products', { tag: '@regression', anno
     await expect(standardUser.productsPage.columnHeader('Price')).toHaveAttribute('aria-sort', 'ascending');
     await standardUser.productsPage.sortBy('Price');
     await expect(standardUser.productsPage.columnHeader('Price'), 'The Price column is sorted from highest to lowest.').toHaveAttribute('aria-sort', 'descending');
-    await expect(standardUser.productsPage.productRows.first(), 'The first product is 27-inch Monitor at $279.00.').toContainText(/27-inch Monitor.*\$279\.00/);
+    await expect(standardUser.productsPage.firstProductRow, 'The first product is 27-inch Monitor at $279.00.').toContainText(/27-inch Monitor.*\$279\.00/);
   });
 
   await test.step('3. Select the Price column heading again.', async () => {
     await standardUser.productsPage.sortBy('Price');
-    await expect(standardUser.productsPage.productRows.first(), 'The first product is USB-C Charging Cable at $12.99.').toContainText(/USB-C Charging Cable.*\$12\.99/);
+    await expect(standardUser.productsPage.firstProductRow, 'The first product is USB-C Charging Cable at $12.99.').toContainText(/USB-C Charging Cable.*\$12\.99/);
   });
 
   await test.step('4. Select Export CSV.', async () => {

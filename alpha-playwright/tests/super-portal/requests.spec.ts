@@ -9,7 +9,7 @@ test('SP-005 Comment on and cancel your request', { tag: '@regression', annotati
     await standardUser.equipmentWizard.itemSelect.selectOption('Keyboard');
     await standardUser.equipmentWizard.quantityInput.fill('1');
     await standardUser.equipmentWizard.nextButton.click();
-    await standardUser.equipmentWizard.dialog.getByRole('radio', { name: 'Deliver to my desk', exact: true }).check();
+    await standardUser.equipmentWizard.deliverToMyDeskRadio.check();
     await standardUser.equipmentWizard.nextButton.click();
     await standardUser.equipmentWizard.reasonTextarea.fill('The keys on my keyboard stick.');
     await standardUser.equipmentWizard.nextButton.click();
@@ -25,7 +25,7 @@ test('SP-005 Comment on and cancel your request', { tag: '@regression', annotati
   await test.step('2. Enter the comment and select Post comment.', async () => {
     await standardUser.requestPage.commentTextarea.fill(commentText);
     await standardUser.requestPage.postCommentButton.click();
-    await expect(standardUser.alertsPage.alertMessages.filter({ hasText: 'Comment posted.' }), 'The message "Comment posted." appears.').toBeVisible();
+    await expect(standardUser.alertsPage.commentPostedAlert, 'The message "Comment posted." appears.').toBeVisible();
     await expect(standardUser.requestPage.historyList, 'The history lists the comment.').toContainText(commentText);
   });
 
