@@ -126,8 +126,8 @@ await admin.productForm.createButton.click();
   with a name or number, such as "Edit Electronics" or "Reject REQ-1016", matches whichever is open:
   `admin.editCategoryDialog`.
 - **One class per file**: every page object, dialog, wizard or other component has a file of its own,
-  named after it, such as `announcement.page.ts`, `announcements.page.ts`, `confirm-dialog.ts` or
-  `decision-dialog.ts`.
+  named after it and ending in what it is: `home.page.ts` for a page, `announcement.wizard.ts` for a
+  wizard, and `confirm.dialog.ts` for a dialog.
 - **Things that vary per test are found in the test** from a property, such as a radio button,
   `standard.equipmentWizard.dialog.getByRole('radio', { name: 'High', exact: true })`, or a message,
   `standard.layout.alerts.filter({ hasText: 'Comment posted.' })`.

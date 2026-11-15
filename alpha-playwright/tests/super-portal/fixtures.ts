@@ -8,18 +8,18 @@ import type { Page } from '@playwright/test';
 
 import { expect, testWithUsers } from '../../shared/fixtures';
 import { testPlan } from '../../shared/test-plan';
-import { AnnouncementWizard } from './pages/announcement-wizard';
 import { AnnouncementPage } from './pages/announcement.page';
+import { AnnouncementWizard } from './pages/announcement.wizard';
 import { AnnouncementsPage } from './pages/announcements.page';
 import { ApprovalsPage } from './pages/approvals.page';
-import { ConfirmDialog } from './pages/confirm-dialog';
-import { DecisionDialog } from './pages/decision-dialog';
+import { ConfirmDialog } from './pages/confirm.dialog';
+import { DecisionDialog } from './pages/decision.dialog';
 import { HomePage } from './pages/home.page';
 import { PortalLayout } from './pages/layout';
 import { MyRequestsPage } from './pages/my-requests.page';
 import { NewRequestPage } from './pages/new-request.page';
-import { RequestWizard } from './pages/request-wizard';
 import { RequestPage } from './pages/request.page';
+import { RequestWizard } from './pages/request.wizard';
 import { SettingsPage } from './pages/settings.page';
 
 function portalPages(page: Page) {
