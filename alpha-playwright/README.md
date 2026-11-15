@@ -87,9 +87,9 @@ Every page object class extends the base page in `shared/base.page.ts`: pages, a
 the navbar, alerts, wizards and dialogs. The base page gives each one:
 
 - `getCurrentUrl()`: the address the browser is on now. It reads the address once, without waiting, so
-  to check where a test ended up, use `await expect(admin.page).toHaveURL(...)`, which waits for it.
+  to check where a test ended up, use `await expect(adminUser.page).toHaveURL(...)`, which waits for it.
 - `getTabTitle()`: the browser tab's title now. It reads the title once, without waiting, so to check
-  it, use `await expect(admin.page).toHaveTitle(...)`, which waits for it.
+  it, use `await expect(adminUser.page).toHaveTitle(...)`, which waits for it.
 - `takeScreenshot(name)`: a full-page screenshot, added to the test's report under that name. It only
   works while a test is running.
 
@@ -105,36 +105,43 @@ check shows up in the test and its report. Each line names the user first:
 `<user>.<pageObject>.<locator>.<playwrightMethod>`.
 
 ```ts
-await admin.page.goto(admin.productForm.path);
-await admin.productForm.name.fill(product.name);
-await admin.productForm.createButton.click();
+await adminUser.page.goto(adminUser.productFormPage.path);
+await adminUser.productFormPage.name.fill(testProduct.name);
+await adminUser.productFormPage.createButton.click();
 ```
 
 - **Locators are properties**: buttons, fields, headings, and fixed sets of values such as a product's
   `price` or a request's `status`.
-- **A page's address is a `path` property**, opened with `admin.page.goto(admin.products.path)`. A page
-  whose address ends in a number has the start of it:
-  `standard.page.goto(standard.request.path + requestNumber)`.
+- **A page's address is a `path` property**, opened with
+  `adminUser.page.goto(adminUser.productsPage.path)`. A page whose address ends in a number has the
+  start of it: `standardUser.page.goto(standardUser.requestPage.path + requestNumber)`.
 - **Methods only for dynamic tables and lists**: rows that come and go, found by a value a test
-  creates or loops over, such as `admin.products.row(sku)`, `admin.approvals.approveButton(requestNumber)`
-  or `admin.categories.productCount(name)`.
+  creates or loops over, such as `adminUser.productsPage.row(sku)`,
+  `adminUser.approvalsPage.approveButton(requestNumber)` or
+  `adminUser.categoriesPage.productCount(categoryName)`.
 - **No methods for flows**, such as signing in or filling in a form. Those steps go in the test, even
   when they're long.
 - **No nested page objects**: a page object holds locators, never another page object or component.
   Wizards and dialogs sit beside the pages on each user, named for what they're for:
-  `admin.announcementWizard.title`, `admin.rejectDialog.confirmButton` or
-  `admin.deleteProductDialog.confirmButton`. Only one dialog is open at a time, so a dialog titled
+  `adminUser.announcementWizard.title`, `adminUser.rejectDialog.confirmButton` or
+  `adminUser.deleteProductDialog.confirmButton`. Only one dialog is open at a time, so a dialog titled
   with a name or number, such as "Edit Electronics" or "Reject REQ-1016", matches whichever is open:
-  `admin.editCategoryDialog`.
+  `adminUser.editCategoryDialog`.
 - **One class per file**: every page object, dialog, wizard or other component has a file of its own,
   named after it and ending in what it is: `home.page.ts` for a page, `announcement.wizard.ts` for a
   wizard, and `confirm.dialog.ts` for a dialog.
 - **Things that vary per test are found in the test** from a property, such as a radio button,
-  `standard.equipmentWizard.dialog.getByRole('radio', { name: 'High', exact: true })`, or a message,
-  `standard.alerts.messages.filter({ hasText: 'Comment posted.' })`.
-- **The user is written out every time**: `standard.equipmentWizard.item`, not a shortcut such as
-  `const wizard = standard.equipmentWizard`, so every line says whose browser it acts in.
-- **Assertions keep Playwright's shape**: `await expect(admin.request.status).toHaveText('Rejected')`.
+  `standardUser.equipmentWizard.dialog.getByRole('radio', { name: 'High', exact: true })`, or a message,
+  `standardUser.alertsPage.messages.filter({ hasText: 'Comment posted.' })`.
+- **The user is written out every time**: `standardUser.equipmentWizard.item`, not a shortcut such as
+  `const wizard = standardUser.equipmentWizard`, so every line says whose browser it acts in.
+- **Every name says what it is**: users end in `User` (`standardUser`, `adminUser`), page objects in
+  `Page` (`productsPage`, `keycloakPage`), wizards in `Wizard` and dialogs in `Dialog`. A test's own
+  variables say what they hold, such as `testProduct`, `rejectionReason` or `deliveryAddress`, and
+  `expectedResult` is a step's expected result from the plan when several checks share it as their
+  message.
+- **Assertions keep Playwright's shape**:
+  `await expect(adminUser.requestPage.status).toHaveText('Rejected')`.
 
 The base page's three methods are the team's agreed exception.
 
@@ -145,9 +152,9 @@ SKUs, dates and products.
 To check a download, start waiting for it before the click that starts it:
 
 ```ts
-const downloading = standard.page.waitForEvent('download');
-await standard.products.exportCsv.click();
-const download = await downloading;
+const downloadPromise = standardUser.page.waitForEvent('download');
+await standardUser.productsPage.exportCsv.click();
+const csvDownload = await downloadPromise;
 ```
 
 ## Signing in
@@ -161,24 +168,24 @@ Super Catalog and Super Portal's tests import `test` and `expect` from their app
 test asks for the users it needs by name, the same way it asks for any fixture:
 
 ```ts
-test('SP-006 An admin approves a request', { tag: '@smoke' }, async ({ standard, admin }) => {
+test('SP-006 An admin approves a request', { tag: '@smoke' }, async ({ standardUser, adminUser }) => {
 ```
 
 Each user has a browser of their own, started from their saved session, with every page object for
-the app on it. Each also has their `page`, their `account` (such as `admin.account.name`) and
-`keycloak`, Keycloak's sign-in page. Playwright only opens browsers for the users a test asks for, and
+the app on it. Each also has their `page`, their `account` (such as `adminUser.account.name`) and
+`keycloakPage`, Keycloak's sign-in page. Playwright only opens browsers for the users a test asks for, and
 the trace shows every user's page.
 
-| User           | Account   | Use it for                                                                        |
-| -------------- | --------- | --------------------------------------------------------------------------------- |
-| `standard`     | standard1 | Most tests: shared by many tests at the same time                                 |
-| `admin`        | admin1    | Admin tests: also shared                                                          |
-| `standardSide` | standard2 | A test that changes the user's own data, such as Settings. Tag it `@side-account` |
-| `signedOut`    | none      | A test that signs in itself, such as the sign-in test                             |
+| User               | Account   | Use it for                                                                        |
+| ------------------ | --------- | --------------------------------------------------------------------------------- |
+| `standardUser`     | standard1 | Most tests: shared by many tests at the same time                                 |
+| `adminUser`        | admin1    | Admin tests: also shared                                                          |
+| `standardSideUser` | standard2 | A test that changes the user's own data, such as Settings. Tag it `@side-account` |
+| `signedOutUser`    | none      | A test that signs in itself, such as the sign-in test                             |
 
 Tests on a shared account run at the same time as each other, so they mustn't change anything stored
 for the user, such as settings or preferences. They create records with unique names and check only
 those, and they never sign out of the shared session. A test that has to change the user's own data
-uses `standardSide` and is tagged `@side-account`, which runs it in the `side-accounts` project, one
-test at a time. A test that uses `standardSide` without the tag fails straight away, before it opens
+uses `standardSideUser` and is tagged `@side-account`, which runs it in the `side-accounts` project, one
+test at a time. A test that uses `standardSideUser` without the tag fails straight away, before it opens
 a browser.

@@ -9,11 +9,11 @@ import type { Locator } from '@playwright/test';
  * A trace still records the secret, since it records what's typed and sent. So a test that types
  * one turns its trace off: test.use({ trace: 'off' }).
  */
-export async function fillSecret(field: Locator, secret: string): Promise<void> {
-  await field.click();
-  await field.evaluate((input: HTMLInputElement, value) => {
-    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set?.call(input, value);
-    input.dispatchEvent(new Event('input', { bubbles: true }));
-    input.dispatchEvent(new Event('change', { bubbles: true }));
+export async function fillSecret(secretField: Locator, secret: string): Promise<void> {
+  await secretField.click();
+  await secretField.evaluate((inputElement: HTMLInputElement, secretValue) => {
+    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set?.call(inputElement, secretValue);
+    inputElement.dispatchEvent(new Event('input', { bubbles: true }));
+    inputElement.dispatchEvent(new Event('change', { bubbles: true }));
   }, secret);
 }

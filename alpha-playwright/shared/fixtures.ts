@@ -1,8 +1,8 @@
 /**
  * The fixtures every application's tests share: the users in a test. Each user is a fixture named
  * after the account they're signed in as, with a browser of their own and the app's page objects on
- * it, so a test reads as who does what: admin.products.newProduct.click(). Each app's fixtures.ts
- * adds its page objects with testWithUsers().
+ * it, so a test reads as who does what: adminUser.productsPage.newProduct.click(). Each app's
+ * fixtures.ts adds its page objects with testWithUsers().
  */
 import { type Browser, type Page, expect, test as base } from '@playwright/test';
 
@@ -14,34 +14,34 @@ interface UserBasics {
   /** The user's own page, in a browser context of their own. */
   page: Page;
   /** Keycloak's sign-in page, on the user's page. */
-  keycloak: KeycloakPage;
+  keycloakPage: KeycloakPage;
 }
 
 /** A signed-in user: their page, their account, and the app's page objects on their page. */
-export type SignedInUser<Pages> = Pages & UserBasics & { account: Account };
+export type SignedInUser<AppPages> = AppPages & UserBasics & { account: Account };
 
 /** A user who isn't signed in: their page and the app's page objects on it. */
-export type SignedOutUser<Pages> = Pages & UserBasics;
+export type SignedOutUser<AppPages> = AppPages & UserBasics;
 
-export interface Users<Pages> {
+export interface Users<AppPages> {
   /** Standard One, on the shared standard account. Tests on it mustn't change the user's own data. */
-  standard: SignedInUser<Pages>;
+  standardUser: SignedInUser<AppPages>;
   /** Admin One, on the shared admin account. Tests on it mustn't change the user's own data. */
-  admin: SignedInUser<Pages>;
+  adminUser: SignedInUser<AppPages>;
   /**
    * Standard Two, on a side account, for a test that changes the user's own data, such as Settings.
    * The test must be tagged @side-account, which runs it one test at a time.
    */
-  standardSide: SignedInUser<Pages>;
+  standardSideUser: SignedInUser<AppPages>;
   /** Someone who isn't signed in, as in a test of the sign-in page itself. */
-  signedOut: SignedOutUser<Pages>;
+  signedOutUser: SignedOutUser<AppPages>;
 }
 
 /**
  * The test function for an app's tests, with every user in Users. Playwright only sets up the users
  * a test asks for, so a test with one user opens one browser context.
  */
-export function testWithUsers<Pages extends object>(appPages: (page: Page) => Pages) {
+export function testWithUsers<AppPages extends object>(createAppPages: (page: Page) => AppPages) {
   /**
    * Opens a browser context for one user, starting from the session the setup project saved
    * (shared/auth.setup.ts), or signed out, and closes it after the test. Playwright gives a context
@@ -50,48 +50,50 @@ export function testWithUsers<Pages extends object>(appPages: (page: Page) => Pa
   async function openAs<User>(
     browser: Browser,
     accountName: AccountName | undefined,
-    makeUser: (basics: UserBasics) => User,
+    createUser: (userBasics: UserBasics) => User,
     use: (user: User) => Promise<void>,
   ): Promise<void> {
-    const context = await browser.newContext({ storageState: accountName ? sessionFile(accountName) : undefined });
-    const page = await context.newPage();
-    await use(makeUser({ page, keycloak: new KeycloakPage(page) }));
-    await context.close();
+    const browserContext = await browser.newContext({
+      storageState: accountName ? sessionFile(accountName) : undefined,
+    });
+    const page = await browserContext.newPage();
+    await use(createUser({ page, keycloakPage: new KeycloakPage(page) }));
+    await browserContext.close();
   }
 
   function signedIn(accountName: AccountName) {
-    return (basics: UserBasics): SignedInUser<Pages> => ({
-      ...appPages(basics.page),
-      ...basics,
+    return (userBasics: UserBasics): SignedInUser<AppPages> => ({
+      ...createAppPages(userBasics.page),
+      ...userBasics,
       account: account(accountName),
     });
   }
 
-  return base.extend<Users<Pages>>({
-    standard: async ({ browser }, use) => {
+  return base.extend<Users<AppPages>>({
+    standardUser: async ({ browser }, use) => {
       await openAs(browser, 'standard', signedIn('standard'), use);
     },
 
-    admin: async ({ browser }, use) => {
+    adminUser: async ({ browser }, use) => {
       await openAs(browser, 'admin', signedIn('admin'), use);
     },
 
-    standardSide: async ({ browser }, use, testInfo) => {
+    standardSideUser: async ({ browser }, use, testInfo) => {
       // A test on a side account runs apart from the tests on shared accounts only when it's tagged.
       if (!testInfo.tags.includes('@side-account')) {
         throw new Error(
-          "standardSide is a side account, for a test that changes the user's own data. Tag the test " +
-            '@side-account, which runs it one test at a time, apart from the tests on shared accounts.',
+          "standardSideUser is on a side account, for a test that changes the user's own data. Tag the " +
+            'test @side-account, which runs it one test at a time, apart from the tests on shared accounts.',
         );
       }
       await openAs(browser, 'standard-side', signedIn('standard-side'), use);
     },
 
-    signedOut: async ({ browser }, use) => {
+    signedOutUser: async ({ browser }, use) => {
       await openAs(
         browser,
         undefined,
-        (basics): SignedOutUser<Pages> => ({ ...appPages(basics.page), ...basics }),
+        (userBasics): SignedOutUser<AppPages> => ({ ...createAppPages(userBasics.page), ...userBasics }),
         use,
       );
     },

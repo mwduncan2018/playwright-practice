@@ -1,8 +1,8 @@
 /**
- * Super Catalog's tests import test and expect from here. Each user a test asks for, such as standard
- * or admin, has a browser of their own and every Super Catalog page object on it:
- * admin.products.newProduct. Dialogs sit beside the pages, never inside one:
- * admin.deleteProductDialog.confirmButton.
+ * Super Catalog's tests import test and expect from here. Each user a test asks for, such as
+ * standardUser or adminUser, has a browser of their own and every Super Catalog page object on it:
+ * adminUser.productsPage.newProduct. Dialogs sit beside the pages, never inside one:
+ * adminUser.deleteProductDialog.confirmButton.
  */
 import type { Page } from '@playwright/test';
 
@@ -20,25 +20,25 @@ import { ProductFormPage } from './pages/product-form.page';
 import { ProductPage } from './pages/product.page';
 import { ProductsPage } from './pages/products.page';
 
-function catalogPages(page: Page) {
+function createCatalogPages(page: Page) {
   return {
-    navbar: new NavbarPage(page),
-    alerts: new AlertsPage(page),
-    dashboard: new DashboardPage(page),
-    products: new ProductsPage(page),
-    productForm: new ProductFormPage(page),
-    product: new ProductPage(page),
+    navbarPage: new NavbarPage(page),
+    alertsPage: new AlertsPage(page),
+    dashboardPage: new DashboardPage(page),
+    productsPage: new ProductsPage(page),
+    productFormPage: new ProductFormPage(page),
+    productPage: new ProductPage(page),
     deleteProductDialog: new ConfirmDialog(page, 'Delete product'),
-    categories: new CategoriesPage(page),
+    categoriesPage: new CategoriesPage(page),
     newCategoryDialog: new CategoryDialog(page, 'New category'),
     editCategoryDialog: new CategoryDialog(page, /^Edit /),
     deleteCategoryDialog: new ConfirmDialog(page, 'Delete category'),
-    activityLog: new ActivityLogPage(page),
-    accessDenied: new AccessDeniedPage(page),
+    activityLogPage: new ActivityLogPage(page),
+    accessDeniedPage: new AccessDeniedPage(page),
   };
 }
 
-export const test = testWithUsers(catalogPages);
+export const test = testWithUsers(createCatalogPages);
 
 export { expect };
 

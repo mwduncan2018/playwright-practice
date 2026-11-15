@@ -15,27 +15,28 @@ for (const accountName of ACCOUNT_NAMES) {
   setup(`sign in as ${accountName}`, async ({ page, baseURL }) => {
     const { username, password } = account(accountName);
     await page.goto('/');
-    const keycloak = new KeycloakPage(page);
+    const keycloakPage = new KeycloakPage(page);
     // Keycloak's address isn't configured here, because the app redirects to it. So this is where a
     // Keycloak that's down shows up.
-    await keycloak.username.waitFor({ timeout: 15_000 }).catch(() => {
+    await keycloakPage.username.waitFor({ timeout: 15_000 }).catch(() => {
       throw new Error(`${baseURL} didn't open Keycloak's sign-in page. Is Keycloak running?`);
     });
-    await keycloak.username.fill(username);
-    await fillSecret(keycloak.password, password);
-    await keycloak.signInButton.click();
+    await keycloakPage.username.fill(username);
+    await fillSecret(keycloakPage.password, password);
+    await keycloakPage.signInButton.click();
 
     // Wait to be back on the app, or for Keycloak to say why not, such as a wrong password.
     const appOrigin = new URL(baseURL!).origin;
-    const outcome = await Promise.race([
+    const signInOutcome = await Promise.race([
       page.waitForURL((url) => url.origin === appOrigin, { timeout: 15_000 }).then(() => 'signed in' as const),
-      keycloak.errorMessage.waitFor({ timeout: 15_000 }).then(() => 'refused' as const),
+      keycloakPage.errorMessage.waitFor({ timeout: 15_000 }).then(() => 'refused' as const),
     ]).catch(() => 'no answer' as const);
-    if (outcome !== 'signed in') {
-      const message = outcome === 'refused' ? await keycloak.errorMessage.innerText().catch(() => null) : null;
+    if (signInOutcome !== 'signed in') {
+      const keycloakErrorMessage =
+        signInOutcome === 'refused' ? await keycloakPage.errorMessage.innerText().catch(() => null) : null;
       throw new Error(
         `Couldn't sign in to ${baseURL} as ${username}` +
-          (message ? `: Keycloak says "${message.trim()}"` : '') +
+          (keycloakErrorMessage ? `: Keycloak says "${keycloakErrorMessage.trim()}"` : '') +
           `. Check ${passwordVariable(username)}.`,
       );
     }

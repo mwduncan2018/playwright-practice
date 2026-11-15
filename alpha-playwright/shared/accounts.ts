@@ -33,11 +33,11 @@ export function passwordVariable(username: string): string {
 /** An account, with its password from its variable. */
 export function account(accountName: AccountName): Account {
   const { role, username, name } = ACCOUNTS[accountName];
-  const variable = passwordVariable(username);
-  const password = process.env[variable];
+  const passwordVariableName = passwordVariable(username);
+  const password = process.env[passwordVariableName];
   if (!password) {
     throw new Error(
-      `${variable} isn't set, so the tests can't sign in as ${username}. ` +
+      `${passwordVariableName} isn't set, so the tests can't sign in as ${username}. ` +
         'Set it in alpha-playwright/.env locally, or as a masked CI variable.',
     );
   }

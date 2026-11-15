@@ -1,253 +1,253 @@
 import { expect, plan, test } from './fixtures';
 
-test('SP-001 Request equipment shipped to an address', { tag: '@smoke', annotation: plan('SP-001') }, async ({ standard }) => {
-  const address = '500 Market Street, Seattle, WA 98101';
-  const reason = 'Two monitors for my new desk in the Seattle office.';
+test('SP-001 Request equipment shipped to an address', { tag: '@smoke', annotation: plan('SP-001') }, async ({ standardUser }) => {
+  const deliveryAddress = '500 Market Street, Seattle, WA 98101';
+  const requestReason = 'Two monitors for my new desk in the Seattle office.';
 
   await test.step('1. Open New request and select Request equipment.', async () => {
-    await standard.page.goto(standard.newRequest.path);
-    await standard.newRequest.requestEquipment.click();
+    await standardUser.page.goto(standardUser.newRequestPage.path);
+    await standardUser.newRequestPage.requestEquipment.click();
     await expect(
-      standard.equipmentWizard.progress,
+      standardUser.equipmentWizard.progress,
       'The Request equipment wizard opens at "Step 1 of 4".',
     ).toHaveText('Step 1 of 4');
   });
 
   await test.step('2. Select Next without choosing anything.', async () => {
-    await standard.equipmentWizard.nextButton.click();
-    await expect(standard.equipmentWizard.item, 'Item says "Choose an item."').toHaveAccessibleErrorMessage(
+    await standardUser.equipmentWizard.nextButton.click();
+    await expect(standardUser.equipmentWizard.item, 'Item says "Choose an item."').toHaveAccessibleErrorMessage(
       'Choose an item.',
     );
-    await expect(standard.equipmentWizard.progress, 'The wizard stays at "Step 1 of 4".').toHaveText('Step 1 of 4');
+    await expect(standardUser.equipmentWizard.progress, 'The wizard stays at "Step 1 of 4".').toHaveText('Step 1 of 4');
   });
 
   await test.step('3. Choose the item and quantity, then select Next.', async () => {
-    await standard.equipmentWizard.item.selectOption('Monitor');
-    await standard.equipmentWizard.quantity.fill('2');
-    await standard.equipmentWizard.nextButton.click();
-    await expect(standard.equipmentWizard.progress, 'The Delivery step opens at "Step 2 of 4".').toHaveText(
+    await standardUser.equipmentWizard.item.selectOption('Monitor');
+    await standardUser.equipmentWizard.quantity.fill('2');
+    await standardUser.equipmentWizard.nextButton.click();
+    await expect(standardUser.equipmentWizard.progress, 'The Delivery step opens at "Step 2 of 4".').toHaveText(
       'Step 2 of 4',
     );
   });
 
   await test.step('4. Choose Ship to an address and select Next without entering an address.', async () => {
-    await standard.equipmentWizard.dialog.getByRole('radio', { name: 'Ship to an address', exact: true }).check();
-    await standard.equipmentWizard.nextButton.click();
+    await standardUser.equipmentWizard.dialog.getByRole('radio', { name: 'Ship to an address', exact: true }).check();
+    await standardUser.equipmentWizard.nextButton.click();
     await expect(
-      standard.equipmentWizard.address,
+      standardUser.equipmentWizard.address,
       'Delivery address says "Enter the full delivery address."',
     ).toHaveAccessibleErrorMessage('Enter the full delivery address.');
   });
 
   await test.step('5. Enter the address and select Next.', async () => {
-    await standard.equipmentWizard.address.fill(address);
-    await standard.equipmentWizard.nextButton.click();
+    await standardUser.equipmentWizard.address.fill(deliveryAddress);
+    await standardUser.equipmentWizard.nextButton.click();
     await expect(
-      standard.equipmentWizard.progress,
+      standardUser.equipmentWizard.progress,
       'The Priority and reason step opens at "Step 3 of 4".',
     ).toHaveText('Step 3 of 4');
   });
 
   await test.step('6. Choose the priority, enter the reason, and select Next.', async () => {
-    await standard.equipmentWizard.dialog.getByRole('radio', { name: 'High', exact: true }).check();
-    await standard.equipmentWizard.reason.fill(reason);
-    await standard.equipmentWizard.nextButton.click();
-    const review = 'The Review step shows the item, quantity, delivery, address, priority and reason.';
-    await expect(standard.equipmentWizard.dialog.getByRole('region', { name: 'Equipment' }), review).toContainText(
+    await standardUser.equipmentWizard.dialog.getByRole('radio', { name: 'High', exact: true }).check();
+    await standardUser.equipmentWizard.reason.fill(requestReason);
+    await standardUser.equipmentWizard.nextButton.click();
+    const expectedResult = 'The Review step shows the item, quantity, delivery, address, priority and reason.';
+    await expect(standardUser.equipmentWizard.dialog.getByRole('region', { name: 'Equipment' }), expectedResult).toContainText(
       /Item\s*Monitor\s*Quantity\s*2/,
     );
-    await expect(standard.equipmentWizard.dialog.getByRole('region', { name: 'Delivery' }), review).toContainText(
-      `Ship to an address${'Address'}${address}`,
+    await expect(standardUser.equipmentWizard.dialog.getByRole('region', { name: 'Delivery' }), expectedResult).toContainText(
+      `Ship to an address${'Address'}${deliveryAddress}`,
     );
     await expect(
-      standard.equipmentWizard.dialog.getByRole('region', { name: 'Priority and reason' }),
-      review,
+      standardUser.equipmentWizard.dialog.getByRole('region', { name: 'Priority and reason' }),
+      expectedResult,
     ).toContainText(/Priority\s*High/);
     await expect(
-      standard.equipmentWizard.dialog.getByRole('region', { name: 'Priority and reason' }),
-      review,
-    ).toContainText(reason);
+      standardUser.equipmentWizard.dialog.getByRole('region', { name: 'Priority and reason' }),
+      expectedResult,
+    ).toContainText(requestReason);
   });
 
   const requestNumber = await test.step('7. Select Submit request.', async () => {
-    await standard.equipmentWizard.submitButton.click();
-    const submitted = 'The wizard says "Request submitted" and shows the new request\'s number.';
-    await expect(standard.equipmentWizard.submittedHeading, submitted).toBeVisible();
-    await expect(standard.equipmentWizard.newRequestNumber, submitted).toHaveText(/^REQ-\d{4,}$/);
-    return (await standard.equipmentWizard.newRequestNumber.innerText()).trim();
+    await standardUser.equipmentWizard.submitButton.click();
+    const expectedResult = 'The wizard says "Request submitted" and shows the new request\'s number.';
+    await expect(standardUser.equipmentWizard.submittedHeading, expectedResult).toBeVisible();
+    await expect(standardUser.equipmentWizard.newRequestNumber, expectedResult).toHaveText(/^REQ-\d{4,}$/);
+    return (await standardUser.equipmentWizard.newRequestNumber.innerText()).trim();
   });
 
   await test.step('8. Select View request.', async () => {
-    await standard.equipmentWizard.viewRequestButton.click();
+    await standardUser.equipmentWizard.viewRequestButton.click();
     await expect(
-      standard.request.heading,
+      standardUser.requestPage.heading,
       'The request\'s page is titled with its number and "Monitor × 2".',
     ).toHaveText(`${requestNumber} Monitor × 2`);
-    await expect(standard.request.status, 'The status is Submitted.').toHaveText('Submitted');
-    await expect(standard.request.address, 'The page shows the delivery address.').toHaveText(address);
+    await expect(standardUser.requestPage.status, 'The status is Submitted.').toHaveText('Submitted');
+    await expect(standardUser.requestPage.address, 'The page shows the delivery address.').toHaveText(deliveryAddress);
   });
 });
 
-test('SP-002 Change answers with Back and Edit', { tag: '@regression', annotation: plan('SP-002') }, async ({ standard }) => {
+test('SP-002 Change answers with Back and Edit', { tag: '@regression', annotation: plan('SP-002') }, async ({ standardUser }) => {
   await test.step('1. Open New request and select Request software.', async () => {
-    await standard.page.goto(standard.newRequest.path);
-    await standard.newRequest.requestSoftware.click();
-    await expect(standard.softwareWizard.progress, 'The Request software wizard opens at "Step 1 of 4".').toHaveText(
+    await standardUser.page.goto(standardUser.newRequestPage.path);
+    await standardUser.newRequestPage.requestSoftware.click();
+    await expect(standardUser.softwareWizard.progress, 'The Request software wizard opens at "Step 1 of 4".').toHaveText(
       'Step 1 of 4',
     );
   });
 
   await test.step('2. Choose Figma and select Next, then choose 1 year and 3 seats and select Next.', async () => {
-    await standard.softwareWizard.software.selectOption('Figma');
-    await standard.softwareWizard.nextButton.click();
-    await standard.softwareWizard.dialog.getByRole('radio', { name: '1 year', exact: true }).check();
-    await standard.softwareWizard.seats.fill('3');
-    await standard.softwareWizard.nextButton.click();
-    await expect(standard.softwareWizard.progress, 'The Priority and reason step opens at "Step 3 of 4".').toHaveText(
+    await standardUser.softwareWizard.software.selectOption('Figma');
+    await standardUser.softwareWizard.nextButton.click();
+    await standardUser.softwareWizard.dialog.getByRole('radio', { name: '1 year', exact: true }).check();
+    await standardUser.softwareWizard.seats.fill('3');
+    await standardUser.softwareWizard.nextButton.click();
+    await expect(standardUser.softwareWizard.progress, 'The Priority and reason step opens at "Step 3 of 4".').toHaveText(
       'Step 3 of 4',
     );
   });
 
   await test.step('3. Select Back.', async () => {
-    await standard.softwareWizard.backButton.click();
-    const kept = 'The License step still shows 1 year and 3 seats.';
+    await standardUser.softwareWizard.backButton.click();
+    const expectedResult = 'The License step still shows 1 year and 3 seats.';
     await expect(
-      standard.softwareWizard.dialog.getByRole('radio', { name: '1 year', exact: true }),
-      kept,
+      standardUser.softwareWizard.dialog.getByRole('radio', { name: '1 year', exact: true }),
+      expectedResult,
     ).toBeChecked();
-    await expect(standard.softwareWizard.seats, kept).toHaveValue('3');
+    await expect(standardUser.softwareWizard.seats, expectedResult).toHaveValue('3');
   });
 
   await test.step('4. Select Next, enter the reason, and select Next.', async () => {
-    await standard.softwareWizard.nextButton.click();
-    await standard.softwareWizard.reason.fill('Our team plans projects on a shared whiteboard.');
-    await standard.softwareWizard.nextButton.click();
-    const review = 'The Review step shows Figma, 1 year and 3 seats.';
-    await expect(standard.softwareWizard.dialog.getByRole('region', { name: 'Software' }), review).toContainText(
+    await standardUser.softwareWizard.nextButton.click();
+    await standardUser.softwareWizard.reason.fill('Our team plans projects on a shared whiteboard.');
+    await standardUser.softwareWizard.nextButton.click();
+    const expectedResult = 'The Review step shows Figma, 1 year and 3 seats.';
+    await expect(standardUser.softwareWizard.dialog.getByRole('region', { name: 'Software' }), expectedResult).toContainText(
       /Software\s*Figma/,
     );
-    await expect(standard.softwareWizard.dialog.getByRole('region', { name: 'License' }), review).toContainText(
+    await expect(standardUser.softwareWizard.dialog.getByRole('region', { name: 'License' }), expectedResult).toContainText(
       /License length\s*1 year\s*Seats\s*3/,
     );
   });
 
   await test.step('5. Select Edit for Software, choose Miro, and select Next until the Review step.', async () => {
-    await standard.softwareWizard.dialog.getByRole('button', { name: 'Edit Software' }).click();
-    await standard.softwareWizard.software.selectOption('Miro');
-    await standard.softwareWizard.nextButton.click();
-    await standard.softwareWizard.nextButton.click();
-    await standard.softwareWizard.nextButton.click();
+    await standardUser.softwareWizard.dialog.getByRole('button', { name: 'Edit Software' }).click();
+    await standardUser.softwareWizard.software.selectOption('Miro');
+    await standardUser.softwareWizard.nextButton.click();
+    await standardUser.softwareWizard.nextButton.click();
+    await standardUser.softwareWizard.nextButton.click();
     await expect(
-      standard.softwareWizard.dialog.getByRole('region', { name: 'Software' }),
+      standardUser.softwareWizard.dialog.getByRole('region', { name: 'Software' }),
       'The Review step shows Miro.',
     ).toContainText(/Software\s*Miro/);
   });
 
   await test.step('6. Select Submit request, then select View request.', async () => {
-    await standard.softwareWizard.submitButton.click();
-    const requestNumber = (await standard.softwareWizard.newRequestNumber.innerText()).trim();
-    await standard.softwareWizard.viewRequestButton.click();
+    await standardUser.softwareWizard.submitButton.click();
+    const requestNumber = (await standardUser.softwareWizard.newRequestNumber.innerText()).trim();
+    await standardUser.softwareWizard.viewRequestButton.click();
     await expect(
-      standard.request.heading,
+      standardUser.requestPage.heading,
       'The request\'s page is titled with its number and "Miro (1 year)".',
     ).toHaveText(`${requestNumber} Miro (1 year)`);
-    await expect(standard.request.seats, 'The page shows 3 seats.').toHaveText('3');
+    await expect(standardUser.requestPage.seats, 'The page shows 3 seats.').toHaveText('3');
   });
 });
 
-test('SP-003 Administrator access adds a security review', { tag: '@regression', annotation: plan('SP-003') }, async ({ standard }) => {
+test('SP-003 Administrator access adds a security review', { tag: '@regression', annotation: plan('SP-003') }, async ({ standardUser }) => {
   await test.step('1. Open New request and select Request access.', async () => {
-    await standard.page.goto(standard.newRequest.path);
-    await standard.newRequest.requestAccess.click();
-    await expect(standard.accessWizard.progress, 'The Request access wizard opens at "Step 1 of 3".').toHaveText(
+    await standardUser.page.goto(standardUser.newRequestPage.path);
+    await standardUser.newRequestPage.requestAccess.click();
+    await expect(standardUser.accessWizard.progress, 'The Request access wizard opens at "Step 1 of 3".').toHaveText(
       'Step 1 of 3',
     );
   });
 
   await test.step('2. Choose the system and the access level.', async () => {
-    await standard.accessWizard.system.selectOption('Production database');
-    await standard.accessWizard.dialog.getByRole('radio', { name: 'Administrator', exact: true }).check();
-    await expect(standard.accessWizard.progress, 'The wizard now says "Step 1 of 4".').toHaveText('Step 1 of 4');
-    await expect(standard.accessWizard.steps, 'A Security review step is added to the list of steps.').toContainText(
+    await standardUser.accessWizard.system.selectOption('Production database');
+    await standardUser.accessWizard.dialog.getByRole('radio', { name: 'Administrator', exact: true }).check();
+    await expect(standardUser.accessWizard.progress, 'The wizard now says "Step 1 of 4".').toHaveText('Step 1 of 4');
+    await expect(standardUser.accessWizard.steps, 'A Security review step is added to the list of steps.').toContainText(
       'Security review',
     );
   });
 
   await test.step('3. Select Next, then select Next again without filling in the security review.', async () => {
-    await standard.accessWizard.nextButton.click();
-    await standard.accessWizard.nextButton.click();
+    await standardUser.accessWizard.nextButton.click();
+    await standardUser.accessWizard.nextButton.click();
     await expect(
-      standard.accessWizard.securityReason,
+      standardUser.accessWizard.securityReason,
       'The reason field says "Explain in at least 20 characters why you need administrator access."',
     ).toHaveAccessibleErrorMessage('Explain in at least 20 characters why you need administrator access.');
     await expect(
-      standard.accessWizard.trainingCompleted,
+      standardUser.accessWizard.trainingCompleted,
       'The training box says "Confirm that you\'ve completed security training."',
     ).toHaveAccessibleErrorMessage("Confirm that you've completed security training.");
   });
 
   await test.step('4. Enter the security reason, check the security training box, and select Next.', async () => {
-    await standard.accessWizard.securityReason.fill(
+    await standardUser.accessWizard.securityReason.fill(
       'I rotate the database credentials during the monthly maintenance window.',
     );
-    await standard.accessWizard.trainingCompleted.check();
-    await standard.accessWizard.nextButton.click();
-    await expect(standard.accessWizard.progress, 'The Priority and reason step opens at "Step 3 of 4".').toHaveText(
+    await standardUser.accessWizard.trainingCompleted.check();
+    await standardUser.accessWizard.nextButton.click();
+    await expect(standardUser.accessWizard.progress, 'The Priority and reason step opens at "Step 3 of 4".').toHaveText(
       'Step 3 of 4',
     );
   });
 
   await test.step('5. Enter the reason, select Next, then select Submit request.', async () => {
-    await standard.accessWizard.reason.fill('Credential rotation is part of my on-call duties.');
-    await standard.accessWizard.nextButton.click();
-    await standard.accessWizard.submitButton.click();
-    await expect(standard.accessWizard.submittedHeading, 'The wizard says "Request submitted".').toBeVisible();
+    await standardUser.accessWizard.reason.fill('Credential rotation is part of my on-call duties.');
+    await standardUser.accessWizard.nextButton.click();
+    await standardUser.accessWizard.submitButton.click();
+    await expect(standardUser.accessWizard.submittedHeading, 'The wizard says "Request submitted".').toBeVisible();
   });
 
   await test.step('6. Select View request.', async () => {
-    await standard.accessWizard.viewRequestButton.click();
-    await expect(standard.request.accessLevel, 'The request shows access level Administrator.').toHaveText(
+    await standardUser.accessWizard.viewRequestButton.click();
+    await expect(standardUser.requestPage.accessLevel, 'The request shows access level Administrator.').toHaveText(
       'Administrator',
     );
-    await expect(standard.request.securityTraining, 'The request shows security training as Completed.').toHaveText(
+    await expect(standardUser.requestPage.securityTraining, 'The request shows security training as Completed.').toHaveText(
       'Completed',
     );
   });
 });
 
-test('SP-004 Discard an unfinished request', { tag: '@regression', annotation: plan('SP-004') }, async ({ standard }) => {
+test('SP-004 Discard an unfinished request', { tag: '@regression', annotation: plan('SP-004') }, async ({ standardUser }) => {
   await test.step('1. Open New request, select Request equipment, and choose Laptop in Item.', async () => {
-    await standard.page.goto(standard.newRequest.path);
-    await standard.newRequest.requestEquipment.click();
-    await standard.equipmentWizard.item.selectOption('Laptop');
-    await expect(standard.equipmentWizard.item, 'Item shows Laptop.').toHaveValue('Laptop');
+    await standardUser.page.goto(standardUser.newRequestPage.path);
+    await standardUser.newRequestPage.requestEquipment.click();
+    await standardUser.equipmentWizard.item.selectOption('Laptop');
+    await expect(standardUser.equipmentWizard.item, 'Item shows Laptop.').toHaveValue('Laptop');
   });
 
   await test.step('2. Select Cancel.', async () => {
-    await standard.equipmentWizard.cancelButton.click();
-    const asks = 'The wizard asks "Discard this request?" and offers Keep editing and Discard.';
-    await expect(standard.equipmentWizard.discardQuestion, asks).toBeVisible();
-    await expect(standard.equipmentWizard.keepEditingButton, asks).toBeVisible();
-    await expect(standard.equipmentWizard.discardButton, asks).toBeVisible();
+    await standardUser.equipmentWizard.cancelButton.click();
+    const expectedResult = 'The wizard asks "Discard this request?" and offers Keep editing and Discard.';
+    await expect(standardUser.equipmentWizard.discardQuestion, expectedResult).toBeVisible();
+    await expect(standardUser.equipmentWizard.keepEditingButton, expectedResult).toBeVisible();
+    await expect(standardUser.equipmentWizard.discardButton, expectedResult).toBeVisible();
   });
 
   await test.step('3. Select Keep editing.', async () => {
-    await standard.equipmentWizard.keepEditingButton.click();
-    await expect(standard.equipmentWizard.item, 'The Equipment step is back, with Laptop still chosen.').toHaveValue(
+    await standardUser.equipmentWizard.keepEditingButton.click();
+    await expect(standardUser.equipmentWizard.item, 'The Equipment step is back, with Laptop still chosen.').toHaveValue(
       'Laptop',
     );
   });
 
   await test.step('4. Close the wizard with its X, then select Discard.', async () => {
-    await standard.equipmentWizard.closeButton.click();
-    await standard.equipmentWizard.discardButton.click();
-    await expect(standard.equipmentWizard.dialog, 'The wizard closes.').toBeHidden();
+    await standardUser.equipmentWizard.closeButton.click();
+    await standardUser.equipmentWizard.discardButton.click();
+    await expect(standardUser.equipmentWizard.dialog, 'The wizard closes.').toBeHidden();
   });
 
   await test.step('5. Select Request equipment again.', async () => {
-    await standard.newRequest.requestEquipment.click();
-    const fresh = 'The wizard starts again at "Step 1 of 4" with no item chosen.';
-    await expect(standard.equipmentWizard.progress, fresh).toHaveText('Step 1 of 4');
-    await expect(standard.equipmentWizard.item, fresh).toHaveValue('');
+    await standardUser.newRequestPage.requestEquipment.click();
+    const expectedResult = 'The wizard starts again at "Step 1 of 4" with no item chosen.';
+    await expect(standardUser.equipmentWizard.progress, expectedResult).toHaveText('Step 1 of 4');
+    await expect(standardUser.equipmentWizard.item, expectedResult).toHaveValue('');
   });
 });

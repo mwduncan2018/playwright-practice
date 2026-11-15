@@ -7,43 +7,43 @@ import { expect, plan, test } from './fixtures';
 // screenshot, which shows the password as dots.
 test.use({ trace: 'off' });
 
-test('SC-001 Sign in and sign out', { tag: '@smoke', annotation: plan('SC-001') }, async ({ signedOut }) => {
+test('SC-001 Sign in and sign out', { tag: '@smoke', annotation: plan('SC-001') }, async ({ signedOutUser }) => {
   // The account the test signs in with.
-  const user = account('standard');
+  const standardAccount = account('standard');
 
   await test.step('1. Open Super Catalog.', async () => {
-    await signedOut.page.goto('/');
-    await expect(signedOut.page, 'Keycloak\'s sign-in page opens, with the title "Sign in to Super Apps".').toHaveTitle(
+    await signedOutUser.page.goto('/');
+    await expect(signedOutUser.page, 'Keycloak\'s sign-in page opens, with the title "Sign in to Super Apps".').toHaveTitle(
       'Sign in to Super Apps',
     );
   });
 
   await test.step('2. Enter the username and the wrong password, then select Sign In.', async () => {
-    await signedOut.keycloak.username.fill(user.username);
-    await fillSecret(signedOut.keycloak.password, 'wrong-password');
-    await signedOut.keycloak.signInButton.click();
-    await expect(signedOut.keycloak.errorMessage, 'The page says "Invalid username or password."').toHaveText(
+    await signedOutUser.keycloakPage.username.fill(standardAccount.username);
+    await fillSecret(signedOutUser.keycloakPage.password, 'wrong-password');
+    await signedOutUser.keycloakPage.signInButton.click();
+    await expect(signedOutUser.keycloakPage.errorMessage, 'The page says "Invalid username or password."').toHaveText(
       'Invalid username or password.',
     );
   });
 
   await test.step('3. Enter the username and the correct password, then select Sign In.', async () => {
-    await signedOut.keycloak.username.fill(user.username);
-    await fillSecret(signedOut.keycloak.password, user.password);
-    await signedOut.keycloak.signInButton.click();
+    await signedOutUser.keycloakPage.username.fill(standardAccount.username);
+    await fillSecret(signedOutUser.keycloakPage.password, standardAccount.password);
+    await signedOutUser.keycloakPage.signInButton.click();
     await expect(
-      signedOut.page.getByText(`Welcome, ${user.name}.`),
+      signedOutUser.page.getByText(`Welcome, ${standardAccount.name}.`),
       'The Dashboard opens and says "Welcome, <name>." with the user\'s name.',
     ).toBeVisible();
     await expect(
-      signedOut.navbar.menu.getByRole('button', { name: user.name }),
+      signedOutUser.navbarPage.menu.getByRole('button', { name: standardAccount.name }),
       "The user's name is shown at the top right.",
     ).toBeVisible();
   });
 
   await test.step('4. Open the user menu and select Sign out.', async () => {
-    await signedOut.navbar.menu.getByRole('button', { name: user.name }).click();
-    await signedOut.navbar.signOutItem.click();
-    await expect(signedOut.keycloak.heading, "Keycloak's sign-in page opens again.").toBeVisible();
+    await signedOutUser.navbarPage.menu.getByRole('button', { name: standardAccount.name }).click();
+    await signedOutUser.navbarPage.signOutItem.click();
+    await expect(signedOutUser.keycloakPage.heading, "Keycloak's sign-in page opens again.").toBeVisible();
   });
 });

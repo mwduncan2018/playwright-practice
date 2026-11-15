@@ -30,11 +30,11 @@ export class RequestPage extends BasePage {
   constructor(page: Page) {
     super(page);
     // Dialogs render outside <main>, so these never match a dialog's own buttons.
-    const main = page.getByRole('main');
-    this.heading = main.getByRole('heading', { level: 1 });
-    this.approveButton = main.getByRole('button', { name: 'Approve', exact: true });
-    this.rejectButton = main.getByRole('button', { name: 'Reject', exact: true });
-    this.cancelRequestButton = main.getByRole('button', { name: 'Cancel request', exact: true });
+    const mainRegion = page.getByRole('main');
+    this.heading = mainRegion.getByRole('heading', { level: 1 });
+    this.approveButton = mainRegion.getByRole('button', { name: 'Approve', exact: true });
+    this.rejectButton = mainRegion.getByRole('button', { name: 'Reject', exact: true });
+    this.cancelRequestButton = mainRegion.getByRole('button', { name: 'Cancel request', exact: true });
     this.decision = page.getByTestId('request-decision');
     this.commentField = page.getByLabel('Add a comment');
     this.postCommentButton = page.getByRole('button', { name: 'Post comment' });

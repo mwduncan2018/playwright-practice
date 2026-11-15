@@ -22,9 +22,9 @@ export class ProductPage extends BasePage {
     super(page);
     this.heading = page.getByRole('heading', { level: 1 });
     // Dialogs render outside <main>, so these never match the dialog's own Delete button.
-    const main = page.getByRole('main');
-    this.editLink = main.getByRole('link', { name: 'Edit', exact: true });
-    this.deleteButton = main.getByRole('button', { name: 'Delete', exact: true });
+    const mainRegion = page.getByRole('main');
+    this.editLink = mainRegion.getByRole('link', { name: 'Edit', exact: true });
+    this.deleteButton = mainRegion.getByRole('button', { name: 'Delete', exact: true });
     // The details have no role or label, so they carry test IDs such as product-price.
     this.sku = page.getByTestId('product-sku');
     this.supplier = page.getByTestId('product-supplier');
