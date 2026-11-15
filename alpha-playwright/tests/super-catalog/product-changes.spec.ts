@@ -19,18 +19,13 @@ test('SC-005 Create a product', { tag: '@smoke', annotation: plan('SC-005') }, a
     await adminUser.productFormPage.stockInput.fill(testProduct.stock);
     await adminUser.page.getByRole('radio', { name: testProduct.status, exact: true }).check();
     await adminUser.productFormPage.createButton.click();
-    await expect(
-      adminUser.alertsPage.alertMessages.filter({ hasText: `Created ${testProduct.sku} ${testProduct.name}.` }),
-      'The message "Created <SKU> <name>." appears.',
-    ).toBeVisible();
+    await expect(adminUser.alertsPage.alertMessages.filter({ hasText: `Created ${testProduct.sku} ${testProduct.name}.` }), 'The message "Created <SKU> <name>." appears.').toBeVisible();
     const expectedResult = "The product's page shows price $19.99, stock 25, status Draft and supplier Granite Works.";
     await expect(adminUser.productPage.priceValue, expectedResult).toHaveText('$19.99');
     await expect(adminUser.productPage.stockValue, expectedResult).toHaveText('25');
     await expect(adminUser.productPage.statusValue, expectedResult).toHaveText('Draft');
     await expect(adminUser.productPage.supplierValue, expectedResult).toHaveText('Granite Works');
-    await expect(adminUser.productPage.createdValue, "The product's page says it was created by the signed-in admin.").toContainText(
-      `by ${adminUser.account.name}`,
-    );
+    await expect(adminUser.productPage.createdValue, "The product's page says it was created by the signed-in admin.").toContainText(`by ${adminUser.account.name}`);
   });
 
   await test.step('3. Open the Products page and search for the SKU.', async () => {
@@ -46,18 +41,10 @@ test('SC-006 Product form validation', { tag: '@regression', annotation: plan('S
   await test.step('1. Open the New product form and select Create product without entering anything.', async () => {
     await adminUser.page.goto(adminUser.productFormPage.path);
     await adminUser.productFormPage.createButton.click();
-    await expect(
-      adminUser.productFormPage.skuInput,
-      'SKU says "Enter a SKU like ABC-1234: three capital letters, a dash and four digits."',
-    ).toHaveAccessibleErrorMessage('Enter a SKU like ABC-1234: three capital letters, a dash and four digits.');
+    await expect(adminUser.productFormPage.skuInput, 'SKU says "Enter a SKU like ABC-1234: three capital letters, a dash and four digits."').toHaveAccessibleErrorMessage('Enter a SKU like ABC-1234: three capital letters, a dash and four digits.');
     await expect(adminUser.productFormPage.nameInput, 'Name says "Enter a name."').toHaveAccessibleErrorMessage('Enter a name.');
-    await expect(adminUser.productFormPage.categorySelect, 'Category says "Choose a category."').toHaveAccessibleErrorMessage(
-      'Choose a category.',
-    );
-    await expect(
-      adminUser.productFormPage.priceInput,
-      'Price (USD) says "Enter a price greater than 0 and no more than 100,000."',
-    ).toHaveAccessibleErrorMessage('Enter a price greater than 0 and no more than 100,000.');
+    await expect(adminUser.productFormPage.categorySelect, 'Category says "Choose a category."').toHaveAccessibleErrorMessage('Choose a category.');
+    await expect(adminUser.productFormPage.priceInput, 'Price (USD) says "Enter a price greater than 0 and no more than 100,000."').toHaveAccessibleErrorMessage('Enter a price greater than 0 and no more than 100,000.');
   });
 
   await test.step('2. Enter the duplicate SKU and the other test data, then select Create product.', async () => {
@@ -67,19 +54,14 @@ test('SC-006 Product form validation', { tag: '@regression', annotation: plan('S
     await adminUser.productFormPage.priceInput.fill('10.00');
     await adminUser.productFormPage.stockInput.fill('0');
     await adminUser.productFormPage.createButton.click();
-    await expect(
-      adminUser.productFormPage.skuInput,
-      'SKU says "Another product already uses SKU ELE-1001."',
-    ).toHaveAccessibleErrorMessage('Another product already uses SKU ELE-1001.');
+    await expect(adminUser.productFormPage.skuInput, 'SKU says "Another product already uses SKU ELE-1001."').toHaveAccessibleErrorMessage('Another product already uses SKU ELE-1001.');
     await expect(adminUser.productFormPage.newProductHeading, 'The New product form is still open.').toBeVisible();
   });
 
   await test.step('3. Enter the bad stock and select Create product.', async () => {
     await adminUser.productFormPage.stockInput.fill('-1');
     await adminUser.productFormPage.createButton.click();
-    await expect(adminUser.productFormPage.stockInput, 'Stock says "Enter a whole number, 0 or more."').toHaveAccessibleErrorMessage(
-      'Enter a whole number, 0 or more.',
-    );
+    await expect(adminUser.productFormPage.stockInput, 'Stock says "Enter a whole number, 0 or more."').toHaveAccessibleErrorMessage('Enter a whole number, 0 or more.');
   });
 });
 
@@ -105,10 +87,7 @@ test('SC-007 Edit a product and add an image', { tag: '@regression', annotation:
     await adminUser.productFormPage.stockInput.fill('3');
     await adminUser.productFormPage.imageInput.setInputFiles(PRODUCT_IMAGE);
     await adminUser.productFormPage.saveButton.click();
-    await expect(
-      adminUser.alertsPage.alertMessages.filter({ hasText: `Saved changes to ${testProduct.sku} ${testProduct.name}.` }),
-      'The message "Saved changes to <SKU> <name>." appears.',
-    ).toBeVisible();
+    await expect(adminUser.alertsPage.alertMessages.filter({ hasText: `Saved changes to ${testProduct.sku} ${testProduct.name}.` }), 'The message "Saved changes to <SKU> <name>." appears.').toBeVisible();
     const expectedResult = "The product's page shows price $24.50 and stock 3 with a Low stock badge.";
     await expect(adminUser.productPage.priceValue, expectedResult).toHaveText('$24.50');
     await expect(adminUser.productPage.stockValue, expectedResult).toHaveText(/^3\s*Low stock$/);
@@ -118,13 +97,7 @@ test('SC-007 Edit a product and add an image', { tag: '@regression', annotation:
   await test.step('3. Open the Activity log and choose Product in Type.', async () => {
     await adminUser.navbarPage.activityLogLink.click();
     await adminUser.activityLogPage.typeSelect.selectOption('Product');
-    await expect(
-      adminUser.activityLogPage
-        .entryRows(`${testProduct.sku} ${testProduct.name}`)
-        .filter({ hasText: 'Updated' })
-        .filter({ hasText: 'Price: 19.99 → 24.50; Stock: 25 → 3' }),
-      'An Updated entry for the product says "Price: 19.99 → 24.50; Stock: 25 → 3".',
-    ).toBeVisible();
+    await expect(adminUser.activityLogPage.entryRows(`${testProduct.sku} ${testProduct.name}`).filter({ hasText: 'Updated' }).filter({ hasText: 'Price: 19.99 → 24.50; Stock: 25 → 3' }), 'An Updated entry for the product says "Price: 19.99 → 24.50; Stock: 25 → 3".').toBeVisible();
   });
 });
 
@@ -146,10 +119,7 @@ test('SC-008 Delete a product', { tag: '@regression', annotation: plan('SC-008')
 
   await test.step('2. Select Delete.', async () => {
     await adminUser.productPage.deleteButton.click();
-    await expect(
-      adminUser.deleteProductDialog.dialog,
-      'A Delete product dialog asks "Delete <SKU> <name>? This can\'t be undone."',
-    ).toContainText(`Delete ${testProduct.sku} ${testProduct.name}? This can't be undone.`);
+    await expect(adminUser.deleteProductDialog.dialog, 'A Delete product dialog asks "Delete <SKU> <name>? This can\'t be undone."').toContainText(`Delete ${testProduct.sku} ${testProduct.name}? This can't be undone.`);
   });
 
   await test.step('3. Select Cancel.', async () => {
@@ -162,17 +132,12 @@ test('SC-008 Delete a product', { tag: '@regression', annotation: plan('SC-008')
   await test.step('4. Select Delete, then select Delete in the dialog.', async () => {
     await adminUser.productPage.deleteButton.click();
     await adminUser.deleteProductDialog.confirmButton.click();
-    await expect(
-      adminUser.alertsPage.alertMessages.filter({ hasText: `Deleted ${testProduct.sku} ${testProduct.name}.` }),
-      'The message "Deleted <SKU> <name>." appears.',
-    ).toBeVisible();
+    await expect(adminUser.alertsPage.alertMessages.filter({ hasText: `Deleted ${testProduct.sku} ${testProduct.name}.` }), 'The message "Deleted <SKU> <name>." appears.').toBeVisible();
     await expect(adminUser.productsPage.heading, 'The Products page opens.').toBeVisible();
   });
 
   await test.step('5. Search the Products page for the SKU.', async () => {
     await adminUser.productsPage.searchInput.fill(testProduct.sku);
-    await expect(adminUser.productsPage.summaryText, 'The page says "No products match these filters."').toHaveText(
-      'No products match these filters.',
-    );
+    await expect(adminUser.productsPage.summaryText, 'The page says "No products match these filters."').toHaveText('No products match these filters.');
   });
 });

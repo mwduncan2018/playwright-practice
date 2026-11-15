@@ -14,9 +14,7 @@ test('SP-006 An admin approves a request', { tag: '@smoke', annotation: plan('SP
     await standardUser.softwareWizard.reasonTextarea.fill('I build the sales dashboards each quarter.');
     await standardUser.softwareWizard.nextButton.click();
     await standardUser.softwareWizard.submitButton.click();
-    await expect(standardUser.softwareWizard.newRequestNumberText, "The wizard shows the new request's number.").toHaveText(
-      /^REQ-\d{4,}$/,
-    );
+    await expect(standardUser.softwareWizard.newRequestNumberText, "The wizard shows the new request's number.").toHaveText(/^REQ-\d{4,}$/);
     return (await standardUser.softwareWizard.newRequestNumberText.innerText()).trim();
   });
 
@@ -29,10 +27,7 @@ test('SP-006 An admin approves a request', { tag: '@smoke', annotation: plan('SP
     await adminUser.approvalsPage.approveButton(requestNumber).click();
     await adminUser.approveDialog.noteOrReasonTextarea.fill(approvalNote);
     await adminUser.approveDialog.confirmButton.click();
-    await expect(
-      adminUser.alertsPage.alertMessages.filter({ hasText: `Approved ${requestNumber}.` }),
-      'The message "Approved <number>." appears.',
-    ).toBeVisible();
+    await expect(adminUser.alertsPage.alertMessages.filter({ hasText: `Approved ${requestNumber}.` }), 'The message "Approved <number>." appears.').toBeVisible();
     await expect(adminUser.approvalsPage.requestRow(requestNumber), 'The request is no longer listed.').toHaveCount(0);
   });
 
@@ -58,9 +53,7 @@ test('SP-007 An admin rejects a request', { tag: '@regression', annotation: plan
     await standardUser.accessWizard.reasonTextarea.fill('I need to read customer records for support tickets.');
     await standardUser.accessWizard.nextButton.click();
     await standardUser.accessWizard.submitButton.click();
-    await expect(standardUser.accessWizard.newRequestNumberText, "The wizard shows the new request's number.").toHaveText(
-      /^REQ-\d{4,}$/,
-    );
+    await expect(standardUser.accessWizard.newRequestNumberText, "The wizard shows the new request's number.").toHaveText(/^REQ-\d{4,}$/);
     return (await standardUser.accessWizard.newRequestNumberText.innerText()).trim();
   });
 
@@ -74,19 +67,13 @@ test('SP-007 An admin rejects a request', { tag: '@regression', annotation: plan
 
   await test.step('3. Select Reject without entering a reason.', async () => {
     await adminUser.rejectDialog.confirmButton.click();
-    await expect(
-      adminUser.rejectDialog.dialog,
-      'The dialog says "Tell the requester why, in at least 5 characters."',
-    ).toContainText('Tell the requester why, in at least 5 characters.');
+    await expect(adminUser.rejectDialog.dialog, 'The dialog says "Tell the requester why, in at least 5 characters."').toContainText('Tell the requester why, in at least 5 characters.');
   });
 
   await test.step('4. Enter the rejection reason and select Reject.', async () => {
     await adminUser.rejectDialog.noteOrReasonTextarea.fill(rejectionReason);
     await adminUser.rejectDialog.confirmButton.click();
-    await expect(
-      adminUser.alertsPage.alertMessages.filter({ hasText: `Rejected ${requestNumber}.` }),
-      'The message "Rejected <number>." appears.',
-    ).toBeVisible();
+    await expect(adminUser.alertsPage.alertMessages.filter({ hasText: `Rejected ${requestNumber}.` }), 'The message "Rejected <number>." appears.').toBeVisible();
     const expectedResult = 'The status is Rejected, and the page shows the reason.';
     await expect(adminUser.requestPage.statusValue, expectedResult).toHaveText('Rejected');
     await expect(adminUser.requestPage.decisionAlert, expectedResult).toContainText(`Reason: ${rejectionReason}`);
@@ -95,9 +82,7 @@ test('SP-007 An admin rejects a request', { tag: '@regression', annotation: plan
   await test.step('5. As the standard user, open My requests and choose Rejected in Status.', async () => {
     await standardUser.page.goto(standardUser.myRequestsPage.path);
     await standardUser.myRequestsPage.statusSelect.selectOption('Rejected');
-    await expect(standardUser.myRequestsPage.requestRow(requestNumber), 'The request is listed as Rejected.').toContainText(
-      'Rejected',
-    );
+    await expect(standardUser.myRequestsPage.requestRow(requestNumber), 'The request is listed as Rejected.').toContainText('Rejected');
   });
 });
 
@@ -113,9 +98,7 @@ test("SP-008 Admins can't decide on their own requests", { tag: '@regression', a
     await adminUser.equipmentWizard.reasonTextarea.fill("My headset's microphone stopped working.");
     await adminUser.equipmentWizard.nextButton.click();
     await adminUser.equipmentWizard.submitButton.click();
-    await expect(adminUser.equipmentWizard.newRequestNumberText, "The wizard shows the new request's number.").toHaveText(
-      /^REQ-\d{4,}$/,
-    );
+    await expect(adminUser.equipmentWizard.newRequestNumberText, "The wizard shows the new request's number.").toHaveText(/^REQ-\d{4,}$/);
     return (await adminUser.equipmentWizard.newRequestNumberText.innerText()).trim();
   });
 
@@ -128,12 +111,7 @@ test("SP-008 Admins can't decide on their own requests", { tag: '@regression', a
 
   await test.step('3. Open the request.', async () => {
     await adminUser.page.goto(adminUser.requestPage.path + requestNumber);
-    await expect(
-      adminUser.alertsPage.alertMessages.filter({
-        hasText: "You can't approve or reject your own request. Another admin will decide on it.",
-      }),
-      'The page says "You can\'t approve or reject your own request. Another admin will decide on it."',
-    ).toBeVisible();
+    await expect(adminUser.alertsPage.alertMessages.filter({ hasText: "You can't approve or reject your own request. Another admin will decide on it." }), 'The page says "You can\'t approve or reject your own request. Another admin will decide on it."').toBeVisible();
     const expectedResult = 'There are no Approve or Reject buttons.';
     await expect(adminUser.requestPage.approveButton, expectedResult).toHaveCount(0);
     await expect(adminUser.requestPage.rejectButton, expectedResult).toHaveCount(0);

@@ -15,18 +15,12 @@ test("SP-010 Settings set the wizard's default priority", { tag: ['@regression',
   await test.step('2. Choose Urgent in Default priority for new requests and select Save settings.', async () => {
     await standardSideUser.settingsPage.defaultPrioritySelect.selectOption('Urgent');
     await standardSideUser.settingsPage.saveButton.click();
-    await expect(
-      standardSideUser.alertsPage.alertMessages.filter({ hasText: 'Settings saved.' }),
-      'The message "Settings saved." appears.',
-    ).toBeVisible();
+    await expect(standardSideUser.alertsPage.alertMessages.filter({ hasText: 'Settings saved.' }), 'The message "Settings saved." appears.').toBeVisible();
   });
 
   await test.step('3. Reload the page.', async () => {
     await standardSideUser.page.reload();
-    await expect(
-      standardSideUser.settingsPage.defaultPrioritySelect,
-      'Default priority for new requests still shows Urgent.',
-    ).toHaveValue('Urgent');
+    await expect(standardSideUser.settingsPage.defaultPrioritySelect, 'Default priority for new requests still shows Urgent.').toHaveValue('Urgent');
   });
 
   await test.step('4. Open New request, select Request access, choose HR records and Read only, and select Next.', async () => {
@@ -35,10 +29,7 @@ test("SP-010 Settings set the wizard's default priority", { tag: ['@regression',
     await standardSideUser.accessWizard.systemSelect.selectOption('HR records');
     await standardSideUser.accessWizard.dialog.getByRole('radio', { name: 'Read only', exact: true }).check();
     await standardSideUser.accessWizard.nextButton.click();
-    await expect(
-      standardSideUser.accessWizard.dialog.getByRole('radio', { name: 'Urgent', exact: true }),
-      'The Priority and reason step has Urgent selected.',
-    ).toBeChecked();
+    await expect(standardSideUser.accessWizard.dialog.getByRole('radio', { name: 'Urgent', exact: true }), 'The Priority and reason step has Urgent selected.').toBeChecked();
   });
 
   await test.step('5. Close the wizard with its X and select Discard.', async () => {
@@ -51,9 +42,6 @@ test("SP-010 Settings set the wizard's default priority", { tag: ['@regression',
     await standardSideUser.page.goto(standardSideUser.settingsPage.path);
     await standardSideUser.settingsPage.defaultPrioritySelect.selectOption('Normal');
     await standardSideUser.settingsPage.saveButton.click();
-    await expect(
-      standardSideUser.alertsPage.alertMessages.filter({ hasText: 'Settings saved.' }),
-      'The message "Settings saved." appears.',
-    ).toBeVisible();
+    await expect(standardSideUser.alertsPage.alertMessages.filter({ hasText: 'Settings saved.' }), 'The message "Settings saved." appears.').toBeVisible();
   });
 });

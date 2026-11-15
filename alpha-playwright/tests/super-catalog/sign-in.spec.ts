@@ -13,32 +13,22 @@ test('SC-001 Sign in and sign out', { tag: '@smoke', annotation: plan('SC-001') 
 
   await test.step('1. Open Super Catalog.', async () => {
     await signedOutUser.page.goto('/');
-    await expect(signedOutUser.page, 'Keycloak\'s sign-in page opens, with the title "Sign in to Super Apps".').toHaveTitle(
-      'Sign in to Super Apps',
-    );
+    await expect(signedOutUser.page, 'Keycloak\'s sign-in page opens, with the title "Sign in to Super Apps".').toHaveTitle('Sign in to Super Apps');
   });
 
   await test.step('2. Enter the username and the wrong password, then select Sign In.', async () => {
     await signedOutUser.keycloakPage.usernameInput.fill(standardAccount.username);
     await fillSecret(signedOutUser.keycloakPage.passwordInput, 'wrong-password');
     await signedOutUser.keycloakPage.signInButton.click();
-    await expect(signedOutUser.keycloakPage.errorMessageText, 'The page says "Invalid username or password."').toHaveText(
-      'Invalid username or password.',
-    );
+    await expect(signedOutUser.keycloakPage.errorMessageText, 'The page says "Invalid username or password."').toHaveText('Invalid username or password.');
   });
 
   await test.step('3. Enter the username and the correct password, then select Sign In.', async () => {
     await signedOutUser.keycloakPage.usernameInput.fill(standardAccount.username);
     await fillSecret(signedOutUser.keycloakPage.passwordInput, standardAccount.password);
     await signedOutUser.keycloakPage.signInButton.click();
-    await expect(
-      signedOutUser.page.getByText(`Welcome, ${standardAccount.name}.`),
-      'The Dashboard opens and says "Welcome, <name>." with the user\'s name.',
-    ).toBeVisible();
-    await expect(
-      signedOutUser.navbarPage.navigationBar.getByRole('button', { name: standardAccount.name }),
-      "The user's name is shown at the top right.",
-    ).toBeVisible();
+    await expect(signedOutUser.page.getByText(`Welcome, ${standardAccount.name}.`), 'The Dashboard opens and says "Welcome, <name>." with the user\'s name.').toBeVisible();
+    await expect(signedOutUser.navbarPage.navigationBar.getByRole('button', { name: standardAccount.name }), "The user's name is shown at the top right.").toBeVisible();
   });
 
   await test.step('4. Open the user menu and select Sign out.', async () => {
