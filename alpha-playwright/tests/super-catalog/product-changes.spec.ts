@@ -19,7 +19,7 @@ test('SC-005 Create a product', { tag: '@smoke', annotation: plan('SC-005') }, a
     await adminUser.productFormPage.stockInput.fill(testProduct.stock);
     await adminUser.productFormPage.draftStatusRadio.check();
     await adminUser.productFormPage.createButton.click();
-    await expect(adminUser.alertsPage.alertMessages.filter({ hasText: `Created ${testProduct.sku} ${testProduct.name}.` }), 'The message "Created <SKU> <name>." appears.').toBeVisible();
+    await expect(adminUser.alertsPage.newestAlertMessage, 'The message "Created <SKU> <name>." appears.').toContainText(`Created ${testProduct.sku} ${testProduct.name}.`);
     const expectedResult = "The product's page shows price $19.99, stock 25, status Draft and supplier Granite Works.";
     await expect(adminUser.productPage.priceValue, expectedResult).toHaveText('$19.99');
     await expect(adminUser.productPage.stockValue, expectedResult).toHaveText('25');
@@ -87,7 +87,7 @@ test('SC-007 Edit a product and add an image', { tag: '@regression', annotation:
     await adminUser.productFormPage.stockInput.fill('3');
     await adminUser.productFormPage.imageInput.setInputFiles(PRODUCT_IMAGE);
     await adminUser.productFormPage.saveButton.click();
-    await expect(adminUser.alertsPage.alertMessages.filter({ hasText: `Saved changes to ${testProduct.sku} ${testProduct.name}.` }), 'The message "Saved changes to <SKU> <name>." appears.').toBeVisible();
+    await expect(adminUser.alertsPage.newestAlertMessage, 'The message "Saved changes to <SKU> <name>." appears.').toContainText(`Saved changes to ${testProduct.sku} ${testProduct.name}.`);
     const expectedResult = "The product's page shows price $24.50 and stock 3 with a Low stock badge.";
     await expect(adminUser.productPage.priceValue, expectedResult).toHaveText('$24.50');
     await expect(adminUser.productPage.stockValue, expectedResult).toHaveText(/^3\s*Low stock$/);
@@ -97,7 +97,7 @@ test('SC-007 Edit a product and add an image', { tag: '@regression', annotation:
   await test.step('3. Open the Activity log and choose Product in Type.', async () => {
     await adminUser.navbarPage.activityLogLink.click();
     await adminUser.activityLogPage.typeSelect.selectOption('Product');
-    await expect(adminUser.activityLogPage.entryRows(`${testProduct.sku} ${testProduct.name}`).filter({ hasText: 'Updated' }).filter({ hasText: 'Price: 19.99 → 24.50; Stock: 25 → 3' }), 'An Updated entry for the product says "Price: 19.99 → 24.50; Stock: 25 → 3".').toBeVisible();
+    await expect(adminUser.activityLogPage.updatedEntryRows(`${testProduct.sku} ${testProduct.name}`), 'An Updated entry for the product says "Price: 19.99 → 24.50; Stock: 25 → 3".').toContainText(['Price: 19.99 → 24.50; Stock: 25 → 3']);
   });
 });
 
@@ -132,7 +132,7 @@ test('SC-008 Delete a product', { tag: '@regression', annotation: plan('SC-008')
   await test.step('4. Select Delete, then select Delete in the dialog.', async () => {
     await adminUser.productPage.deleteButton.click();
     await adminUser.deleteProductDialog.confirmButton.click();
-    await expect(adminUser.alertsPage.alertMessages.filter({ hasText: `Deleted ${testProduct.sku} ${testProduct.name}.` }), 'The message "Deleted <SKU> <name>." appears.').toBeVisible();
+    await expect(adminUser.alertsPage.newestAlertMessage, 'The message "Deleted <SKU> <name>." appears.').toContainText(`Deleted ${testProduct.sku} ${testProduct.name}.`);
     await expect(adminUser.productsPage.heading, 'The Products page opens.').toBeVisible();
   });
 

@@ -14,7 +14,7 @@ test('SC-009 Add, rename and delete a category', { tag: '@regression', annotatio
   await test.step('2. Enter the name and select Save.', async () => {
     await adminUser.newCategoryDialog.nameInput.fill(categoryName);
     await adminUser.newCategoryDialog.saveButton.click();
-    await expect(adminUser.alertsPage.alertMessages.filter({ hasText: `Created the ${categoryName} category.` }), 'The message "Created the <name> category." appears.').toBeVisible();
+    await expect(adminUser.alertsPage.newestAlertMessage, 'The message "Created the <name> category." appears.').toContainText(`Created the ${categoryName} category.`);
     await expect(adminUser.categoriesPage.productCountLink(categoryName), 'The category is listed with 0 products.').toHaveText('0');
   });
 
@@ -41,7 +41,7 @@ test('SC-009 Add, rename and delete a category', { tag: '@regression', annotatio
     await adminUser.deleteCategoryDialog.okButton.click();
     await adminUser.categoriesPage.deleteButton(newCategoryName).click();
     await adminUser.deleteCategoryDialog.confirmButton.click();
-    await expect(adminUser.alertsPage.alertMessages.filter({ hasText: `Deleted the ${newCategoryName} category.` }), 'The message "Deleted the <new name> category." appears.').toBeVisible();
+    await expect(adminUser.alertsPage.newestAlertMessage, 'The message "Deleted the <new name> category." appears.').toContainText(`Deleted the ${newCategoryName} category.`);
     await expect(adminUser.categoriesPage.categoryRow(newCategoryName), 'The category is no longer listed.').toHaveCount(0);
   });
 });

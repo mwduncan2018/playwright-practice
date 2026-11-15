@@ -27,7 +27,7 @@ test('SP-006 An admin approves a request', { tag: '@smoke', annotation: plan('SP
     await adminUser.approvalsPage.approveButton(requestNumber).click();
     await adminUser.approveDialog.noteOrReasonTextarea.fill(approvalNote);
     await adminUser.approveDialog.confirmButton.click();
-    await expect(adminUser.alertsPage.alertMessages.filter({ hasText: `Approved ${requestNumber}.` }), 'The message "Approved <number>." appears.').toBeVisible();
+    await expect(adminUser.alertsPage.newestAlertMessage, 'The message "Approved <number>." appears.').toContainText(`Approved ${requestNumber}.`);
     await expect(adminUser.approvalsPage.requestRow(requestNumber), 'The request is no longer listed.').toHaveCount(0);
   });
 
@@ -73,7 +73,7 @@ test('SP-007 An admin rejects a request', { tag: '@regression', annotation: plan
   await test.step('4. Enter the rejection reason and select Reject.', async () => {
     await adminUser.rejectDialog.noteOrReasonTextarea.fill(rejectionReason);
     await adminUser.rejectDialog.confirmButton.click();
-    await expect(adminUser.alertsPage.alertMessages.filter({ hasText: `Rejected ${requestNumber}.` }), 'The message "Rejected <number>." appears.').toBeVisible();
+    await expect(adminUser.alertsPage.newestAlertMessage, 'The message "Rejected <number>." appears.').toContainText(`Rejected ${requestNumber}.`);
     const expectedResult = 'The status is Rejected, and the page shows the reason.';
     await expect(adminUser.requestPage.statusValue, expectedResult).toHaveText('Rejected');
     await expect(adminUser.requestPage.decisionAlert, expectedResult).toContainText(`Reason: ${rejectionReason}`);

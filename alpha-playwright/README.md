@@ -136,10 +136,15 @@ await adminUser.productFormPage.createButton.click();
 - **One class per file**: every page object, dialog, wizard or other component has a file of its own,
   named after it and ending in what it is: `home.page.ts` for a page, `announcement.wizard.ts` for a
   wizard, and `confirm.dialog.ts` for a dialog.
-- **Things that depend on the test's own data** are still found in the test for now: a message that
-  names what the test created, such as
-  `adminUser.alertsPage.alertMessages.filter({ hasText: \`Approved ${requestNumber}.\` })`, and the
-  activity log entry for a new product. How to move those into page objects is still to be decided.
+- **Text that depends on the test's own data is checked, not searched for.** A message that names
+  what the test created is the newest message on the page, so the test checks its text with
+  ``toContainText(`Approved ${requestNumber}.`)`` on `adminUser.alertsPage.newestAlertMessage`.
+  Playwright keeps retrying, and a failure shows the message that appeared instead. New messages
+  stack at the end, so `newestAlertMessage` is right whenever the check comes straight after the
+  action that shows the message. Rows found by the test's data, such as a new product's Updated
+  entries in the activity log, come from a lookup method, `updatedEntryRows(itemName)`, and the test
+  checks that one of them has the expected text: `toContainText(['Price: 19.99 → 24.50; …'])`.
+  Page objects never return true or false.
 - **The user is written out every time**: `standardUser.equipmentWizard.itemSelect`, not a shortcut
   such as `const wizard = standardUser.equipmentWizard`, so every line says whose browser it acts in.
 - **Every locator says what it is**, by the element it finds, or for a plain `div` or `span`, by what

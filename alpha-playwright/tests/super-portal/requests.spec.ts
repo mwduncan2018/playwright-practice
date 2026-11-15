@@ -40,7 +40,7 @@ test('SP-005 Comment on and cancel your request', { tag: '@regression', annotati
   await test.step('4. Select Cancel request, then select Cancel request in the dialog.', async () => {
     await standardUser.requestPage.cancelRequestButton.click();
     await standardUser.cancelRequestDialog.confirmButton.click();
-    await expect(standardUser.alertsPage.alertMessages.filter({ hasText: `Cancelled ${requestNumber}.` }), 'The message "Cancelled <number>." appears.').toBeVisible();
+    await expect(standardUser.alertsPage.newestAlertMessage, 'The message "Cancelled <number>." appears.').toContainText(`Cancelled ${requestNumber}.`);
     const expectedResult = 'The status is Cancelled, and the page says the user cancelled it.';
     await expect(standardUser.requestPage.statusValue, expectedResult).toHaveText('Cancelled');
     await expect(standardUser.requestPage.decisionAlert, expectedResult).toContainText(`Cancelled by ${standardUser.account.name}`);

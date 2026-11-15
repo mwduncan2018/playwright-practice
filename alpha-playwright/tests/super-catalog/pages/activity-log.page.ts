@@ -18,7 +18,10 @@ export class ActivityLogPage extends BasePage {
     this.activityLogTable = page.getByRole('table', { name: 'Activity log' });
   }
 
-  entryRows(text: string): Locator {
-    return this.activityLogTable.getByRole('row').filter({ hasText: text });
+  updatedEntryRows(itemName: string): Locator {
+    return this.activityLogTable
+      .getByRole('row')
+      .filter({ has: this.page.getByRole('cell', { name: itemName, exact: true }) })
+      .filter({ has: this.page.getByRole('cell', { name: 'Updated', exact: true }) });
   }
 }
