@@ -55,6 +55,12 @@ How Playwright test automation is written in this repo: the test plans, the test
   When several checks share one expected result, each repeats the text.
 
 - **Don't read a value from the page to check it,** as in `expect(await locator.innerText()).toBe(...)`. Read a value only to pass it to a later step.
+- **Plain checks are only for things that aren't on the page,** such as a downloaded file's name or lines. A finished file has nothing to wait for, so a non-retrying matcher such as `toBe` is right, and the check has no `await`:
+
+  ```ts
+  expect(csvDownload.suggestedFilename(), '...').toBe(`products-${todaysDate}.csv`);
+  ```
+
 - **Page objects never return true or false.**
 - **Where the browser is, and the tab title:** check them with `expect(page).toHaveURL(...)` and `toHaveTitle(...)`. The base page's `getCurrentUrl()` and `getTabTitle()` read once, without waiting.
 - **Text that includes the test's own data is checked, not searched for.** A message about what the test just did is the newest one:
@@ -81,6 +87,7 @@ How Playwright test automation is written in this repo: the test plans, the test
 - **Methods are only for dynamic tables and lists:** rows found by a value the test creates or loops over, such as `productRow(sku)` or `approveButton(requestNumber)`. They return a `Locator`.
 - **Lookup methods never read the page:** they build a locator and return it, so they're never `async`. A method that read the page first, such as a column's position from its headings, would fix what it read into the locator, and retrying couldn't correct it.
 - **No methods for flows.**
+- **No checks in page objects:** a page object never calls `expect(`. It gives the test the locator to check, as a property or from a lookup method, and the test checks it.
 - **No nested page objects:** a page object never holds another page object. Wizards and dialogs sit beside pages on each user, as in `adminUser.rejectDialog.confirmButton`.
 - **Dialogs with a name or number in their title:** only one dialog is open at a time, so such a dialog's locator matches whichever is open.
 - **Scope each locator to its container:** radios inside their named group, controls inside their dialog or form. Check the app's source for the real structure.
