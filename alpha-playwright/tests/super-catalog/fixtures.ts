@@ -1,9 +1,3 @@
-/**
- * Super Catalog's tests import test and expect from here. Each user a test asks for, such as
- * standardUser or adminUser, has a browser of their own and every Super Catalog page object on it:
- * adminUser.productsPage.newProductLink. Dialogs sit beside the pages, never inside one:
- * adminUser.deleteProductDialog.confirmButton.
- */
 import type { Page } from '@playwright/test';
 
 import { expect, testWithUsers } from '../../shared/fixtures';
@@ -42,5 +36,4 @@ export const test = testWithUsers(createCatalogPages);
 
 export { expect };
 
-/** The manual test plan these tests follow: tests/super-catalog/super-catalog-test-plan.docx */
 export const plan = testPlan('Super Catalog Manual Test Plan', '1.0');

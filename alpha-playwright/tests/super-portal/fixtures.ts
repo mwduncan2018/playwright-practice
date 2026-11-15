@@ -1,9 +1,3 @@
-/**
- * Super Portal's tests import test and expect from here. Each user a test asks for, such as
- * standardUser or adminUser, has a browser of their own and every Super Portal page object on it:
- * standardUser.requestPage.statusValue. Wizards and dialogs sit beside the pages, never inside one:
- * adminUser.rejectDialog.confirmButton.
- */
 import type { Page } from '@playwright/test';
 
 import { expect, testWithUsers } from '../../shared/fixtures';
@@ -53,5 +47,4 @@ export const test = testWithUsers(createPortalPages);
 
 export { expect };
 
-/** The manual test plan these tests follow: tests/super-portal/super-portal-test-plan.docx */
 export const plan = testPlan('Super Portal Manual Test Plan', '1.0');
