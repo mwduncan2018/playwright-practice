@@ -14,7 +14,8 @@ folder and `TEST_APP_URL` to its site.
 
 Super Catalog and Super Portal run in the repo's local Docker environment and sign in through its
 Keycloak. Start it from the repo root with `docker compose up -d --wait`. Their tests follow the manual
-test plans in their folders, such as `tests/super-catalog/super-catalog-test-plan.docx`.
+test plans in their folders, such as `tests/super-catalog/super-catalog-test-plan.md`. The plans are
+Markdown, so GitHub shows them as pages, and each ID in a plan's Cases table links to its case.
 
 ## Environment variables
 
@@ -145,6 +146,14 @@ await adminUser.productFormPage.createButton.click();
   entries in the activity log, come from a lookup method, `updatedEntryRows(itemName)`, and the test
   checks that one of them has the expected text: `toContainText(['Price: 19.99 → 24.50; …'])`.
   Page objects never return true or false.
+- **A table cell is found by its column's heading, not its position.** All requests lets people hide
+  and reorder its columns, so `allRequestsPage.statusCell(requestNumber, requesterName)` is the cell
+  under the Status heading in the row whose Number and Requester cells hold those values. Each value
+  is matched in its own column: REQ-1093 is Admin Two's request and Admin One decided it, so a row
+  match that looked for "Admin One" in any cell would find it. ARIA doesn't tie a cell to its
+  heading, so the page object uses XPath that counts the headings before the named one each time
+  Playwright looks. It follows the columns when they move, finds nothing when the column is hidden,
+  and retries like any other locator.
 - **The user is written out every time**: `standardUser.equipmentWizard.itemSelect`, not a shortcut
   such as `const wizard = standardUser.equipmentWizard`, so every line says whose browser it acts in.
 - **Every locator says what it is**, by the element it finds, or for a plain `div` or `span`, by what
@@ -159,6 +168,7 @@ await adminUser.productFormPage.createButton.click();
   | a button or a link                                    | `Button`, `Link`      | `exportCsvButton`, `newProductLink`               |
   | a heading, table, list or image                       | `Heading`, `Table`…   | `submittedHeading`, `productsTable`, `photoImage` |
   | a row or list item, or several                        | `Row(s)`, `ListItems` | `productRows`, `historyListItems`                 |
+  | a table's column headings, or a cell in one column    | `Headers`, `Cell`     | `columnHeaders`, `statusCell(requestNumber, …)`   |
   | the value beside a label, such as Price: $19.99       | `Value`               | `priceValue`, `statusValue`                       |
   | a badge or an alert                                   | `Badge`, `Alert`      | `audienceBadge`, `decisionAlert`                  |
   | a line of text, such as "Showing 1–10 of 60 products" | `Text`                | `summaryText`, `progressText`, `bylineText`       |

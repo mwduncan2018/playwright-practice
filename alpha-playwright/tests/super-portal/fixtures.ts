@@ -2,11 +2,14 @@ import type { Page } from '@playwright/test';
 
 import { expect, testWithUsers } from '../../shared/fixtures';
 import { testPlan } from '../../shared/test-plan';
+import { AccessDeniedPage } from './pages/access-denied.page';
 import { AlertsPage } from './pages/alerts.page';
+import { AllRequestsPage } from './pages/all-requests.page';
 import { AnnouncementPage } from './pages/announcement.page';
 import { AnnouncementWizard } from './pages/announcement.wizard';
 import { AnnouncementsPage } from './pages/announcements.page';
 import { ApprovalsPage } from './pages/approvals.page';
+import { ColumnsDialog } from './pages/columns.dialog';
 import { ConfirmDialog } from './pages/confirm.dialog';
 import { DecisionDialog } from './pages/decision.dialog';
 import { HomePage } from './pages/home.page';
@@ -35,11 +38,14 @@ function createPortalPages(page: Page) {
     approvalsPage: new ApprovalsPage(page),
     approveDialog: new DecisionDialog(page, 'Approve'),
     rejectDialog: new DecisionDialog(page, 'Reject'),
+    allRequestsPage: new AllRequestsPage(page),
+    columnsDialog: new ColumnsDialog(page),
     announcementsPage: new AnnouncementsPage(page),
     announcementWizard: new AnnouncementWizard(page),
     announcementPage: new AnnouncementPage(page),
     deleteAnnouncementDialog: new ConfirmDialog(page, 'Delete announcement'),
     settingsPage: new SettingsPage(page),
+    accessDeniedPage: new AccessDeniedPage(page),
   };
 }
 
@@ -47,4 +53,4 @@ export const test = testWithUsers(createPortalPages);
 
 export { expect };
 
-export const plan = testPlan('Super Portal Manual Test Plan', '1.0');
+export const plan = testPlan('Super Portal Manual Test Plan', '1.1');
