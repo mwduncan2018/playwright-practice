@@ -1,7 +1,7 @@
 # Super Portal Manual Test Plan
 
 - **Application:** Super Portal
-- **Version:** 1.1
+- **Version:** 1.2
 - **Date:** 2026-11-15
 - **Automated tests:** alpha-playwright/tests/super-portal
 
@@ -95,7 +95,7 @@ Passwords come from the test team and are never written in this plan or in the r
 | 3 | Select Back. | The License step still shows 1 year and 3 seats. | |
 | 4 | Select Next, enter the reason, and select Next. | The Review step shows Figma, 1 year and 3 seats. | |
 | 5 | Select Edit for Software, choose Miro, and select Next until the Review step. | The Review step shows Miro. | |
-| 6 | Select Submit request, then select View request. | The request's page is titled with its number and "Miro (1 year)".<br>The page shows 3 seats. | |
+| 6 | Select Submit request, then select View request. | The wizard shows the new request's number.<br>The request's page is titled with its number and "Miro (1 year)".<br>The page shows 3 seats. | |
 
 ### SP-003 Administrator access adds a security review
 
@@ -144,7 +144,7 @@ Passwords come from the test team and are never written in this plan or in the r
 
 | Step | Action | Expected result | Pass/Fail |
 | --- | --- | --- | --- |
-| 1 | Submit the request in the test data, then select View request. | The request's page shows the status Submitted and a Cancel request button. | |
+| 1 | Submit the request in the test data, then select View request. | The wizard shows the new request's number.<br>The request's page shows the status Submitted and a Cancel request button. | |
 | 2 | Enter the comment and select Post comment. | The message "Comment posted." appears.<br>The history lists the comment. | |
 | 3 | Select Cancel request, then select Keep request. | The dialog closes and the status is still Submitted. | |
 | 4 | Select Cancel request, then select Cancel request in the dialog. | The message "Cancelled \<number>." appears.<br>The status is Cancelled, and the page says the user cancelled it.<br>There's no Cancel request button. | |

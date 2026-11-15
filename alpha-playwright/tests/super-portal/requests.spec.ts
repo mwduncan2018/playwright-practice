@@ -14,6 +14,7 @@ test('SP-005 Comment on and cancel your request', { tag: '@regression', annotati
     await standardUser.equipmentWizard.reasonTextarea.fill('The keys on my keyboard stick.');
     await standardUser.equipmentWizard.nextButton.click();
     await standardUser.equipmentWizard.submitButton.click();
+    await expect(standardUser.equipmentWizard.newRequestNumberText, "The wizard shows the new request's number.").toHaveText(/^REQ-\d{4,}$/);
     const newRequestNumber = (await standardUser.equipmentWizard.newRequestNumberText.innerText()).trim();
     await standardUser.equipmentWizard.viewRequestButton.click();
     await expect(standardUser.requestPage.statusValue, "The request's page shows the status Submitted and a Cancel request button.").toHaveText('Submitted');

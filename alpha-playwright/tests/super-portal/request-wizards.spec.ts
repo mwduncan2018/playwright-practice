@@ -101,6 +101,7 @@ test('SP-002 Change answers with Back and Edit', { tag: '@regression', annotatio
 
   await test.step('6. Select Submit request, then select View request.', async () => {
     await standardUser.softwareWizard.submitButton.click();
+    await expect(standardUser.softwareWizard.newRequestNumberText, "The wizard shows the new request's number.").toHaveText(/^REQ-\d{4,}$/);
     const requestNumber = (await standardUser.softwareWizard.newRequestNumberText.innerText()).trim();
     await standardUser.softwareWizard.viewRequestButton.click();
     await expect(standardUser.requestPage.heading, 'The request\'s page is titled with its number and "Miro (1 year)".').toHaveText(`${requestNumber} Miro (1 year)`);

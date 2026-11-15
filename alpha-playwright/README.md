@@ -126,6 +126,9 @@ await adminUser.productFormPage.createButton.click();
   creates or loops over, such as `adminUser.productsPage.productRow(sku)`,
   `adminUser.approvalsPage.approveButton(requestNumber)` or
   `adminUser.categoriesPage.productCountLink(categoryName)`.
+- **Lookup methods never read the page**: they build a locator and return it, so they're never
+  `async`. A method that read the page first, such as finding a column's position from its headings,
+  would fix what it read into the locator, and Playwright's retrying couldn't correct it.
 - **No methods for flows**, such as signing in or filling in a form. Those steps go in the test, even
   when they're long.
 - **No nested page objects**: a page object holds locators, never another page object or component.
@@ -185,6 +188,15 @@ await adminUser.productFormPage.createButton.click();
   as the second argument:
   `await expect(adminUser.requestPage.statusValue, 'The status is Approved.').toHaveText('Approved')`.
   It's never kept in a variable. When several checks share an expected result, each one repeats it.
+- **A value for a later step is checked, then read**: when a later step needs a value, such as a
+  new request's number, the step first checks that the page shows it, then reads it and returns
+  it. A read such as `innerText()` waits for the element, not for its text.
+
+  <!-- prettier-ignore -->
+  ```ts
+  await expect(standardUser.equipmentWizard.newRequestNumberText, "The wizard shows the new request's number.").toHaveText(/^REQ-\d{4,}$/);
+  return (await standardUser.equipmentWizard.newRequestNumberText.innerText()).trim();
+  ```
 
 The base page's three methods are the team's agreed exception.
 

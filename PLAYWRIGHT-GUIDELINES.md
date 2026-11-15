@@ -26,7 +26,14 @@ How Playwright test automation is written in this repo: the test plans, the test
 - **Act on locators with Playwright directly** (`click`, `fill`, `check`, `selectOption`, `setInputFiles`), so every action shows in the test and its report.
 - **Flows are written out in the test**, such as signing in or filling in a form, even when they're long.
 - **Open pages by their `path`:** `await adminUser.page.goto(adminUser.productsPage.path)`. For an address that ends in an ID, add the ID: `standardUser.requestPage.path + requestNumber`.
-- **Values for later steps:** a value a later step needs, such as a new request's number, is returned from its `test.step`.
+- **Values for later steps:** a value a later step needs, such as a new request's number, is returned from its `test.step`. Check that the page shows it before reading it, because a read waits for the element, not for its text:
+
+  <!-- prettier-ignore -->
+  ```ts
+  await expect(standardUser.equipmentWizard.newRequestNumberText, "The wizard shows the new request's number.").toHaveText(/^REQ-\d{4,}$/);
+  return (await standardUser.equipmentWizard.newRequestNumberText.innerText()).trim();
+  ```
+
 - **No comments** in specs, page objects, fixtures or helpers. Explanations go in the README.
 - **Downloads:** to check one, start waiting before the click:
 
@@ -72,6 +79,7 @@ How Playwright test automation is written in this repo: the test plans, the test
 - **Everything that's the same on every run gets its own property,** whole sets included: each radio button (`lowPriorityRadio` to `urgentPriorityRadio`), each review section, each fixed message (`settingsSavedAlert`), each column checkbox and move button.
 - **A page's address is a `path` property.**
 - **Methods are only for dynamic tables and lists:** rows found by a value the test creates or loops over, such as `productRow(sku)` or `approveButton(requestNumber)`. They return a `Locator`.
+- **Lookup methods never read the page:** they build a locator and return it, so they're never `async`. A method that read the page first, such as a column's position from its headings, would fix what it read into the locator, and retrying couldn't correct it.
 - **No methods for flows.**
 - **No nested page objects:** a page object never holds another page object. Wizards and dialogs sit beside pages on each user, as in `adminUser.rejectDialog.confirmButton`.
 - **Dialogs with a name or number in their title:** only one dialog is open at a time, so such a dialog's locator matches whichever is open.

@@ -46,9 +46,11 @@ The `await` goes in front of `expect(`, not inside it.
 
 ### When reading a value is fine
 
-- **To pass a value to a later step**, such as a new request's number:
+- **To pass a value to a later step**, such as a new request's number. Check that the page shows it first, because `innerText()` waits for the element, not for its text:
 
+  <!-- prettier-ignore -->
   ```ts
+  await expect(standardUser.equipmentWizard.newRequestNumberText, "The wizard shows the new request's number.").toHaveText(/^REQ-\d{4,}$/);
   return (await standardUser.equipmentWizard.newRequestNumberText.innerText()).trim();
   ```
 

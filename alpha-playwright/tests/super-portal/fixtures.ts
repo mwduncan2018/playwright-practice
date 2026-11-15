@@ -53,4 +53,4 @@ export const test = testWithUsers(createPortalPages);
 
 export { expect };
 
-export const plan = testPlan('Super Portal Manual Test Plan', '1.1');
+export const plan = testPlan('Super Portal Manual Test Plan', '1.2');
