@@ -1,12 +1,14 @@
 import type { Locator, Page } from '@playwright/test';
 
+import { BasePage } from '../../../shared/base.page';
+
 /**
  * A request wizard: the Request equipment, Request software or Request access dialog. Its choices,
  * such as a delivery method, license length, access level or priority, are radio buttons in the
  * dialog. The Review step has a region for each step's answers, named after the step, and an
  * "Edit <step>" button for each.
  */
-export class RequestWizard {
+export class RequestWizard extends BasePage {
   readonly dialog: Locator;
   /** "Step 2 of 4" */
   readonly progress: Locator;
@@ -37,6 +39,7 @@ export class RequestWizard {
   readonly reason: Locator;
 
   constructor(page: Page, title: 'Request equipment' | 'Request software' | 'Request access') {
+    super(page);
     this.dialog = page.getByRole('dialog', { name: title });
     this.progress = this.dialog.getByText(/^Step \d+ of \d+$/);
     this.steps = this.dialog.getByRole('list', { name: 'Steps' });

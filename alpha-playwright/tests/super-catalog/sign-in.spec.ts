@@ -36,14 +36,14 @@ test('SC-001 Sign in and sign out', { tag: '@smoke', annotation: plan('SC-001') 
       'The Dashboard opens and says "Welcome, <name>." with the user\'s name.',
     ).toBeVisible();
     await expect(
-      signedOut.layout.menu.getByRole('button', { name: user.name }),
+      signedOut.navbar.menu.getByRole('button', { name: user.name }),
       "The user's name is shown at the top right.",
     ).toBeVisible();
   });
 
   await test.step('4. Open the user menu and select Sign out.', async () => {
-    await signedOut.layout.menu.getByRole('button', { name: user.name }).click();
-    await signedOut.layout.signOutItem.click();
+    await signedOut.navbar.menu.getByRole('button', { name: user.name }).click();
+    await signedOut.navbar.signOutItem.click();
     await expect(signedOut.keycloak.heading, "Keycloak's sign-in page opens again.").toBeVisible();
   });
 });

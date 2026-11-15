@@ -5,8 +5,8 @@ import { expect, plan, test } from './fixtures';
 test("SP-010 Settings set the wizard's default priority", { tag: ['@regression', '@side-account'], annotation: plan('SP-010') }, async ({ standardSide }) => {
   await test.step('1. Open the user menu and select Settings.', async () => {
     await standardSide.page.goto(standardSide.home.path);
-    await standardSide.layout.menu.getByRole('button', { name: standardSide.account.name }).click();
-    await standardSide.layout.settingsItem.click();
+    await standardSide.navbar.menu.getByRole('button', { name: standardSide.account.name }).click();
+    await standardSide.navbar.settingsItem.click();
     const shows = "The Settings page shows the user's username and the role standard.";
     await expect(standardSide.settings.username, shows).toHaveText(standardSide.account.username);
     await expect(standardSide.settings.roles, shows).toHaveText('standard');
@@ -16,7 +16,7 @@ test("SP-010 Settings set the wizard's default priority", { tag: ['@regression',
     await standardSide.settings.defaultPriority.selectOption('Urgent');
     await standardSide.settings.saveButton.click();
     await expect(
-      standardSide.layout.alerts.filter({ hasText: 'Settings saved.' }),
+      standardSide.alerts.messages.filter({ hasText: 'Settings saved.' }),
       'The message "Settings saved." appears.',
     ).toBeVisible();
   });
@@ -52,7 +52,7 @@ test("SP-010 Settings set the wizard's default priority", { tag: ['@regression',
     await standardSide.settings.defaultPriority.selectOption('Normal');
     await standardSide.settings.saveButton.click();
     await expect(
-      standardSide.layout.alerts.filter({ hasText: 'Settings saved.' }),
+      standardSide.alerts.messages.filter({ hasText: 'Settings saved.' }),
       'The message "Settings saved." appears.',
     ).toBeVisible();
   });

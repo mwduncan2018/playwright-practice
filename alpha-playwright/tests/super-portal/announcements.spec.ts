@@ -68,7 +68,7 @@ test('SP-009 Schedule an announcement for standard users', { tag: '@regression',
     await admin.announcement.deleteButton.click();
     await admin.deleteAnnouncementDialog.confirmButton.click();
     await expect(
-      admin.layout.alerts.filter({ hasText: 'Deleted the announcement.' }),
+      admin.alerts.messages.filter({ hasText: 'Deleted the announcement.' }),
       'The message "Deleted the announcement." appears.',
     ).toBeVisible();
   });

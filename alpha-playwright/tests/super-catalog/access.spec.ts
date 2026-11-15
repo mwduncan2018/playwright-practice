@@ -22,6 +22,6 @@ test('SC-010 Standard users can view but not change', { tag: '@smoke', annotatio
   });
 
   await test.step('4. Look at the menu at the top of the page.', async () => {
-    await expect(standard.layout.activityLogLink, "There's no Activity log link.").toHaveCount(0);
+    await expect(standard.navbar.activityLogLink, "There's no Activity log link.").toHaveCount(0);
   });
 });

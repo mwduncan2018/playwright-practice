@@ -83,7 +83,8 @@ to `playwright-report` instead.
 
 ## Page objects
 
-Every page object extends the base page in `shared/base.page.ts`, which gives it:
+Every page object class extends the base page in `shared/base.page.ts`: pages, and components such as
+the navbar, alerts, wizards and dialogs. The base page gives each one:
 
 - `getCurrentUrl()`: the address the browser is on now. It reads the address once, without waiting, so
   to check where a test ended up, use `await expect(admin.page).toHaveURL(...)`, which waits for it.
@@ -94,8 +95,8 @@ Every page object extends the base page in `shared/base.page.ts`, which gives it
 
 Each app's page objects go in a `pages` folder in that app's test folder. For example,
 `tests/super-catalog/pages/products.page.ts` is Super Catalog's Products page. Parts that appear on many
-pages, such as a menu, a dialog or a wizard, are component classes there that don't extend the base
-page. Each app's `fixtures.ts` lists every page and component a user has.
+pages, such as the menu, a dialog or a wizard, are component classes in the same folder. Each app's
+`fixtures.ts` lists every page and component a user has.
 
 ### What goes in a page object
 
@@ -130,7 +131,7 @@ await admin.productForm.createButton.click();
   wizard, and `confirm.dialog.ts` for a dialog.
 - **Things that vary per test are found in the test** from a property, such as a radio button,
   `standard.equipmentWizard.dialog.getByRole('radio', { name: 'High', exact: true })`, or a message,
-  `standard.layout.alerts.filter({ hasText: 'Comment posted.' })`.
+  `standard.alerts.messages.filter({ hasText: 'Comment posted.' })`.
 - **The user is written out every time**: `standard.equipmentWizard.item`, not a shortcut such as
   `const wizard = standard.equipmentWizard`, so every line says whose browser it acts in.
 - **Assertions keep Playwright's shape**: `await expect(admin.request.status).toHaveText('Rejected')`.

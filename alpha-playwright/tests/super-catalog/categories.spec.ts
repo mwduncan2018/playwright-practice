@@ -15,7 +15,7 @@ test('SC-009 Add, rename and delete a category', { tag: '@regression', annotatio
     await admin.newCategoryDialog.name.fill(name);
     await admin.newCategoryDialog.saveButton.click();
     await expect(
-      admin.layout.alerts.filter({ hasText: `Created the ${name} category.` }),
+      admin.alerts.messages.filter({ hasText: `Created the ${name} category.` }),
       'The message "Created the <name> category." appears.',
     ).toBeVisible();
     await expect(admin.categories.productCount(name), 'The category is listed with 0 products.').toHaveText('0');
@@ -51,7 +51,7 @@ test('SC-009 Add, rename and delete a category', { tag: '@regression', annotatio
     await admin.categories.deleteButton(newName).click();
     await admin.deleteCategoryDialog.confirmButton.click();
     await expect(
-      admin.layout.alerts.filter({ hasText: `Deleted the ${newName} category.` }),
+      admin.alerts.messages.filter({ hasText: `Deleted the ${newName} category.` }),
       'The message "Deleted the <new name> category." appears.',
     ).toBeVisible();
     await expect(admin.categories.row(newName), 'The category is no longer listed.').toHaveCount(0);

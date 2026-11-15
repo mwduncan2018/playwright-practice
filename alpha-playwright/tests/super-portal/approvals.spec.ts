@@ -30,7 +30,7 @@ test('SP-006 An admin approves a request', { tag: '@smoke', annotation: plan('SP
     await admin.approveDialog.text.fill(note);
     await admin.approveDialog.confirmButton.click();
     await expect(
-      admin.layout.alerts.filter({ hasText: `Approved ${requestNumber}.` }),
+      admin.alerts.messages.filter({ hasText: `Approved ${requestNumber}.` }),
       'The message "Approved <number>." appears.',
     ).toBeVisible();
     await expect(admin.approvals.row(requestNumber), 'The request is no longer listed.').toHaveCount(0);
@@ -84,7 +84,7 @@ test('SP-007 An admin rejects a request', { tag: '@regression', annotation: plan
     await admin.rejectDialog.text.fill(reason);
     await admin.rejectDialog.confirmButton.click();
     await expect(
-      admin.layout.alerts.filter({ hasText: `Rejected ${requestNumber}.` }),
+      admin.alerts.messages.filter({ hasText: `Rejected ${requestNumber}.` }),
       'The message "Rejected <number>." appears.',
     ).toBeVisible();
     const rejected = 'The status is Rejected, and the page shows the reason.';
@@ -129,7 +129,7 @@ test("SP-008 Admins can't decide on their own requests", { tag: '@regression', a
   await test.step('3. Open the request.', async () => {
     await admin.page.goto(admin.request.path + requestNumber);
     await expect(
-      admin.layout.alerts.filter({
+      admin.alerts.messages.filter({
         hasText: "You can't approve or reject your own request. Another admin will decide on it.",
       }),
       'The page says "You can\'t approve or reject your own request. Another admin will decide on it."',

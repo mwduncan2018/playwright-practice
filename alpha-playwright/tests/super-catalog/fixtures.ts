@@ -10,18 +10,20 @@ import { expect, testWithUsers } from '../../shared/fixtures';
 import { testPlan } from '../../shared/test-plan';
 import { AccessDeniedPage } from './pages/access-denied.page';
 import { ActivityLogPage } from './pages/activity-log.page';
+import { AlertsPage } from './pages/alerts.page';
 import { CategoriesPage } from './pages/categories.page';
 import { CategoryDialog } from './pages/category.dialog';
 import { ConfirmDialog } from './pages/confirm.dialog';
 import { DashboardPage } from './pages/dashboard.page';
-import { CatalogLayout } from './pages/layout';
+import { NavbarPage } from './pages/navbar.page';
 import { ProductFormPage } from './pages/product-form.page';
 import { ProductPage } from './pages/product.page';
 import { ProductsPage } from './pages/products.page';
 
 function catalogPages(page: Page) {
   return {
-    layout: new CatalogLayout(page),
+    navbar: new NavbarPage(page),
+    alerts: new AlertsPage(page),
     dashboard: new DashboardPage(page),
     products: new ProductsPage(page),
     productForm: new ProductFormPage(page),

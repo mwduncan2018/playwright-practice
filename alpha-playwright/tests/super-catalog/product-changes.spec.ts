@@ -20,7 +20,7 @@ test('SC-005 Create a product', { tag: '@smoke', annotation: plan('SC-005') }, a
     await admin.page.getByRole('radio', { name: product.status, exact: true }).check();
     await admin.productForm.createButton.click();
     await expect(
-      admin.layout.alerts.filter({ hasText: `Created ${product.sku} ${product.name}.` }),
+      admin.alerts.messages.filter({ hasText: `Created ${product.sku} ${product.name}.` }),
       'The message "Created <SKU> <name>." appears.',
     ).toBeVisible();
     const shows = "The product's page shows price $19.99, stock 25, status Draft and supplier Granite Works.";
@@ -106,7 +106,7 @@ test('SC-007 Edit a product and add an image', { tag: '@regression', annotation:
     await admin.productForm.image.setInputFiles(PRODUCT_IMAGE);
     await admin.productForm.saveButton.click();
     await expect(
-      admin.layout.alerts.filter({ hasText: `Saved changes to ${product.sku} ${product.name}.` }),
+      admin.alerts.messages.filter({ hasText: `Saved changes to ${product.sku} ${product.name}.` }),
       'The message "Saved changes to <SKU> <name>." appears.',
     ).toBeVisible();
     const shows = "The product's page shows price $24.50 and stock 3 with a Low stock badge.";
@@ -116,7 +116,7 @@ test('SC-007 Edit a product and add an image', { tag: '@regression', annotation:
   });
 
   await test.step('3. Open the Activity log and choose Product in Type.', async () => {
-    await admin.layout.activityLogLink.click();
+    await admin.navbar.activityLogLink.click();
     await admin.activityLog.type.selectOption('Product');
     await expect(
       admin.activityLog
@@ -163,7 +163,7 @@ test('SC-008 Delete a product', { tag: '@regression', annotation: plan('SC-008')
     await admin.product.deleteButton.click();
     await admin.deleteProductDialog.confirmButton.click();
     await expect(
-      admin.layout.alerts.filter({ hasText: `Deleted ${product.sku} ${product.name}.` }),
+      admin.alerts.messages.filter({ hasText: `Deleted ${product.sku} ${product.name}.` }),
       'The message "Deleted <SKU> <name>." appears.',
     ).toBeVisible();
     await expect(admin.products.heading, 'The Products page opens.').toBeVisible();

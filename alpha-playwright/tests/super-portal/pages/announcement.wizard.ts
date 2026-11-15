@@ -1,10 +1,12 @@
 import type { Locator, Page } from '@playwright/test';
 
+import { BasePage } from '../../../shared/base.page';
+
 /**
  * The admins' New announcement wizard. Its choices, an audience or when to publish, are radio
  * buttons in the dialog. The Review step has a region for each step's answers, named after the step.
  */
-export class AnnouncementWizard {
+export class AnnouncementWizard extends BasePage {
   readonly dialog: Locator;
   /** "Step 2 of 4" */
   readonly progress: Locator;
@@ -21,6 +23,7 @@ export class AnnouncementWizard {
   readonly viewAnnouncementButton: Locator;
 
   constructor(page: Page) {
+    super(page);
     this.dialog = page.getByRole('dialog', { name: 'New announcement' });
     this.progress = this.dialog.getByText(/^Step \d+ of \d+$/);
     this.nextButton = this.dialog.getByRole('button', { name: 'Next', exact: true });

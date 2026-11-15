@@ -27,7 +27,7 @@ test('SP-005 Comment on and cancel your request', { tag: '@regression', annotati
     await standard.request.commentField.fill(comment);
     await standard.request.postCommentButton.click();
     await expect(
-      standard.layout.alerts.filter({ hasText: 'Comment posted.' }),
+      standard.alerts.messages.filter({ hasText: 'Comment posted.' }),
       'The message "Comment posted." appears.',
     ).toBeVisible();
     await expect(standard.request.history, 'The history lists the comment.').toContainText(comment);
@@ -45,7 +45,7 @@ test('SP-005 Comment on and cancel your request', { tag: '@regression', annotati
     await standard.request.cancelRequestButton.click();
     await standard.cancelRequestDialog.confirmButton.click();
     await expect(
-      standard.layout.alerts.filter({ hasText: `Cancelled ${requestNumber}.` }),
+      standard.alerts.messages.filter({ hasText: `Cancelled ${requestNumber}.` }),
       'The message "Cancelled <number>." appears.',
     ).toBeVisible();
     const cancelled = 'The status is Cancelled, and the page says the user cancelled it.';
