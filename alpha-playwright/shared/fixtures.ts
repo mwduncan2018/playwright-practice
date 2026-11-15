@@ -1,7 +1,7 @@
 /**
  * The fixtures every application's tests share: the users in a test. Each user is a fixture named
  * after the account they're signed in as, with a browser of their own and the app's page objects on
- * it, so a test reads as who does what: adminUser.productsPage.newProduct.click(). Each app's
+ * it, so a test reads as who does what: adminUser.productsPage.newProductLink.click(). Each app's
  * fixtures.ts adds its page objects with testWithUsers().
  */
 import { type Browser, type Page, expect, test as base } from '@playwright/test';

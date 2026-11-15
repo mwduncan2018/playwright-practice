@@ -6,14 +6,14 @@ import { BasePage } from '../../../shared/base.page';
 export class ApprovalsPage extends BasePage {
   readonly path = '/approvals';
   /** "6 requests waiting", or "Nothing is waiting for approval." */
-  readonly summary: Locator;
+  readonly summaryText: Locator;
 
   constructor(page: Page) {
     super(page);
-    this.summary = page.getByRole('status').filter({ hasText: /waiting/ });
+    this.summaryText = page.getByRole('status').filter({ hasText: /waiting/ });
   }
 
-  row(requestNumber: string): Locator {
+  requestRow(requestNumber: string): Locator {
     return this.page.getByTestId(`request-row-${requestNumber}`);
   }
 

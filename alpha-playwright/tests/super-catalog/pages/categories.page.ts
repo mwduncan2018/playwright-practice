@@ -5,21 +5,21 @@ import { BasePage } from '../../../shared/base.page';
 export class CategoriesPage extends BasePage {
   readonly path = '/categories';
   readonly newCategoryButton: Locator;
-  readonly table: Locator;
+  readonly categoriesTable: Locator;
 
   constructor(page: Page) {
     super(page);
     this.newCategoryButton = page.getByRole('button', { name: 'New category' });
-    this.table = page.getByRole('table', { name: 'Categories' });
+    this.categoriesTable = page.getByRole('table', { name: 'Categories' });
   }
 
-  row(name: string): Locator {
-    return this.table.getByRole('row').filter({ has: this.page.getByRole('cell', { name, exact: true }) });
+  categoryRow(name: string): Locator {
+    return this.categoriesTable.getByRole('row').filter({ has: this.page.getByRole('cell', { name, exact: true }) });
   }
 
   /** The number of products in the category, which links to them. */
-  productCount(name: string): Locator {
-    return this.row(name).getByRole('link');
+  productCountLink(name: string): Locator {
+    return this.categoryRow(name).getByRole('link');
   }
 
   editButton(name: string): Locator {

@@ -7,11 +7,11 @@ test('SC-002 Dashboard counts and low-stock products', { tag: '@smoke', annotati
       'Dashboard · Super Catalog',
     );
     const dashboardCounts = [
-      standardUser.dashboardPage.productsCount,
-      standardUser.dashboardPage.activeCount,
-      standardUser.dashboardPage.lowStockCount,
-      standardUser.dashboardPage.categoriesCount,
-      standardUser.dashboardPage.suppliersCount,
+      standardUser.dashboardPage.productsCardNumber,
+      standardUser.dashboardPage.activeProductsCardNumber,
+      standardUser.dashboardPage.lowStockCardNumber,
+      standardUser.dashboardPage.categoriesCardNumber,
+      standardUser.dashboardPage.suppliersCardNumber,
     ];
     for (const dashboardCount of dashboardCounts) {
       await expect(
@@ -19,17 +19,17 @@ test('SC-002 Dashboard counts and low-stock products', { tag: '@smoke', annotati
         'Counts are shown for Products, Active products, Low stock, Categories and Suppliers.',
       ).toHaveText(/^\d+$/);
     }
-    await expect(standardUser.dashboardPage.suppliersCount, 'The Suppliers count is 8.').toHaveText('8');
+    await expect(standardUser.dashboardPage.suppliersCardNumber, 'The Suppliers count is 8.').toHaveText('8');
   });
 
   await test.step('2. Select "See all low-stock products".', async () => {
     await standardUser.dashboardPage.lowStockLink.click();
     await expect(
-      standardUser.productsPage.lowStockOnly,
+      standardUser.productsPage.lowStockOnlyCheckbox,
       'The Products page opens with "Low stock only" checked.',
     ).toBeChecked();
     const expectedResult = 'Every product listed has a Low badge.';
-    await expect(standardUser.productsPage.rows.first(), expectedResult).toBeVisible();
-    await expect(standardUser.productsPage.rowsWithoutLowBadge, expectedResult).toHaveCount(0);
+    await expect(standardUser.productsPage.productRows.first(), expectedResult).toBeVisible();
+    await expect(standardUser.productsPage.productRowsWithoutLowBadge, expectedResult).toHaveCount(0);
   });
 });

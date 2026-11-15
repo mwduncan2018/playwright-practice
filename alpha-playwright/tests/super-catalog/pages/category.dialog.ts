@@ -9,15 +9,15 @@ import { BasePage } from '../../../shared/base.page';
  */
 export class CategoryDialog extends BasePage {
   readonly dialog: Locator;
-  readonly name: Locator;
-  readonly description: Locator;
+  readonly nameInput: Locator;
+  readonly descriptionTextarea: Locator;
   readonly saveButton: Locator;
 
   constructor(page: Page, title: string | RegExp) {
     super(page);
     this.dialog = page.getByRole('dialog', { name: title });
-    this.name = this.dialog.getByLabel('Name');
-    this.description = this.dialog.getByLabel('Description');
+    this.nameInput = this.dialog.getByLabel('Name');
+    this.descriptionTextarea = this.dialog.getByLabel('Description');
     this.saveButton = this.dialog.getByRole('button', { name: 'Save' });
   }
 }

@@ -8,10 +8,10 @@ import { BasePage } from '../../../shared/base.page';
  */
 export class AlertsPage extends BasePage {
   /** Every message on the page. Narrow them with filter({ hasText }). */
-  readonly messages: Locator;
+  readonly alertMessages: Locator;
 
   constructor(page: Page) {
     super(page);
-    this.messages = page.getByRole('alert');
+    this.alertMessages = page.getByRole('alert');
   }
 }

@@ -12,18 +12,18 @@ test('SC-009 Add, rename and delete a category', { tag: '@regression', annotatio
   });
 
   await test.step('2. Enter the name and select Save.', async () => {
-    await adminUser.newCategoryDialog.name.fill(categoryName);
+    await adminUser.newCategoryDialog.nameInput.fill(categoryName);
     await adminUser.newCategoryDialog.saveButton.click();
     await expect(
-      adminUser.alertsPage.messages.filter({ hasText: `Created the ${categoryName} category.` }),
+      adminUser.alertsPage.alertMessages.filter({ hasText: `Created the ${categoryName} category.` }),
       'The message "Created the <name> category." appears.',
     ).toBeVisible();
-    await expect(adminUser.categoriesPage.productCount(categoryName), 'The category is listed with 0 products.').toHaveText('0');
+    await expect(adminUser.categoriesPage.productCountLink(categoryName), 'The category is listed with 0 products.').toHaveText('0');
   });
 
   await test.step('3. Select Edit for the category, enter the existing name, and select Save.', async () => {
     await adminUser.categoriesPage.editButton(categoryName).click();
-    await adminUser.editCategoryDialog.name.fill('Electronics');
+    await adminUser.editCategoryDialog.nameInput.fill('Electronics');
     await adminUser.editCategoryDialog.saveButton.click();
     await expect(
       adminUser.editCategoryDialog.dialog,
@@ -32,16 +32,16 @@ test('SC-009 Add, rename and delete a category', { tag: '@regression', annotatio
   });
 
   await test.step('4. Enter the new name and select Save.', async () => {
-    await adminUser.editCategoryDialog.name.fill(newCategoryName);
+    await adminUser.editCategoryDialog.nameInput.fill(newCategoryName);
     await adminUser.editCategoryDialog.saveButton.click();
-    await expect(adminUser.categoriesPage.row(newCategoryName), 'The category is listed under its new name.').toBeVisible();
+    await expect(adminUser.categoriesPage.categoryRow(newCategoryName), 'The category is listed under its new name.').toBeVisible();
   });
 
   await test.step('5. Select Delete for Electronics, then select Delete in the dialog.', async () => {
     await adminUser.categoriesPage.deleteButton('Electronics').click();
     await adminUser.deleteCategoryDialog.confirmButton.click();
     await expect(
-      adminUser.deleteCategoryDialog.problem,
+      adminUser.deleteCategoryDialog.problemAlert,
       'The dialog says "Electronics has 10 products, so it can\'t be deleted. Move or delete them first."',
     ).toHaveText("Electronics has 10 products, so it can't be deleted. Move or delete them first.");
   });
@@ -51,9 +51,9 @@ test('SC-009 Add, rename and delete a category', { tag: '@regression', annotatio
     await adminUser.categoriesPage.deleteButton(newCategoryName).click();
     await adminUser.deleteCategoryDialog.confirmButton.click();
     await expect(
-      adminUser.alertsPage.messages.filter({ hasText: `Deleted the ${newCategoryName} category.` }),
+      adminUser.alertsPage.alertMessages.filter({ hasText: `Deleted the ${newCategoryName} category.` }),
       'The message "Deleted the <new name> category." appears.',
     ).toBeVisible();
-    await expect(adminUser.categoriesPage.row(newCategoryName), 'The category is no longer listed.').toHaveCount(0);
+    await expect(adminUser.categoriesPage.categoryRow(newCategoryName), 'The category is no longer listed.').toHaveCount(0);
   });
 });

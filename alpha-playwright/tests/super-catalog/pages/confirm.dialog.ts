@@ -9,7 +9,7 @@ export class ConfirmDialog extends BasePage {
   readonly cancelButton: Locator;
   readonly okButton: Locator;
   /** Why the server refused, such as a category that still has products. */
-  readonly problem: Locator;
+  readonly problemAlert: Locator;
 
   constructor(page: Page, title: string, confirmLabel = 'Delete') {
     super(page);
@@ -17,6 +17,6 @@ export class ConfirmDialog extends BasePage {
     this.confirmButton = this.dialog.getByRole('button', { name: confirmLabel, exact: true });
     this.cancelButton = this.dialog.getByRole('button', { name: 'Cancel', exact: true });
     this.okButton = this.dialog.getByRole('button', { name: 'OK', exact: true });
-    this.problem = this.dialog.getByRole('alert');
+    this.problemAlert = this.dialog.getByRole('alert');
   }
 }

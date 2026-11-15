@@ -106,24 +106,24 @@ check shows up in the test and its report. Each line names the user first:
 
 ```ts
 await adminUser.page.goto(adminUser.productFormPage.path);
-await adminUser.productFormPage.name.fill(testProduct.name);
+await adminUser.productFormPage.nameInput.fill(testProduct.name);
 await adminUser.productFormPage.createButton.click();
 ```
 
 - **Locators are properties**: buttons, fields, headings, and fixed sets of values such as a product's
-  `price` or a request's `status`.
+  `priceValue` or a request's `statusValue`.
 - **A page's address is a `path` property**, opened with
   `adminUser.page.goto(adminUser.productsPage.path)`. A page whose address ends in a number has the
   start of it: `standardUser.page.goto(standardUser.requestPage.path + requestNumber)`.
 - **Methods only for dynamic tables and lists**: rows that come and go, found by a value a test
-  creates or loops over, such as `adminUser.productsPage.row(sku)`,
+  creates or loops over, such as `adminUser.productsPage.productRow(sku)`,
   `adminUser.approvalsPage.approveButton(requestNumber)` or
-  `adminUser.categoriesPage.productCount(categoryName)`.
+  `adminUser.categoriesPage.productCountLink(categoryName)`.
 - **No methods for flows**, such as signing in or filling in a form. Those steps go in the test, even
   when they're long.
 - **No nested page objects**: a page object holds locators, never another page object or component.
   Wizards and dialogs sit beside the pages on each user, named for what they're for:
-  `adminUser.announcementWizard.title`, `adminUser.rejectDialog.confirmButton` or
+  `adminUser.announcementWizard.titleInput`, `adminUser.rejectDialog.confirmButton` or
   `adminUser.deleteProductDialog.confirmButton`. Only one dialog is open at a time, so a dialog titled
   with a name or number, such as "Edit Electronics" or "Reject REQ-1016", matches whichever is open:
   `adminUser.editCategoryDialog`.
@@ -132,16 +132,35 @@ await adminUser.productFormPage.createButton.click();
   wizard, and `confirm.dialog.ts` for a dialog.
 - **Things that vary per test are found in the test** from a property, such as a radio button,
   `standardUser.equipmentWizard.dialog.getByRole('radio', { name: 'High', exact: true })`, or a message,
-  `standardUser.alertsPage.messages.filter({ hasText: 'Comment posted.' })`.
-- **The user is written out every time**: `standardUser.equipmentWizard.item`, not a shortcut such as
-  `const wizard = standardUser.equipmentWizard`, so every line says whose browser it acts in.
+  `standardUser.alertsPage.alertMessages.filter({ hasText: 'Comment posted.' })`.
+- **The user is written out every time**: `standardUser.equipmentWizard.itemSelect`, not a shortcut
+  such as `const wizard = standardUser.equipmentWizard`, so every line says whose browser it acts in.
+- **Every locator says what it is**, by the element it finds, or for a plain `div` or `span`, by what
+  it is to the person using the app:
+
+  | It finds                                              | Its name ends in      | For example                                       |
+  | ----------------------------------------------------- | --------------------- | ------------------------------------------------- |
+  | an `<input>`: text, number, date, search or file      | `Input`               | `skuInput`, `searchInput`, `imageInput`           |
+  | a `<textarea>`                                        | `Textarea`            | `descriptionTextarea`, `reasonTextarea`           |
+  | a `<select>`                                          | `Select`              | `categorySelect`, `itemSelect`                    |
+  | a checkbox                                            | `Checkbox`            | `lowStockOnlyCheckbox`, `pinnedCheckbox`          |
+  | a button or a link                                    | `Button`, `Link`      | `exportCsvButton`, `newProductLink`               |
+  | a heading, table, list or image                       | `Heading`, `Table`…   | `submittedHeading`, `productsTable`, `photoImage` |
+  | a row or list item, or several                        | `Row(s)`, `ListItems` | `productRows`, `historyListItems`                 |
+  | the value beside a label, such as Price: $19.99       | `Value`               | `priceValue`, `statusValue`                       |
+  | a badge or an alert                                   | `Badge`, `Alert`      | `audienceBadge`, `decisionAlert`                  |
+  | a line of text, such as "Showing 1–10 of 60 products" | `Text`                | `summaryText`, `progressText`, `bylineText`       |
+  | the number on a dashboard card                        | `CardNumber`          | `productsCardNumber`                              |
+
+  Methods that find a locator are named the same way: `productRow(sku)`, `productCountLink(name)`.
+
 - **Every name says what it is**: users end in `User` (`standardUser`, `adminUser`), page objects in
   `Page` (`productsPage`, `keycloakPage`), wizards in `Wizard` and dialogs in `Dialog`. A test's own
   variables say what they hold, such as `testProduct`, `rejectionReason` or `deliveryAddress`, and
   `expectedResult` is a step's expected result from the plan when several checks share it as their
   message.
 - **Assertions keep Playwright's shape**:
-  `await expect(adminUser.requestPage.status).toHaveText('Rejected')`.
+  `await expect(adminUser.requestPage.statusValue).toHaveText('Rejected')`.
 
 The base page's three methods are the team's agreed exception.
 
@@ -153,7 +172,7 @@ To check a download, start waiting for it before the click that starts it:
 
 ```ts
 const downloadPromise = standardUser.page.waitForEvent('download');
-await standardUser.productsPage.exportCsv.click();
+await standardUser.productsPage.exportCsvButton.click();
 const csvDownload = await downloadPromise;
 ```
 

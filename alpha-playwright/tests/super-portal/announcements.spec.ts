@@ -9,33 +9,33 @@ test('SP-009 Schedule an announcement for standard users', { tag: '@regression',
     await adminUser.page.goto(adminUser.announcementsPage.path);
     await adminUser.announcementsPage.newAnnouncementButton.click();
     await expect(
-      adminUser.announcementWizard.progress,
+      adminUser.announcementWizard.progressText,
       'The New announcement wizard opens at "Step 1 of 4".',
     ).toHaveText('Step 1 of 4');
   });
 
   await test.step('2. Select Next without entering anything.', async () => {
     await adminUser.announcementWizard.nextButton.click();
-    await expect(adminUser.announcementWizard.title, 'Title says "Enter a title."').toHaveAccessibleErrorMessage(
+    await expect(adminUser.announcementWizard.titleInput, 'Title says "Enter a title."').toHaveAccessibleErrorMessage(
       'Enter a title.',
     );
     await expect(
-      adminUser.announcementWizard.message,
+      adminUser.announcementWizard.messageTextarea,
       'Message says "Enter the message."',
     ).toHaveAccessibleErrorMessage('Enter the message.');
   });
 
   await test.step('3. Enter the title and message and select Next. Choose the audience and select Next. Choose Schedule for a later date, enter the date, check the pin box, and select Next.', async () => {
-    await adminUser.announcementWizard.title.fill(announcementTitle);
-    await adminUser.announcementWizard.message.fill('The cafeteria opens an hour later on Friday.');
+    await adminUser.announcementWizard.titleInput.fill(announcementTitle);
+    await adminUser.announcementWizard.messageTextarea.fill('The cafeteria opens an hour later on Friday.');
     await adminUser.announcementWizard.nextButton.click();
     await adminUser.announcementWizard.dialog.getByRole('radio', { name: 'Standard users only', exact: true }).check();
     await adminUser.announcementWizard.nextButton.click();
     await adminUser.announcementWizard.dialog
       .getByRole('radio', { name: 'Schedule for a later date', exact: true })
       .check();
-    await adminUser.announcementWizard.publishOn.fill(publishDate);
-    await adminUser.announcementWizard.pinned.check();
+    await adminUser.announcementWizard.publishOnInput.fill(publishDate);
+    await adminUser.announcementWizard.pinnedCheckbox.check();
     await adminUser.announcementWizard.nextButton.click();
     const expectedResult = 'The Review step shows "Standard users only" and the date at 09:00 UTC.';
     await expect(adminUser.announcementWizard.dialog.getByRole('region', { name: 'Audience' }), expectedResult).toContainText(
@@ -49,10 +49,10 @@ test('SP-009 Schedule an announcement for standard users', { tag: '@regression',
   await test.step('4. Select Schedule announcement, then select View announcement.', async () => {
     await adminUser.announcementWizard.scheduleButton.click();
     await adminUser.announcementWizard.viewAnnouncementButton.click();
-    await expect(adminUser.announcementPage.meta, "The announcement's page says it's scheduled.").toContainText(
+    await expect(adminUser.announcementPage.bylineText, "The announcement's page says it's scheduled.").toContainText(
       'Scheduled for',
     );
-    await expect(adminUser.announcementPage.audience, 'The audience is "Standard users only".').toHaveText(
+    await expect(adminUser.announcementPage.audienceBadge, 'The audience is "Standard users only".').toHaveText(
       'Standard users only',
     );
   });
@@ -60,7 +60,7 @@ test('SP-009 Schedule an announcement for standard users', { tag: '@regression',
   await test.step('5. As the standard user, open Announcements.', async () => {
     await standardUser.page.goto(standardUser.announcementsPage.path);
     // Wait for the list, so the check below isn't made before it has loaded.
-    await expect(standardUser.announcementsPage.summary).toBeVisible();
+    await expect(standardUser.announcementsPage.summaryText).toBeVisible();
     await expect(standardUser.announcementsPage.announcementLink(announcementTitle), "The announcement isn't listed.").toHaveCount(0);
   });
 
@@ -68,7 +68,7 @@ test('SP-009 Schedule an announcement for standard users', { tag: '@regression',
     await adminUser.announcementPage.deleteButton.click();
     await adminUser.deleteAnnouncementDialog.confirmButton.click();
     await expect(
-      adminUser.alertsPage.messages.filter({ hasText: 'Deleted the announcement.' }),
+      adminUser.alertsPage.alertMessages.filter({ hasText: 'Deleted the announcement.' }),
       'The message "Deleted the announcement." appears.',
     ).toBeVisible();
   });

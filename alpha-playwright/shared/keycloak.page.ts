@@ -9,18 +9,18 @@ import { BasePage } from './base.page';
  */
 export class KeycloakPage extends BasePage {
   readonly heading: Locator;
-  readonly username: Locator;
-  readonly password: Locator;
+  readonly usernameInput: Locator;
+  readonly passwordInput: Locator;
   readonly signInButton: Locator;
   /** The message under the fields, such as "Invalid username or password.". */
-  readonly errorMessage: Locator;
+  readonly errorMessageText: Locator;
 
   constructor(page: Page) {
     super(page);
     this.heading = page.getByRole('heading', { name: 'Sign in to your account' });
-    this.username = page.locator('[name="username"]');
-    this.password = page.locator('[name="password"]');
+    this.usernameInput = page.locator('[name="username"]');
+    this.passwordInput = page.locator('[name="password"]');
     this.signInButton = page.locator('[name="login"]');
-    this.errorMessage = page.locator('#input-error-username');
+    this.errorMessageText = page.locator('#input-error-username');
   }
 }

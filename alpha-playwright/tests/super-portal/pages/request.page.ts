@@ -12,20 +12,20 @@ export class RequestPage extends BasePage {
   readonly rejectButton: Locator;
   readonly cancelRequestButton: Locator;
   /** Who approved, rejected or cancelled the request, and when, with any note or reason. */
-  readonly decision: Locator;
-  readonly commentField: Locator;
+  readonly decisionAlert: Locator;
+  readonly commentTextarea: Locator;
   readonly postCommentButton: Locator;
-  readonly history: Locator;
-  readonly historyEntries: Locator;
-  readonly status: Locator;
+  readonly historyList: Locator;
+  readonly historyListItems: Locator;
+  readonly statusValue: Locator;
   /** Equipment requests' delivery address. */
-  readonly address: Locator;
+  readonly deliveryAddressValue: Locator;
   /** Software requests' number of seats. */
-  readonly seats: Locator;
+  readonly seatsValue: Locator;
   /** Access requests' access level. */
-  readonly accessLevel: Locator;
+  readonly accessLevelValue: Locator;
   /** Administrator access requests' security training answer. */
-  readonly securityTraining: Locator;
+  readonly securityTrainingValue: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -35,17 +35,17 @@ export class RequestPage extends BasePage {
     this.approveButton = mainRegion.getByRole('button', { name: 'Approve', exact: true });
     this.rejectButton = mainRegion.getByRole('button', { name: 'Reject', exact: true });
     this.cancelRequestButton = mainRegion.getByRole('button', { name: 'Cancel request', exact: true });
-    this.decision = page.getByTestId('request-decision');
-    this.commentField = page.getByLabel('Add a comment');
+    this.decisionAlert = page.getByTestId('request-decision');
+    this.commentTextarea = page.getByLabel('Add a comment');
     this.postCommentButton = page.getByRole('button', { name: 'Post comment' });
-    this.history = page.getByRole('list', { name: 'History' });
-    this.historyEntries = this.history.getByRole('listitem');
+    this.historyList = page.getByRole('list', { name: 'History' });
+    this.historyListItems = this.historyList.getByRole('listitem');
     // The values carry test IDs: request-<name> in the Request card, request-detail-<name> in the
     // type's own details.
-    this.status = page.getByTestId('request-status');
-    this.address = page.getByTestId('request-detail-address');
-    this.seats = page.getByTestId('request-detail-seats');
-    this.accessLevel = page.getByTestId('request-detail-level');
-    this.securityTraining = page.getByTestId('request-detail-training');
+    this.statusValue = page.getByTestId('request-status');
+    this.deliveryAddressValue = page.getByTestId('request-detail-address');
+    this.seatsValue = page.getByTestId('request-detail-seats');
+    this.accessLevelValue = page.getByTestId('request-detail-level');
+    this.securityTrainingValue = page.getByTestId('request-detail-training');
   }
 }

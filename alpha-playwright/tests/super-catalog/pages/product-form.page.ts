@@ -6,31 +6,31 @@ import { BasePage } from '../../../shared/base.page';
 export class ProductFormPage extends BasePage {
   readonly path = '/products/new';
   readonly newProductHeading: Locator;
-  readonly sku: Locator;
-  readonly name: Locator;
-  readonly description: Locator;
-  readonly category: Locator;
-  readonly supplier: Locator;
-  readonly price: Locator;
-  readonly stock: Locator;
-  readonly reorderLevel: Locator;
+  readonly skuInput: Locator;
+  readonly nameInput: Locator;
+  readonly descriptionTextarea: Locator;
+  readonly categorySelect: Locator;
+  readonly supplierSelect: Locator;
+  readonly priceInput: Locator;
+  readonly stockInput: Locator;
+  readonly reorderLevelInput: Locator;
   /** Labelled "Image", or "Replace the image" when the product already has one. */
-  readonly image: Locator;
+  readonly imageInput: Locator;
   readonly createButton: Locator;
   readonly saveButton: Locator;
 
   constructor(page: Page) {
     super(page);
     this.newProductHeading = page.getByRole('heading', { name: 'New product', level: 1 });
-    this.sku = page.getByLabel('SKU');
-    this.name = page.getByLabel('Name', { exact: true });
-    this.description = page.getByLabel('Description');
-    this.category = page.getByLabel('Category');
-    this.supplier = page.getByLabel('Supplier');
-    this.price = page.getByLabel('Price (USD)');
-    this.stock = page.getByLabel('Stock', { exact: true });
-    this.reorderLevel = page.getByLabel('Reorder level');
-    this.image = page.getByLabel(/^(Image|Replace the image)$/);
+    this.skuInput = page.getByLabel('SKU');
+    this.nameInput = page.getByLabel('Name', { exact: true });
+    this.descriptionTextarea = page.getByLabel('Description');
+    this.categorySelect = page.getByLabel('Category');
+    this.supplierSelect = page.getByLabel('Supplier');
+    this.priceInput = page.getByLabel('Price (USD)');
+    this.stockInput = page.getByLabel('Stock', { exact: true });
+    this.reorderLevelInput = page.getByLabel('Reorder level');
+    this.imageInput = page.getByLabel(/^(Image|Replace the image)$/);
     this.createButton = page.getByRole('button', { name: 'Create product' });
     this.saveButton = page.getByRole('button', { name: 'Save changes' });
   }

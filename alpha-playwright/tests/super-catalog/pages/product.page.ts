@@ -8,15 +8,15 @@ export class ProductPage extends BasePage {
   readonly heading: Locator;
   readonly editLink: Locator;
   readonly deleteButton: Locator;
-  readonly sku: Locator;
-  readonly supplier: Locator;
-  readonly price: Locator;
-  readonly stock: Locator;
-  readonly status: Locator;
+  readonly skuValue: Locator;
+  readonly supplierValue: Locator;
+  readonly priceValue: Locator;
+  readonly stockValue: Locator;
+  readonly statusValue: Locator;
   /** When and by whom the product was created. */
-  readonly created: Locator;
+  readonly createdValue: Locator;
   /** The product's photo, named "Photo of <product name>". */
-  readonly photo: Locator;
+  readonly photoImage: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -26,12 +26,12 @@ export class ProductPage extends BasePage {
     this.editLink = mainRegion.getByRole('link', { name: 'Edit', exact: true });
     this.deleteButton = mainRegion.getByRole('button', { name: 'Delete', exact: true });
     // The details have no role or label, so they carry test IDs such as product-price.
-    this.sku = page.getByTestId('product-sku');
-    this.supplier = page.getByTestId('product-supplier');
-    this.price = page.getByTestId('product-price');
-    this.stock = page.getByTestId('product-stock');
-    this.status = page.getByTestId('product-status');
-    this.created = page.getByTestId('product-created');
-    this.photo = page.getByRole('img', { name: /^Photo of / });
+    this.skuValue = page.getByTestId('product-sku');
+    this.supplierValue = page.getByTestId('product-supplier');
+    this.priceValue = page.getByTestId('product-price');
+    this.stockValue = page.getByTestId('product-stock');
+    this.statusValue = page.getByTestId('product-status');
+    this.createdValue = page.getByTestId('product-created');
+    this.photoImage = page.getByRole('img', { name: /^Photo of / });
   }
 }

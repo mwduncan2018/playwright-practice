@@ -9,12 +9,12 @@ import { BasePage } from '../../../shared/base.page';
 export class AnnouncementWizard extends BasePage {
   readonly dialog: Locator;
   /** "Step 2 of 4" */
-  readonly progress: Locator;
+  readonly progressText: Locator;
   readonly nextButton: Locator;
-  readonly title: Locator;
-  readonly message: Locator;
-  readonly publishOn: Locator;
-  readonly pinned: Locator;
+  readonly titleInput: Locator;
+  readonly messageTextarea: Locator;
+  readonly publishOnInput: Locator;
+  readonly pinnedCheckbox: Locator;
   readonly publishButton: Locator;
   /** The Review step's button for an announcement with a later date. */
   readonly scheduleButton: Locator;
@@ -25,12 +25,12 @@ export class AnnouncementWizard extends BasePage {
   constructor(page: Page) {
     super(page);
     this.dialog = page.getByRole('dialog', { name: 'New announcement' });
-    this.progress = this.dialog.getByText(/^Step \d+ of \d+$/);
+    this.progressText = this.dialog.getByText(/^Step \d+ of \d+$/);
     this.nextButton = this.dialog.getByRole('button', { name: 'Next', exact: true });
-    this.title = this.dialog.getByLabel('Title');
-    this.message = this.dialog.getByLabel('Message');
-    this.publishOn = this.dialog.getByLabel('Publish on');
-    this.pinned = this.dialog.getByLabel('Pin it to the top of Home and Announcements');
+    this.titleInput = this.dialog.getByLabel('Title');
+    this.messageTextarea = this.dialog.getByLabel('Message');
+    this.publishOnInput = this.dialog.getByLabel('Publish on');
+    this.pinnedCheckbox = this.dialog.getByLabel('Pin it to the top of Home and Announcements');
     this.publishButton = this.dialog.getByRole('button', { name: 'Publish announcement' });
     this.scheduleButton = this.dialog.getByRole('button', { name: 'Schedule announcement' });
     this.scheduledHeading = this.dialog.getByRole('heading', { name: 'Announcement scheduled' });

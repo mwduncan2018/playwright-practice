@@ -1,7 +1,7 @@
 /**
  * Super Catalog's tests import test and expect from here. Each user a test asks for, such as
  * standardUser or adminUser, has a browser of their own and every Super Catalog page object on it:
- * adminUser.productsPage.newProduct. Dialogs sit beside the pages, never inside one:
+ * adminUser.productsPage.newProductLink. Dialogs sit beside the pages, never inside one:
  * adminUser.deleteProductDialog.confirmButton.
  */
 import type { Page } from '@playwright/test';

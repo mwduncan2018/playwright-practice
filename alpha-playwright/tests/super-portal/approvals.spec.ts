@@ -5,44 +5,44 @@ test('SP-006 An admin approves a request', { tag: '@smoke', annotation: plan('SP
 
   const requestNumber = await test.step('1. As the standard user, submit the request in the test data.', async () => {
     await standardUser.page.goto(standardUser.newRequestPage.path);
-    await standardUser.newRequestPage.requestSoftware.click();
-    await standardUser.softwareWizard.software.selectOption('Tableau');
+    await standardUser.newRequestPage.requestSoftwareButton.click();
+    await standardUser.softwareWizard.softwareSelect.selectOption('Tableau');
     await standardUser.softwareWizard.nextButton.click();
     await standardUser.softwareWizard.dialog.getByRole('radio', { name: '6 months', exact: true }).check();
-    await standardUser.softwareWizard.seats.fill('1');
+    await standardUser.softwareWizard.seatsInput.fill('1');
     await standardUser.softwareWizard.nextButton.click();
-    await standardUser.softwareWizard.reason.fill('I build the sales dashboards each quarter.');
+    await standardUser.softwareWizard.reasonTextarea.fill('I build the sales dashboards each quarter.');
     await standardUser.softwareWizard.nextButton.click();
     await standardUser.softwareWizard.submitButton.click();
-    await expect(standardUser.softwareWizard.newRequestNumber, "The wizard shows the new request's number.").toHaveText(
+    await expect(standardUser.softwareWizard.newRequestNumberText, "The wizard shows the new request's number.").toHaveText(
       /^REQ-\d{4,}$/,
     );
-    return (await standardUser.softwareWizard.newRequestNumber.innerText()).trim();
+    return (await standardUser.softwareWizard.newRequestNumberText.innerText()).trim();
   });
 
   await test.step('2. As an admin, open Approvals.', async () => {
     await adminUser.page.goto(adminUser.approvalsPage.path);
-    await expect(adminUser.approvalsPage.row(requestNumber), 'The request is listed.').toBeVisible();
+    await expect(adminUser.approvalsPage.requestRow(requestNumber), 'The request is listed.').toBeVisible();
   });
 
   await test.step('3. Select Approve for the request, enter the note, and select Approve.', async () => {
     await adminUser.approvalsPage.approveButton(requestNumber).click();
-    await adminUser.approveDialog.text.fill(approvalNote);
+    await adminUser.approveDialog.noteOrReasonTextarea.fill(approvalNote);
     await adminUser.approveDialog.confirmButton.click();
     await expect(
-      adminUser.alertsPage.messages.filter({ hasText: `Approved ${requestNumber}.` }),
+      adminUser.alertsPage.alertMessages.filter({ hasText: `Approved ${requestNumber}.` }),
       'The message "Approved <number>." appears.',
     ).toBeVisible();
-    await expect(adminUser.approvalsPage.row(requestNumber), 'The request is no longer listed.').toHaveCount(0);
+    await expect(adminUser.approvalsPage.requestRow(requestNumber), 'The request is no longer listed.').toHaveCount(0);
   });
 
   await test.step('4. As the standard user, open the request.', async () => {
     await standardUser.page.goto(standardUser.requestPage.path + requestNumber);
-    await expect(standardUser.requestPage.status, 'The status is Approved.').toHaveText('Approved');
+    await expect(standardUser.requestPage.statusValue, 'The status is Approved.').toHaveText('Approved');
     const expectedResult = 'The page says the admin approved it, with the note.';
-    await expect(standardUser.requestPage.decision, expectedResult).toContainText(`Approved by ${adminUser.account.name}`);
-    await expect(standardUser.requestPage.decision, expectedResult).toContainText(`Note: ${approvalNote}`);
-    await expect(standardUser.requestPage.historyEntries.last(), 'The history ends with Approved.').toContainText('Approved');
+    await expect(standardUser.requestPage.decisionAlert, expectedResult).toContainText(`Approved by ${adminUser.account.name}`);
+    await expect(standardUser.requestPage.decisionAlert, expectedResult).toContainText(`Note: ${approvalNote}`);
+    await expect(standardUser.requestPage.historyListItems.last(), 'The history ends with Approved.').toContainText('Approved');
   });
 });
 
@@ -51,17 +51,17 @@ test('SP-007 An admin rejects a request', { tag: '@regression', annotation: plan
 
   const requestNumber = await test.step('1. As the standard user, submit the request in the test data.', async () => {
     await standardUser.page.goto(standardUser.newRequestPage.path);
-    await standardUser.newRequestPage.requestAccess.click();
-    await standardUser.accessWizard.system.selectOption('Customer CRM');
+    await standardUser.newRequestPage.requestAccessButton.click();
+    await standardUser.accessWizard.systemSelect.selectOption('Customer CRM');
     await standardUser.accessWizard.dialog.getByRole('radio', { name: 'Read only', exact: true }).check();
     await standardUser.accessWizard.nextButton.click();
-    await standardUser.accessWizard.reason.fill('I need to read customer records for support tickets.');
+    await standardUser.accessWizard.reasonTextarea.fill('I need to read customer records for support tickets.');
     await standardUser.accessWizard.nextButton.click();
     await standardUser.accessWizard.submitButton.click();
-    await expect(standardUser.accessWizard.newRequestNumber, "The wizard shows the new request's number.").toHaveText(
+    await expect(standardUser.accessWizard.newRequestNumberText, "The wizard shows the new request's number.").toHaveText(
       /^REQ-\d{4,}$/,
     );
-    return (await standardUser.accessWizard.newRequestNumber.innerText()).trim();
+    return (await standardUser.accessWizard.newRequestNumberText.innerText()).trim();
   });
 
   await test.step('2. As an admin, open the request and select Reject.', async () => {
@@ -81,21 +81,21 @@ test('SP-007 An admin rejects a request', { tag: '@regression', annotation: plan
   });
 
   await test.step('4. Enter the rejection reason and select Reject.', async () => {
-    await adminUser.rejectDialog.text.fill(rejectionReason);
+    await adminUser.rejectDialog.noteOrReasonTextarea.fill(rejectionReason);
     await adminUser.rejectDialog.confirmButton.click();
     await expect(
-      adminUser.alertsPage.messages.filter({ hasText: `Rejected ${requestNumber}.` }),
+      adminUser.alertsPage.alertMessages.filter({ hasText: `Rejected ${requestNumber}.` }),
       'The message "Rejected <number>." appears.',
     ).toBeVisible();
     const expectedResult = 'The status is Rejected, and the page shows the reason.';
-    await expect(adminUser.requestPage.status, expectedResult).toHaveText('Rejected');
-    await expect(adminUser.requestPage.decision, expectedResult).toContainText(`Reason: ${rejectionReason}`);
+    await expect(adminUser.requestPage.statusValue, expectedResult).toHaveText('Rejected');
+    await expect(adminUser.requestPage.decisionAlert, expectedResult).toContainText(`Reason: ${rejectionReason}`);
   });
 
   await test.step('5. As the standard user, open My requests and choose Rejected in Status.', async () => {
     await standardUser.page.goto(standardUser.myRequestsPage.path);
-    await standardUser.myRequestsPage.status.selectOption('Rejected');
-    await expect(standardUser.myRequestsPage.row(requestNumber), 'The request is listed as Rejected.').toContainText(
+    await standardUser.myRequestsPage.statusSelect.selectOption('Rejected');
+    await expect(standardUser.myRequestsPage.requestRow(requestNumber), 'The request is listed as Rejected.').toContainText(
       'Rejected',
     );
   });
@@ -104,32 +104,32 @@ test('SP-007 An admin rejects a request', { tag: '@regression', annotation: plan
 test("SP-008 Admins can't decide on their own requests", { tag: '@regression', annotation: plan('SP-008') }, async ({ adminUser }) => {
   const requestNumber = await test.step('1. Submit the request in the test data.', async () => {
     await adminUser.page.goto(adminUser.newRequestPage.path);
-    await adminUser.newRequestPage.requestEquipment.click();
-    await adminUser.equipmentWizard.item.selectOption('Headset');
-    await adminUser.equipmentWizard.quantity.fill('1');
+    await adminUser.newRequestPage.requestEquipmentButton.click();
+    await adminUser.equipmentWizard.itemSelect.selectOption('Headset');
+    await adminUser.equipmentWizard.quantityInput.fill('1');
     await adminUser.equipmentWizard.nextButton.click();
     await adminUser.equipmentWizard.dialog.getByRole('radio', { name: 'Pick up at the IT desk', exact: true }).check();
     await adminUser.equipmentWizard.nextButton.click();
-    await adminUser.equipmentWizard.reason.fill("My headset's microphone stopped working.");
+    await adminUser.equipmentWizard.reasonTextarea.fill("My headset's microphone stopped working.");
     await adminUser.equipmentWizard.nextButton.click();
     await adminUser.equipmentWizard.submitButton.click();
-    await expect(adminUser.equipmentWizard.newRequestNumber, "The wizard shows the new request's number.").toHaveText(
+    await expect(adminUser.equipmentWizard.newRequestNumberText, "The wizard shows the new request's number.").toHaveText(
       /^REQ-\d{4,}$/,
     );
-    return (await adminUser.equipmentWizard.newRequestNumber.innerText()).trim();
+    return (await adminUser.equipmentWizard.newRequestNumberText.innerText()).trim();
   });
 
   await test.step('2. Open Approvals.', async () => {
     await adminUser.page.goto(adminUser.approvalsPage.path);
     // Wait for the queue, so the check below isn't made before it has loaded.
-    await expect(adminUser.approvalsPage.summary).toBeVisible();
-    await expect(adminUser.approvalsPage.row(requestNumber), "The request isn't listed.").toHaveCount(0);
+    await expect(adminUser.approvalsPage.summaryText).toBeVisible();
+    await expect(adminUser.approvalsPage.requestRow(requestNumber), "The request isn't listed.").toHaveCount(0);
   });
 
   await test.step('3. Open the request.', async () => {
     await adminUser.page.goto(adminUser.requestPage.path + requestNumber);
     await expect(
-      adminUser.alertsPage.messages.filter({
+      adminUser.alertsPage.alertMessages.filter({
         hasText: "You can't approve or reject your own request. Another admin will decide on it.",
       }),
       'The page says "You can\'t approve or reject your own request. Another admin will decide on it."',

@@ -18,22 +18,22 @@ for (const accountName of ACCOUNT_NAMES) {
     const keycloakPage = new KeycloakPage(page);
     // Keycloak's address isn't configured here, because the app redirects to it. So this is where a
     // Keycloak that's down shows up.
-    await keycloakPage.username.waitFor({ timeout: 15_000 }).catch(() => {
+    await keycloakPage.usernameInput.waitFor({ timeout: 15_000 }).catch(() => {
       throw new Error(`${baseURL} didn't open Keycloak's sign-in page. Is Keycloak running?`);
     });
-    await keycloakPage.username.fill(username);
-    await fillSecret(keycloakPage.password, password);
+    await keycloakPage.usernameInput.fill(username);
+    await fillSecret(keycloakPage.passwordInput, password);
     await keycloakPage.signInButton.click();
 
     // Wait to be back on the app, or for Keycloak to say why not, such as a wrong password.
     const appOrigin = new URL(baseURL!).origin;
     const signInOutcome = await Promise.race([
       page.waitForURL((url) => url.origin === appOrigin, { timeout: 15_000 }).then(() => 'signed in' as const),
-      keycloakPage.errorMessage.waitFor({ timeout: 15_000 }).then(() => 'refused' as const),
+      keycloakPage.errorMessageText.waitFor({ timeout: 15_000 }).then(() => 'refused' as const),
     ]).catch(() => 'no answer' as const);
     if (signInOutcome !== 'signed in') {
       const keycloakErrorMessage =
-        signInOutcome === 'refused' ? await keycloakPage.errorMessage.innerText().catch(() => null) : null;
+        signInOutcome === 'refused' ? await keycloakPage.errorMessageText.innerText().catch(() => null) : null;
       throw new Error(
         `Couldn't sign in to ${baseURL} as ${username}` +
           (keycloakErrorMessage ? `: Keycloak says "${keycloakErrorMessage.trim()}"` : '') +

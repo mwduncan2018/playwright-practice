@@ -1,7 +1,7 @@
 /**
  * Super Portal's tests import test and expect from here. Each user a test asks for, such as
  * standardUser or adminUser, has a browser of their own and every Super Portal page object on it:
- * standardUser.requestPage.status. Wizards and dialogs sit beside the pages, never inside one:
+ * standardUser.requestPage.statusValue. Wizards and dialogs sit beside the pages, never inside one:
  * adminUser.rejectDialog.confirmButton.
  */
 import type { Page } from '@playwright/test';
