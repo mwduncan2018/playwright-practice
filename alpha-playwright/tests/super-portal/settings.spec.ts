@@ -5,9 +5,8 @@ test("SP-010 Settings set the wizard's default priority", { tag: ['@regression',
     await standardSideUser.page.goto(standardSideUser.homePage.path);
     await standardSideUser.navbarPage.userMenuButton.click();
     await standardSideUser.navbarPage.settingsLink.click();
-    const expectedResult = "The Settings page shows the user's username and the role standard.";
-    await expect(standardSideUser.settingsPage.usernameValue, expectedResult).toHaveText(standardSideUser.account.username);
-    await expect(standardSideUser.settingsPage.rolesValue, expectedResult).toHaveText('standard');
+    await expect(standardSideUser.settingsPage.usernameValue, "The Settings page shows the user's username and the role standard.").toHaveText(standardSideUser.account.username);
+    await expect(standardSideUser.settingsPage.rolesValue, "The Settings page shows the user's username and the role standard.").toHaveText('standard');
   });
 
   await test.step('2. Choose Urgent in Default priority for new requests and select Save settings.', async () => {

@@ -14,10 +14,9 @@ test('SP-011 Choose and order the All requests columns', { tag: '@regression', a
     await expect(adminUser.columnsDialog.dialog, 'The Choose columns dialog opens.').toBeVisible();
     await expect(adminUser.columnsDialog.numberColumnCheckbox, "Number is checked and can't be unchecked.").toBeChecked();
     await expect(adminUser.columnsDialog.numberColumnCheckbox, "Number is checked and can't be unchecked.").toBeDisabled();
-    const expectedResult = "Needed by, Updated and Decided by aren't checked.";
-    await expect(adminUser.columnsDialog.neededByColumnCheckbox, expectedResult).not.toBeChecked();
-    await expect(adminUser.columnsDialog.updatedColumnCheckbox, expectedResult).not.toBeChecked();
-    await expect(adminUser.columnsDialog.decidedByColumnCheckbox, expectedResult).not.toBeChecked();
+    await expect(adminUser.columnsDialog.neededByColumnCheckbox, "Needed by, Updated and Decided by aren't checked.").not.toBeChecked();
+    await expect(adminUser.columnsDialog.updatedColumnCheckbox, "Needed by, Updated and Decided by aren't checked.").not.toBeChecked();
+    await expect(adminUser.columnsDialog.decidedByColumnCheckbox, "Needed by, Updated and Decided by aren't checked.").not.toBeChecked();
   });
 
   await test.step('3. Check Decided by, uncheck Type, select the up arrow (↑) for Decided by three times, and select Save columns.', async () => {
@@ -81,9 +80,8 @@ test('SP-012 Find a request on All requests and check who decided it', { tag: '@
   await test.step("3. Search for the request's number.", async () => {
     await adminUser.allRequestsPage.searchInput.fill(requestNumber);
     await expect(adminUser.allRequestsPage.requestRow(requestNumber, standardUser.account.name), 'The request is listed, with the standard user as its requester.').toBeVisible();
-    const expectedResult = 'Its Status is Submitted, and Decided by shows "—".';
-    await expect(adminUser.allRequestsPage.statusCell(requestNumber, standardUser.account.name), expectedResult).toHaveText('Submitted');
-    await expect(adminUser.allRequestsPage.decidedByCell(requestNumber, standardUser.account.name), expectedResult).toHaveText('—');
+    await expect(adminUser.allRequestsPage.statusCell(requestNumber, standardUser.account.name), 'Its Status is Submitted, and Decided by shows "—".').toHaveText('Submitted');
+    await expect(adminUser.allRequestsPage.decidedByCell(requestNumber, standardUser.account.name), 'Its Status is Submitted, and Decided by shows "—".').toHaveText('—');
   });
 
   await test.step('4. Open the request, select Approve, and select Approve in the dialog.', async () => {
@@ -97,9 +95,8 @@ test('SP-012 Find a request on All requests and check who decided it', { tag: '@
   await test.step("5. Open All requests and search for the request's number.", async () => {
     await adminUser.page.goto(adminUser.allRequestsPage.path);
     await adminUser.allRequestsPage.searchInput.fill(requestNumber);
-    const expectedResult = "Its Status is Approved, and Decided by shows the admin's name.";
-    await expect(adminUser.allRequestsPage.statusCell(requestNumber, standardUser.account.name), expectedResult).toHaveText('Approved');
-    await expect(adminUser.allRequestsPage.decidedByCell(requestNumber, standardUser.account.name), expectedResult).toHaveText(adminUser.account.name);
+    await expect(adminUser.allRequestsPage.statusCell(requestNumber, standardUser.account.name), "Its Status is Approved, and Decided by shows the admin's name.").toHaveText('Approved');
+    await expect(adminUser.allRequestsPage.decidedByCell(requestNumber, standardUser.account.name), "Its Status is Approved, and Decided by shows the admin's name.").toHaveText(adminUser.account.name);
   });
 });
 
@@ -119,16 +116,14 @@ test('SP-013 Filter and page through All requests', { tag: '@regression', annota
   await test.step('3. Choose Submitted in Status.', async () => {
     await adminUser.allRequestsPage.statusSelect.selectOption('Submitted');
     await expect(adminUser.allRequestsPage.summaryText, 'The page says "Showing 1–1 of 1 request".').toHaveText('Showing 1–1 of 1 request');
-    const expectedResult = 'The only request listed is REQ-1098, Customer CRM: Read only.';
-    await expect(adminUser.allRequestsPage.requestRows, expectedResult).toHaveCount(1);
-    await expect(adminUser.allRequestsPage.titleCell('REQ-1098', 'Standard Four'), expectedResult).toHaveText('Customer CRM: Read only');
+    await expect(adminUser.allRequestsPage.requestRows, 'The only request listed is REQ-1098, Customer CRM: Read only.').toHaveCount(1);
+    await expect(adminUser.allRequestsPage.titleCell('REQ-1098', 'Standard Four'), 'The only request listed is REQ-1098, Customer CRM: Read only.').toHaveText('Customer CRM: Read only');
   });
 
   await test.step('4. Select Clear filters.', async () => {
     await adminUser.allRequestsPage.clearFiltersButton.click();
-    const expectedResult = 'Requester shows Everyone and Status shows All statuses.';
-    await expect(adminUser.allRequestsPage.requesterSelect, expectedResult).toHaveValue('');
-    await expect(adminUser.allRequestsPage.statusSelect, expectedResult).toHaveValue('');
+    await expect(adminUser.allRequestsPage.requesterSelect, 'Requester shows Everyone and Status shows All statuses.').toHaveValue('');
+    await expect(adminUser.allRequestsPage.statusSelect, 'Requester shows Everyone and Status shows All statuses.').toHaveValue('');
     await expect(adminUser.allRequestsPage.summaryText, 'The page says "Showing 1–10 of" and the total.').toHaveText(/^Showing 1–10 of \d+ requests$/);
   });
 });

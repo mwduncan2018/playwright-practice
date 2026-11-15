@@ -39,18 +39,16 @@ test('SP-001 Request equipment shipped to an address', { tag: '@smoke', annotati
     await standardUser.equipmentWizard.highPriorityRadio.check();
     await standardUser.equipmentWizard.reasonTextarea.fill(requestReason);
     await standardUser.equipmentWizard.nextButton.click();
-    const expectedResult = 'The Review step shows the item, quantity, delivery, address, priority and reason.';
-    await expect(standardUser.equipmentWizard.equipmentReviewRegion, expectedResult).toContainText(/Item\s*Monitor\s*Quantity\s*2/);
-    await expect(standardUser.equipmentWizard.deliveryReviewRegion, expectedResult).toContainText(`Ship to an address${'Address'}${deliveryAddress}`);
-    await expect(standardUser.equipmentWizard.priorityAndReasonReviewRegion, expectedResult).toContainText(/Priority\s*High/);
-    await expect(standardUser.equipmentWizard.priorityAndReasonReviewRegion, expectedResult).toContainText(requestReason);
+    await expect(standardUser.equipmentWizard.equipmentReviewRegion, 'The Review step shows the item, quantity, delivery, address, priority and reason.').toContainText(/Item\s*Monitor\s*Quantity\s*2/);
+    await expect(standardUser.equipmentWizard.deliveryReviewRegion, 'The Review step shows the item, quantity, delivery, address, priority and reason.').toContainText(`Ship to an address${'Address'}${deliveryAddress}`);
+    await expect(standardUser.equipmentWizard.priorityAndReasonReviewRegion, 'The Review step shows the item, quantity, delivery, address, priority and reason.').toContainText(/Priority\s*High/);
+    await expect(standardUser.equipmentWizard.priorityAndReasonReviewRegion, 'The Review step shows the item, quantity, delivery, address, priority and reason.').toContainText(requestReason);
   });
 
   const requestNumber = await test.step('7. Select Submit request.', async () => {
     await standardUser.equipmentWizard.submitButton.click();
-    const expectedResult = 'The wizard says "Request submitted" and shows the new request\'s number.';
-    await expect(standardUser.equipmentWizard.submittedHeading, expectedResult).toBeVisible();
-    await expect(standardUser.equipmentWizard.newRequestNumberText, expectedResult).toHaveText(/^REQ-\d{4,}$/);
+    await expect(standardUser.equipmentWizard.submittedHeading, 'The wizard says "Request submitted" and shows the new request\'s number.').toBeVisible();
+    await expect(standardUser.equipmentWizard.newRequestNumberText, 'The wizard says "Request submitted" and shows the new request\'s number.').toHaveText(/^REQ-\d{4,}$/);
     return (await standardUser.equipmentWizard.newRequestNumberText.innerText()).trim();
   });
 
@@ -80,18 +78,16 @@ test('SP-002 Change answers with Back and Edit', { tag: '@regression', annotatio
 
   await test.step('3. Select Back.', async () => {
     await standardUser.softwareWizard.backButton.click();
-    const expectedResult = 'The License step still shows 1 year and 3 seats.';
-    await expect(standardUser.softwareWizard.oneYearLicenseRadio, expectedResult).toBeChecked();
-    await expect(standardUser.softwareWizard.seatsInput, expectedResult).toHaveValue('3');
+    await expect(standardUser.softwareWizard.oneYearLicenseRadio, 'The License step still shows 1 year and 3 seats.').toBeChecked();
+    await expect(standardUser.softwareWizard.seatsInput, 'The License step still shows 1 year and 3 seats.').toHaveValue('3');
   });
 
   await test.step('4. Select Next, enter the reason, and select Next.', async () => {
     await standardUser.softwareWizard.nextButton.click();
     await standardUser.softwareWizard.reasonTextarea.fill('Our team plans projects on a shared whiteboard.');
     await standardUser.softwareWizard.nextButton.click();
-    const expectedResult = 'The Review step shows Figma, 1 year and 3 seats.';
-    await expect(standardUser.softwareWizard.softwareReviewRegion, expectedResult).toContainText(/Software\s*Figma/);
-    await expect(standardUser.softwareWizard.licenseReviewRegion, expectedResult).toContainText(/License length\s*1 year\s*Seats\s*3/);
+    await expect(standardUser.softwareWizard.softwareReviewRegion, 'The Review step shows Figma, 1 year and 3 seats.').toContainText(/Software\s*Figma/);
+    await expect(standardUser.softwareWizard.licenseReviewRegion, 'The Review step shows Figma, 1 year and 3 seats.').toContainText(/License length\s*1 year\s*Seats\s*3/);
   });
 
   await test.step('5. Select Edit for Software, choose Miro, and select Next until the Review step.', async () => {
@@ -164,10 +160,9 @@ test('SP-004 Discard an unfinished request', { tag: '@regression', annotation: p
 
   await test.step('2. Select Cancel.', async () => {
     await standardUser.equipmentWizard.cancelButton.click();
-    const expectedResult = 'The wizard asks "Discard this request?" and offers Keep editing and Discard.';
-    await expect(standardUser.equipmentWizard.discardQuestionHeading, expectedResult).toBeVisible();
-    await expect(standardUser.equipmentWizard.keepEditingButton, expectedResult).toBeVisible();
-    await expect(standardUser.equipmentWizard.discardButton, expectedResult).toBeVisible();
+    await expect(standardUser.equipmentWizard.discardQuestionHeading, 'The wizard asks "Discard this request?" and offers Keep editing and Discard.').toBeVisible();
+    await expect(standardUser.equipmentWizard.keepEditingButton, 'The wizard asks "Discard this request?" and offers Keep editing and Discard.').toBeVisible();
+    await expect(standardUser.equipmentWizard.discardButton, 'The wizard asks "Discard this request?" and offers Keep editing and Discard.').toBeVisible();
   });
 
   await test.step('3. Select Keep editing.', async () => {
@@ -183,8 +178,7 @@ test('SP-004 Discard an unfinished request', { tag: '@regression', annotation: p
 
   await test.step('5. Select Request equipment again.', async () => {
     await standardUser.newRequestPage.requestEquipmentButton.click();
-    const expectedResult = 'The wizard starts again at "Step 1 of 4" with no item chosen.';
-    await expect(standardUser.equipmentWizard.progressText, expectedResult).toHaveText('Step 1 of 4');
-    await expect(standardUser.equipmentWizard.itemSelect, expectedResult).toHaveValue('');
+    await expect(standardUser.equipmentWizard.progressText, 'The wizard starts again at "Step 1 of 4" with no item chosen.').toHaveText('Step 1 of 4');
+    await expect(standardUser.equipmentWizard.itemSelect, 'The wizard starts again at "Step 1 of 4" with no item chosen.').toHaveValue('');
   });
 });

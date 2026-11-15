@@ -34,9 +34,8 @@ test('SP-006 An admin approves a request', { tag: '@smoke', annotation: plan('SP
   await test.step('4. As the standard user, open the request.', async () => {
     await standardUser.page.goto(standardUser.requestPage.path + requestNumber);
     await expect(standardUser.requestPage.statusValue, 'The status is Approved.').toHaveText('Approved');
-    const expectedResult = 'The page says the admin approved it, with the note.';
-    await expect(standardUser.requestPage.decisionAlert, expectedResult).toContainText(`Approved by ${adminUser.account.name}`);
-    await expect(standardUser.requestPage.decisionAlert, expectedResult).toContainText(`Note: ${approvalNote}`);
+    await expect(standardUser.requestPage.decisionAlert, 'The page says the admin approved it, with the note.').toContainText(`Approved by ${adminUser.account.name}`);
+    await expect(standardUser.requestPage.decisionAlert, 'The page says the admin approved it, with the note.').toContainText(`Note: ${approvalNote}`);
     await expect(standardUser.requestPage.lastHistoryListItem, 'The history ends with Approved.').toContainText('Approved');
   });
 });
@@ -60,9 +59,8 @@ test('SP-007 An admin rejects a request', { tag: '@regression', annotation: plan
   await test.step('2. As an admin, open the request and select Reject.', async () => {
     await adminUser.page.goto(adminUser.requestPage.path + requestNumber);
     await adminUser.requestPage.rejectButton.click();
-    const expectedResult = 'A Reject dialog opens for the request.';
-    await expect(adminUser.rejectDialog.dialog, expectedResult).toBeVisible();
-    await expect(adminUser.rejectDialog.dialog, expectedResult).toHaveAccessibleName(`Reject ${requestNumber}`);
+    await expect(adminUser.rejectDialog.dialog, 'A Reject dialog opens for the request.').toBeVisible();
+    await expect(adminUser.rejectDialog.dialog, 'A Reject dialog opens for the request.').toHaveAccessibleName(`Reject ${requestNumber}`);
   });
 
   await test.step('3. Select Reject without entering a reason.', async () => {
@@ -74,9 +72,8 @@ test('SP-007 An admin rejects a request', { tag: '@regression', annotation: plan
     await adminUser.rejectDialog.noteOrReasonTextarea.fill(rejectionReason);
     await adminUser.rejectDialog.confirmButton.click();
     await expect(adminUser.alertsPage.newestAlertMessage, 'The message "Rejected <number>." appears.').toContainText(`Rejected ${requestNumber}.`);
-    const expectedResult = 'The status is Rejected, and the page shows the reason.';
-    await expect(adminUser.requestPage.statusValue, expectedResult).toHaveText('Rejected');
-    await expect(adminUser.requestPage.decisionAlert, expectedResult).toContainText(`Reason: ${rejectionReason}`);
+    await expect(adminUser.requestPage.statusValue, 'The status is Rejected, and the page shows the reason.').toHaveText('Rejected');
+    await expect(adminUser.requestPage.decisionAlert, 'The status is Rejected, and the page shows the reason.').toContainText(`Reason: ${rejectionReason}`);
   });
 
   await test.step('5. As the standard user, open My requests and choose Rejected in Status.', async () => {
@@ -111,8 +108,7 @@ test("SP-008 Admins can't decide on their own requests", { tag: '@regression', a
   await test.step('3. Open the request.', async () => {
     await adminUser.page.goto(adminUser.requestPage.path + requestNumber);
     await expect(adminUser.requestPage.ownRequestNoticeAlert, 'The page says "You can\'t approve or reject your own request. Another admin will decide on it."').toBeVisible();
-    const expectedResult = 'There are no Approve or Reject buttons.';
-    await expect(adminUser.requestPage.approveButton, expectedResult).toHaveCount(0);
-    await expect(adminUser.requestPage.rejectButton, expectedResult).toHaveCount(0);
+    await expect(adminUser.requestPage.approveButton, 'There are no Approve or Reject buttons.').toHaveCount(0);
+    await expect(adminUser.requestPage.rejectButton, 'There are no Approve or Reject buttons.').toHaveCount(0);
   });
 });

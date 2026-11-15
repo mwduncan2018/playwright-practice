@@ -20,20 +20,18 @@ test('SC-005 Create a product', { tag: '@smoke', annotation: plan('SC-005') }, a
     await adminUser.productFormPage.draftStatusRadio.check();
     await adminUser.productFormPage.createButton.click();
     await expect(adminUser.alertsPage.newestAlertMessage, 'The message "Created <SKU> <name>." appears.').toContainText(`Created ${testProduct.sku} ${testProduct.name}.`);
-    const expectedResult = "The product's page shows price $19.99, stock 25, status Draft and supplier Granite Works.";
-    await expect(adminUser.productPage.priceValue, expectedResult).toHaveText('$19.99');
-    await expect(adminUser.productPage.stockValue, expectedResult).toHaveText('25');
-    await expect(adminUser.productPage.statusValue, expectedResult).toHaveText('Draft');
-    await expect(adminUser.productPage.supplierValue, expectedResult).toHaveText('Granite Works');
+    await expect(adminUser.productPage.priceValue, "The product's page shows price $19.99, stock 25, status Draft and supplier Granite Works.").toHaveText('$19.99');
+    await expect(adminUser.productPage.stockValue, "The product's page shows price $19.99, stock 25, status Draft and supplier Granite Works.").toHaveText('25');
+    await expect(adminUser.productPage.statusValue, "The product's page shows price $19.99, stock 25, status Draft and supplier Granite Works.").toHaveText('Draft');
+    await expect(adminUser.productPage.supplierValue, "The product's page shows price $19.99, stock 25, status Draft and supplier Granite Works.").toHaveText('Granite Works');
     await expect(adminUser.productPage.createdValue, "The product's page says it was created by the signed-in admin.").toContainText(`by ${adminUser.account.name}`);
   });
 
   await test.step('3. Open the Products page and search for the SKU.', async () => {
     await adminUser.page.goto(adminUser.productsPage.path);
     await adminUser.productsPage.searchInput.fill(testProduct.sku);
-    const expectedResult = 'Exactly one product is listed: the new one.';
-    await expect(adminUser.productsPage.productRows, expectedResult).toHaveCount(1);
-    await expect(adminUser.productsPage.productRow(testProduct.sku), expectedResult).toBeVisible();
+    await expect(adminUser.productsPage.productRows, 'Exactly one product is listed: the new one.').toHaveCount(1);
+    await expect(adminUser.productsPage.productRow(testProduct.sku), 'Exactly one product is listed: the new one.').toBeVisible();
   });
 });
 
@@ -88,9 +86,8 @@ test('SC-007 Edit a product and add an image', { tag: '@regression', annotation:
     await adminUser.productFormPage.imageInput.setInputFiles(PRODUCT_IMAGE);
     await adminUser.productFormPage.saveButton.click();
     await expect(adminUser.alertsPage.newestAlertMessage, 'The message "Saved changes to <SKU> <name>." appears.').toContainText(`Saved changes to ${testProduct.sku} ${testProduct.name}.`);
-    const expectedResult = "The product's page shows price $24.50 and stock 3 with a Low stock badge.";
-    await expect(adminUser.productPage.priceValue, expectedResult).toHaveText('$24.50');
-    await expect(adminUser.productPage.stockValue, expectedResult).toHaveText(/^3\s*Low stock$/);
+    await expect(adminUser.productPage.priceValue, "The product's page shows price $24.50 and stock 3 with a Low stock badge.").toHaveText('$24.50');
+    await expect(adminUser.productPage.stockValue, "The product's page shows price $24.50 and stock 3 with a Low stock badge.").toHaveText(/^3\s*Low stock$/);
     await expect(adminUser.productPage.photoImage, "The product's photo is shown.").toBeVisible();
   });
 
@@ -124,9 +121,8 @@ test('SC-008 Delete a product', { tag: '@regression', annotation: plan('SC-008')
 
   await test.step('3. Select Cancel.', async () => {
     await adminUser.deleteProductDialog.cancelButton.click();
-    const expectedResult = "The dialog closes, and the product's page is still shown.";
-    await expect(adminUser.deleteProductDialog.dialog, expectedResult).toBeHidden();
-    await expect(adminUser.productPage.heading, expectedResult).toHaveText(testProduct.name);
+    await expect(adminUser.deleteProductDialog.dialog, "The dialog closes, and the product's page is still shown.").toBeHidden();
+    await expect(adminUser.productPage.heading, "The dialog closes, and the product's page is still shown.").toHaveText(testProduct.name);
   });
 
   await test.step('4. Select Delete, then select Delete in the dialog.', async () => {

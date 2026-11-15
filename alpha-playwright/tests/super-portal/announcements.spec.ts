@@ -27,9 +27,8 @@ test('SP-009 Schedule an announcement for standard users', { tag: '@regression',
     await adminUser.announcementWizard.publishOnInput.fill(publishDate);
     await adminUser.announcementWizard.pinnedCheckbox.check();
     await adminUser.announcementWizard.nextButton.click();
-    const expectedResult = 'The Review step shows "Standard users only" and the date at 09:00 UTC.';
-    await expect(adminUser.announcementWizard.audienceReviewRegion, expectedResult).toContainText('Standard users only');
-    await expect(adminUser.announcementWizard.publishingReviewRegion, expectedResult).toContainText(`${publishDate} at 09:00 UTC`);
+    await expect(adminUser.announcementWizard.audienceReviewRegion, 'The Review step shows "Standard users only" and the date at 09:00 UTC.').toContainText('Standard users only');
+    await expect(adminUser.announcementWizard.publishingReviewRegion, 'The Review step shows "Standard users only" and the date at 09:00 UTC.').toContainText(`${publishDate} at 09:00 UTC`);
   });
 
   await test.step('4. Select Schedule announcement, then select View announcement.', async () => {

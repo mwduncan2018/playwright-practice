@@ -59,9 +59,8 @@ test('SC-004 Sort, page through and export products', { tag: '@regression', anno
     const todaysDate = new Date().toISOString().slice(0, 10);
     expect(csvDownload.suggestedFilename(), "A file named products-<today's date>.csv downloads.").toBe(`products-${todaysDate}.csv`);
     const csvLines = (await readFile(await csvDownload.path(), 'utf8')).trim().split('\n');
-    const expectedResult = 'The file has a heading row and 10 product rows.';
-    expect(csvLines[0], expectedResult).toMatch(/^SKU,Name,Category/);
-    expect(csvLines, expectedResult).toHaveLength(11);
+    expect(csvLines[0], 'The file has a heading row and 10 product rows.').toMatch(/^SKU,Name,Category/);
+    expect(csvLines, 'The file has a heading row and 10 product rows.').toHaveLength(11);
   });
 
   await test.step('5. Select Clear filters, choose 25 in Rows per page, then select the next-page arrow (›).', async () => {

@@ -178,11 +178,13 @@ await adminUser.productFormPage.createButton.click();
 
 - **Every name says what it is**: users end in `User` (`standardUser`, `adminUser`), page objects in
   `Page` (`productsPage`, `keycloakPage`), wizards in `Wizard` and dialogs in `Dialog`. A test's own
-  variables say what they hold, such as `testProduct`, `rejectionReason` or `deliveryAddress`, and
-  `expectedResult` is a step's expected result from the plan when several checks share it as their
-  message.
+  variables say what they hold, such as `testProduct`, `rejectionReason` or `deliveryAddress`.
 - **Assertions keep Playwright's shape**:
   `await expect(adminUser.requestPage.statusValue).toHaveText('Rejected')`.
+- **A check's message is written inside `expect(`**: it's the plan's expected result, word for word,
+  as the second argument:
+  `await expect(adminUser.requestPage.statusValue, 'The status is Approved.').toHaveText('Approved')`.
+  It's never kept in a variable. When several checks share an expected result, each one repeats it.
 
 The base page's three methods are the team's agreed exception.
 

@@ -10,9 +10,8 @@ test('SC-010 Standard users can view but not change', { tag: '@smoke', annotatio
   await test.step('2. Open Adjustable Dumbbells.', async () => {
     await standardUser.productsPage.adjustableDumbbellsLink.click();
     await expect(standardUser.productPage.skuValue, "The product's page shows SKU SPO-1002.").toHaveText('SPO-1002');
-    const expectedResult = 'There are no Edit or Delete buttons.';
-    await expect(standardUser.productPage.editLink, expectedResult).toHaveCount(0);
-    await expect(standardUser.productPage.deleteButton, expectedResult).toHaveCount(0);
+    await expect(standardUser.productPage.editLink, 'There are no Edit or Delete buttons.').toHaveCount(0);
+    await expect(standardUser.productPage.deleteButton, 'There are no Edit or Delete buttons.').toHaveCount(0);
   });
 
   await test.step('3. Go to the address /products/new.', async () => {
