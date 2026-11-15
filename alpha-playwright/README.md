@@ -48,6 +48,12 @@ A variable set in the shell overrides `.env`. A pipeline has no `.env`, so it mu
 - Keep real passwords in `.env` or in masked pipeline variables, never in `.env.example`.
 - A trace records what a test typed, passwords included. In a test that types a password, turn traces
   off with `test.use({ trace: 'off' })`.
+- A failing test gets a screenshot of each user's page. Password fields show as dots.
+- A failing test's error context (`error-context.md`, and Error Context in the report) has the error
+  and the test's code, but no text copy of the page. Playwright's copy shows what's in each field,
+  passwords included, so `playwright.config.ts` turns it off with `PLAYWRIGHT_NO_COPY_PROMPT`.
+  Playwright doesn't document that variable, so after upgrading Playwright, check it still works: make
+  a test type a password and then fail, and search its `test-results` folder for the password.
 - `CI` isn't set by you: most pipelines set it automatically. When it's set, a run that contains
   `test.only` fails.
 

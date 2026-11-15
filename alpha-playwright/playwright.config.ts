@@ -10,6 +10,13 @@ if (existsSync(envFile)) process.loadEnvFile(envFile);
 // Every worker loads this file again, so the run ID is made once, in the main process, and the
 // workers inherit it through the environment. The time first makes run folders sort by age.
 process.env.TEST_RUN_ID ??= `${new Date().toISOString().replace(/[:.]/g, '-')}-${randomUUID()}`;
+
+// When a test fails, Playwright saves a text copy of the page in its error context (error-context.md
+// and the report's Error Context). The copy shows what's in each field, passwords included, so it's
+// turned off for every test. Failures still get a screenshot, where password fields show as dots.
+// Playwright doesn't document this variable, so check it still works after upgrading: see the README.
+process.env.PLAYWRIGHT_NO_COPY_PROMPT = '1';
+
 const historyDir = path.join(__dirname, 'playwright-history');
 // Each run's report title says what was tested, with the variables as they're set.
 const reportTitle = [
@@ -68,6 +75,8 @@ export default defineConfig({
   use: {
     baseURL: process.env.TEST_APP_URL,
     trace: (process.env.TEST_TRACE || 'on-first-retry') as TraceMode,
+    // A failing test gets a screenshot of each page it has open, one per user.
+    screenshot: 'only-on-failure',
   },
 
   // All three run in the browser TEST_BROWSER names. Without a known browser there are no projects,
