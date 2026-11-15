@@ -1,7 +1,6 @@
 import type { Locator, Page } from '@playwright/test';
 
 import { BasePage } from '../../../shared/base.page';
-import { ConfirmDialog } from './confirm-dialog';
 
 /** A product's own page. */
 export class ProductPage extends BasePage {
@@ -9,7 +8,6 @@ export class ProductPage extends BasePage {
   readonly heading: Locator;
   readonly editLink: Locator;
   readonly deleteButton: Locator;
-  readonly deleteDialog: ConfirmDialog;
   readonly sku: Locator;
   readonly supplier: Locator;
   readonly price: Locator;
@@ -27,7 +25,6 @@ export class ProductPage extends BasePage {
     const main = page.getByRole('main');
     this.editLink = main.getByRole('link', { name: 'Edit', exact: true });
     this.deleteButton = main.getByRole('button', { name: 'Delete', exact: true });
-    this.deleteDialog = new ConfirmDialog(page, 'Delete product');
     // The details have no role or label, so they carry test IDs such as product-price.
     this.sku = page.getByTestId('product-sku');
     this.supplier = page.getByTestId('product-supplier');

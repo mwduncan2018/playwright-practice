@@ -1,7 +1,8 @@
 /**
  * Super Catalog's tests import test and expect from here. Each user a test asks for, such as standard
  * or admin, has a browser of their own and every Super Catalog page object on it:
- * admin.products.newProduct.
+ * admin.products.newProduct. Dialogs sit beside the pages, never inside one:
+ * admin.deleteProductDialog.confirmButton.
  */
 import type { Page } from '@playwright/test';
 
@@ -10,6 +11,8 @@ import { testPlan } from '../../shared/test-plan';
 import { AccessDeniedPage } from './pages/access-denied.page';
 import { ActivityLogPage } from './pages/activity-log.page';
 import { CategoriesPage } from './pages/categories.page';
+import { CategoryDialog } from './pages/category-dialog';
+import { ConfirmDialog } from './pages/confirm-dialog';
 import { DashboardPage } from './pages/dashboard.page';
 import { CatalogLayout } from './pages/layout';
 import { ProductFormPage } from './pages/product-form.page';
@@ -23,7 +26,11 @@ function catalogPages(page: Page) {
     products: new ProductsPage(page),
     productForm: new ProductFormPage(page),
     product: new ProductPage(page),
+    deleteProductDialog: new ConfirmDialog(page, 'Delete product'),
     categories: new CategoriesPage(page),
+    newCategoryDialog: new CategoryDialog(page, 'New category'),
+    editCategoryDialog: new CategoryDialog(page, /^Edit /),
+    deleteCategoryDialog: new ConfirmDialog(page, 'Delete category'),
     activityLog: new ActivityLogPage(page),
     accessDenied: new AccessDeniedPage(page),
   };

@@ -1,7 +1,6 @@
 import type { Locator, Page } from '@playwright/test';
 
 import { BasePage } from '../../../shared/base.page';
-import { DecisionDialog } from './dialogs';
 
 /** The admins' queue of requests waiting for a decision. */
 export class ApprovalsPage extends BasePage {
@@ -20,9 +19,5 @@ export class ApprovalsPage extends BasePage {
 
   approveButton(requestNumber: string): Locator {
     return this.page.getByRole('button', { name: `Approve ${requestNumber}`, exact: true });
-  }
-
-  decisionDialog(decision: 'Approve' | 'Reject', requestNumber: string): DecisionDialog {
-    return new DecisionDialog(this.page, decision, requestNumber);
   }
 }

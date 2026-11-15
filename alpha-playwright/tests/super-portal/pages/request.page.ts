@@ -1,7 +1,6 @@
 import type { Locator, Page } from '@playwright/test';
 
 import { BasePage } from '../../../shared/base.page';
-import { ConfirmDialog, DecisionDialog } from './dialogs';
 
 /** A request's own page, such as /requests/REQ-1016. */
 export class RequestPage extends BasePage {
@@ -18,9 +17,6 @@ export class RequestPage extends BasePage {
   readonly postCommentButton: Locator;
   readonly history: Locator;
   readonly historyEntries: Locator;
-  readonly cancelDialog: ConfirmDialog;
-  readonly approveDialog: DecisionDialog;
-  readonly rejectDialog: DecisionDialog;
   readonly status: Locator;
   /** Equipment requests' delivery address. */
   readonly address: Locator;
@@ -44,12 +40,6 @@ export class RequestPage extends BasePage {
     this.postCommentButton = page.getByRole('button', { name: 'Post comment' });
     this.history = page.getByRole('list', { name: 'History' });
     this.historyEntries = this.history.getByRole('listitem');
-    this.cancelDialog = new ConfirmDialog(page, 'Cancel request', {
-      confirm: 'Cancel request',
-      dismiss: 'Keep request',
-    });
-    this.approveDialog = new DecisionDialog(page, 'Approve');
-    this.rejectDialog = new DecisionDialog(page, 'Reject');
     // The values carry test IDs: request-<name> in the Request card, request-detail-<name> in the
     // type's own details.
     this.status = page.getByTestId('request-status');

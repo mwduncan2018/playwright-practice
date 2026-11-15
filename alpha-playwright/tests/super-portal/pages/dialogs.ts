@@ -14,8 +14,9 @@ export class ConfirmDialog {
 }
 
 /**
- * The Approve or Reject dialog for a request, titled with its number, such as "Approve REQ-1016".
- * Without a number, it's whichever request's dialog is open.
+ * The Approve or Reject dialog for a request, on the Approvals page or the request's own page. It's
+ * titled with the request's number, such as "Approve REQ-1016", and only one is open at a time, so
+ * this matches whichever request's dialog is open.
  */
 export class DecisionDialog {
   readonly dialog: Locator;
@@ -23,9 +24,8 @@ export class DecisionDialog {
   readonly text: Locator;
   readonly confirmButton: Locator;
 
-  constructor(page: Page, decision: 'Approve' | 'Reject', requestNumber?: string) {
-    const name = requestNumber ? `${decision} ${requestNumber}` : new RegExp(`^${decision} REQ-`);
-    this.dialog = page.getByRole('dialog', { name });
+  constructor(page: Page, decision: 'Approve' | 'Reject') {
+    this.dialog = page.getByRole('dialog', { name: new RegExp(`^${decision} REQ-`) });
     this.text = this.dialog.getByLabel(decision === 'Approve' ? 'Note for the requester (optional)' : 'Reason');
     this.confirmButton = this.dialog.getByRole('button', { name: decision, exact: true });
   }

@@ -89,7 +89,7 @@ Every page object extends the base page in `shared/base.page.ts`, which gives it
 Each app's page objects go in a `pages` folder in that app's test folder. For example,
 `tests/super-catalog/pages/products.page.ts` is Super Catalog's Products page. Parts that appear on many
 pages, such as a menu, a dialog or a wizard, are component classes there that don't extend the base
-page.
+page. Each app's `fixtures.ts` lists every page and component a user has.
 
 ### What goes in a page object
 
@@ -113,6 +113,12 @@ await admin.productForm.createButton.click();
   or `admin.categories.productCount(name)`.
 - **No methods for flows**, such as signing in or filling in a form. Those steps go in the test, even
   when they're long.
+- **No nested page objects**: a page object holds locators, never another page object or component.
+  Wizards and dialogs sit beside the pages on each user, named for what they're for:
+  `admin.announcementWizard.title`, `admin.rejectDialog.confirmButton` or
+  `admin.deleteProductDialog.confirmButton`. Only one dialog is open at a time, so a dialog titled
+  with a name or number, such as "Edit Electronics" or "Reject REQ-1016", matches whichever is open:
+  `admin.editCategoryDialog`.
 - **Things that vary per test are found in the test** from a property, such as a radio button,
   `standard.equipmentWizard.dialog.getByRole('radio', { name: 'High', exact: true })`, or a message,
   `standard.layout.alerts.filter({ hasText: 'Comment posted.' })`.

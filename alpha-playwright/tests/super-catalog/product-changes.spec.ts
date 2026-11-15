@@ -83,54 +83,50 @@ test('SC-006 Product form validation', { tag: '@regression', annotation: plan('S
   });
 });
 
-test(
-  'SC-007 Edit a product and add an image',
-  { tag: '@regression', annotation: plan('SC-007') },
-  async ({ admin }) => {
-    const product = newTestProduct();
+test('SC-007 Edit a product and add an image', { tag: '@regression', annotation: plan('SC-007') }, async ({ admin }) => {
+  const product = newTestProduct();
 
-    await test.step('1. Create a product with the test data.', async () => {
-      await admin.page.goto(admin.productForm.path);
-      await admin.productForm.sku.fill(product.sku);
-      await admin.productForm.name.fill(product.name);
-      await admin.productForm.category.selectOption(product.category);
-      await admin.productForm.supplier.selectOption(product.supplier);
-      await admin.productForm.price.fill(product.price);
-      await admin.productForm.stock.fill(product.stock);
-      await admin.page.getByRole('radio', { name: product.status, exact: true }).check();
-      await admin.productForm.createButton.click();
-      await expect(admin.product.heading, "The product's page opens.").toHaveText(product.name);
-    });
+  await test.step('1. Create a product with the test data.', async () => {
+    await admin.page.goto(admin.productForm.path);
+    await admin.productForm.sku.fill(product.sku);
+    await admin.productForm.name.fill(product.name);
+    await admin.productForm.category.selectOption(product.category);
+    await admin.productForm.supplier.selectOption(product.supplier);
+    await admin.productForm.price.fill(product.price);
+    await admin.productForm.stock.fill(product.stock);
+    await admin.page.getByRole('radio', { name: product.status, exact: true }).check();
+    await admin.productForm.createButton.click();
+    await expect(admin.product.heading, "The product's page opens.").toHaveText(product.name);
+  });
 
-    await test.step('2. Select Edit, enter the new price and stock, choose the image, and select Save changes.', async () => {
-      await admin.product.editLink.click();
-      await admin.productForm.price.fill('24.50');
-      await admin.productForm.stock.fill('3');
-      await admin.productForm.image.setInputFiles(PRODUCT_IMAGE);
-      await admin.productForm.saveButton.click();
-      await expect(
-        admin.layout.alerts.filter({ hasText: `Saved changes to ${product.sku} ${product.name}.` }),
-        'The message "Saved changes to <SKU> <name>." appears.',
-      ).toBeVisible();
-      const shows = "The product's page shows price $24.50 and stock 3 with a Low stock badge.";
-      await expect(admin.product.price, shows).toHaveText('$24.50');
-      await expect(admin.product.stock, shows).toHaveText(/^3\s*Low stock$/);
-      await expect(admin.product.photo, "The product's photo is shown.").toBeVisible();
-    });
+  await test.step('2. Select Edit, enter the new price and stock, choose the image, and select Save changes.', async () => {
+    await admin.product.editLink.click();
+    await admin.productForm.price.fill('24.50');
+    await admin.productForm.stock.fill('3');
+    await admin.productForm.image.setInputFiles(PRODUCT_IMAGE);
+    await admin.productForm.saveButton.click();
+    await expect(
+      admin.layout.alerts.filter({ hasText: `Saved changes to ${product.sku} ${product.name}.` }),
+      'The message "Saved changes to <SKU> <name>." appears.',
+    ).toBeVisible();
+    const shows = "The product's page shows price $24.50 and stock 3 with a Low stock badge.";
+    await expect(admin.product.price, shows).toHaveText('$24.50');
+    await expect(admin.product.stock, shows).toHaveText(/^3\s*Low stock$/);
+    await expect(admin.product.photo, "The product's photo is shown.").toBeVisible();
+  });
 
-    await test.step('3. Open the Activity log and choose Product in Type.', async () => {
-      await admin.layout.activityLogLink.click();
-      await admin.activityLog.type.selectOption('Product');
-      await expect(
-        admin.activityLog
-          .entries(`${product.sku} ${product.name}`)
-          .filter({ hasText: 'Updated' })
-          .filter({ hasText: 'Price: 19.99 → 24.50; Stock: 25 → 3' }),
-        'An Updated entry for the product says "Price: 19.99 → 24.50; Stock: 25 → 3".',
-      ).toBeVisible();
-    });
-  },
-);
+  await test.step('3. Open the Activity log and choose Product in Type.', async () => {
+    await admin.layout.activityLogLink.click();
+    await admin.activityLog.type.selectOption('Product');
+    await expect(
+      admin.activityLog
+        .entries(`${product.sku} ${product.name}`)
+        .filter({ hasText: 'Updated' })
+        .filter({ hasText: 'Price: 19.99 → 24.50; Stock: 25 → 3' }),
+      'An Updated entry for the product says "Price: 19.99 → 24.50; Stock: 25 → 3".',
+    ).toBeVisible();
+  });
+});
 
 test('SC-008 Delete a product', { tag: '@regression', annotation: plan('SC-008') }, async ({ admin }) => {
   const product = newTestProduct();
@@ -151,21 +147,21 @@ test('SC-008 Delete a product', { tag: '@regression', annotation: plan('SC-008')
   await test.step('2. Select Delete.', async () => {
     await admin.product.deleteButton.click();
     await expect(
-      admin.product.deleteDialog.dialog,
+      admin.deleteProductDialog.dialog,
       'A Delete product dialog asks "Delete <SKU> <name>? This can\'t be undone."',
     ).toContainText(`Delete ${product.sku} ${product.name}? This can't be undone.`);
   });
 
   await test.step('3. Select Cancel.', async () => {
-    await admin.product.deleteDialog.cancelButton.click();
+    await admin.deleteProductDialog.cancelButton.click();
     const stillShown = "The dialog closes, and the product's page is still shown.";
-    await expect(admin.product.deleteDialog.dialog, stillShown).toBeHidden();
+    await expect(admin.deleteProductDialog.dialog, stillShown).toBeHidden();
     await expect(admin.product.heading, stillShown).toHaveText(product.name);
   });
 
   await test.step('4. Select Delete, then select Delete in the dialog.', async () => {
     await admin.product.deleteButton.click();
-    await admin.product.deleteDialog.confirmButton.click();
+    await admin.deleteProductDialog.confirmButton.click();
     await expect(
       admin.layout.alerts.filter({ hasText: `Deleted ${product.sku} ${product.name}.` }),
       'The message "Deleted <SKU> <name>." appears.',
