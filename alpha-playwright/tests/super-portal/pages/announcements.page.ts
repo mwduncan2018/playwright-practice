@@ -2,6 +2,7 @@ import type { Locator, Page } from '@playwright/test';
 
 import { BasePage } from '../../../shared/base.page';
 
+/** The list of announcements. */
 export class AnnouncementsPage extends BasePage {
   readonly path = '/announcements';
   readonly newAnnouncementButton: Locator;
@@ -18,20 +19,5 @@ export class AnnouncementsPage extends BasePage {
 
   announcementLink(title: string): Locator {
     return this.list.getByRole('link', { name: title, exact: true });
-  }
-}
-
-/** One announcement's page. */
-export class AnnouncementPage extends BasePage {
-  /** "Posted ..." or "Scheduled for ...", with the author. */
-  readonly meta: Locator;
-  readonly audience: Locator;
-  readonly deleteButton: Locator;
-
-  constructor(page: Page) {
-    super(page);
-    this.meta = page.getByTestId('announcement-meta');
-    this.audience = page.getByTestId('announcement-audience');
-    this.deleteButton = page.getByRole('main').getByRole('button', { name: 'Delete', exact: true });
   }
 }

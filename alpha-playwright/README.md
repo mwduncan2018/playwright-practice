@@ -125,6 +125,9 @@ await admin.productForm.createButton.click();
   `admin.deleteProductDialog.confirmButton`. Only one dialog is open at a time, so a dialog titled
   with a name or number, such as "Edit Electronics" or "Reject REQ-1016", matches whichever is open:
   `admin.editCategoryDialog`.
+- **One class per file**: every page object, dialog, wizard or other component has a file of its own,
+  named after it, such as `announcement.page.ts`, `announcements.page.ts`, `confirm-dialog.ts` or
+  `decision-dialog.ts`.
 - **Things that vary per test are found in the test** from a property, such as a radio button,
   `standard.equipmentWizard.dialog.getByRole('radio', { name: 'High', exact: true })`, or a message,
   `standard.layout.alerts.filter({ hasText: 'Comment posted.' })`.
