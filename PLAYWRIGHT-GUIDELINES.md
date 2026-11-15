@@ -1,6 +1,6 @@
 # Playwright test automation guidelines
 
-How Playwright test automation is written in this repo: the test plans, the tests, the page objects and how the work is done.
+How Playwright test automation is written in this repo: the test plans, the tests, the page objects and how the work is done. A rule that comes from Playwright's own documentation links to it; the rest are this repo's choices.
 
 ## Test plans
 
@@ -11,7 +11,7 @@ How Playwright test automation is written in this repo: the test plans, the test
 - **Test name:** the case's ID and title. Tag it `@smoke` or `@regression` to match the plan, and annotate it with `plan('<ID>')`.
 - **Step titles:** each `test.step` title is the step's number and its action, word for word: `'2. Select Next without choosing anything.'`
 - **Check messages:** each check's message is the step's expected result, word for word.
-- **Smoke and regression:** smoke cases are the short check that runs in every environment, staging included. Regression cases run in dev, test and locally. Picking which ones run is the pipeline's job (`--grep @smoke`), not the framework's.
+- **Smoke and regression:** smoke cases are the short check that runs in every environment, staging included. Regression cases run in dev, test and locally. Picking which ones run is the pipeline's job (`--grep @smoke`), not the framework's. See Playwright's [Tag tests](https://playwright.dev/docs/test-annotations#tag-tests).
 
 ## Spec files
 
@@ -35,7 +35,7 @@ How Playwright test automation is written in this repo: the test plans, the test
   ```
 
 - **No comments** in specs, page objects, fixtures or helpers. Explanations go in the README.
-- **Downloads:** to check one, start waiting before the click:
+- **Downloads:** to check one, start waiting before the click, as Playwright's [Downloads](https://playwright.dev/docs/downloads) page shows:
 
   ```ts
   const downloadPromise = standardUser.page.waitForEvent('download');
@@ -45,7 +45,9 @@ How Playwright test automation is written in this repo: the test plans, the test
 
 ## Assertions
 
-- **Use Playwright's checks on locators** (`toHaveText`, `toContainText`, `toHaveCount`, `toBeVisible`, `toBeChecked`, `toHaveValue`) and rely on their retrying. Keep Playwright's shape: `await expect(locator, message).toHaveText(...)`.
+Checks follow Playwright's advice to [use web-first assertions](https://playwright.dev/docs/best-practices#use-web-first-assertions). Its [auto-retrying assertions](https://playwright.dev/docs/test-assertions#auto-retrying-assertions), such as `toHaveText` and `toBeVisible`, keep checking until the page matches or their timeout runs out (5 seconds by default), so a slow page isn't a failure. When one does fail, it shows what it expected, what it found and the locator it used. A value read from the page is read once, sometimes before the page has caught up, so checking it can make a test flaky.
+
+- **Use Playwright's checks on locators** (`toHaveText`, `toContainText`, `toHaveCount`, `toBeVisible`, `toBeChecked`, `toHaveValue`) and rely on their retrying. Keep Playwright's shape, `await expect(locator, message).toHaveText(...)`, with the `await` in front of `expect(`, not inside it.
 - **Messages go inside `expect(`** as written text, never in a variable:
 
   ```ts
@@ -54,12 +56,34 @@ How Playwright test automation is written in this repo: the test plans, the test
 
   When several checks share one expected result, each repeats the text.
 
-- **Don't read a value from the page to check it,** as in `expect(await locator.innerText()).toBe(...)`. Read a value only to pass it to a later step.
-- **Plain checks are only for things that aren't on the page,** such as a downloaded file's name or lines. A finished file has nothing to wait for, so a non-retrying matcher such as `toBe` is right, and the check has no `await`:
+- **Don't read a value from the page to check it,** as in `expect(await locator.innerText()).toBe(...)`. Playwright's [Don't use manual assertions](https://playwright.dev/docs/best-practices#dont-use-manual-assertions) gives the same example with `isVisible()`, which returns straight away without waiting. Read a value only to pass it to a later step, or inside `expect.poll`. Each read has a check to use instead, and the [Locator API](https://playwright.dev/docs/api/class-locator#locator-text-content) points `textContent()`, `count()` and `allTextContents()` to the same ones:
+
+  | Instead of reading…                                 | Check with…                            |
+  | --------------------------------------------------- | -------------------------------------- |
+  | `isVisible()`                                       | `toBeVisible()` / `toBeHidden()`       |
+  | `textContent()`, `innerText()`, `allTextContents()` | `toHaveText()` / `toContainText()`     |
+  | `inputValue()`                                      | `toHaveValue()`                        |
+  | `isChecked()`                                       | `toBeChecked()`                        |
+  | `isEnabled()` / `isDisabled()`                      | `toBeEnabled()` / `toBeDisabled()`     |
+  | `getAttribute()`                                    | `toHaveAttribute()`                    |
+  | `count()`                                           | `toHaveCount()`                        |
+  | `page.url()`, `getCurrentUrl()`                     | `expect(adminUser.page).toHaveURL()`   |
+  | `page.title()`, `getTabTitle()`                     | `expect(adminUser.page).toHaveTitle()` |
+
+- **Plain checks are only for things that aren't on the page,** such as a downloaded file's name or lines. A finished file has nothing to wait for, so one of Playwright's [non-retrying assertions](https://playwright.dev/docs/test-assertions#non-retrying-assertions), such as `toBe`, is right, and the check has no `await`:
 
   ```ts
   expect(csvDownload.suggestedFilename(), '...').toBe(`products-${todaysDate}.csv`);
   ```
+
+- **When no matcher can make the comparison,** such as more than or in order, read the value inside [`expect.poll`](https://playwright.dev/docs/test-assertions#expectpoll), so the read is retried:
+
+  <!-- prettier-ignore -->
+  ```ts
+  await expect.poll(async () => Number(await adminUser.dashboardPage.productsCardNumber.innerText()), 'The Products count is more than 60.').toBeGreaterThan(60);
+  ```
+
+  For several steps that must pass together, use [`expect(...).toPass()`](https://playwright.dev/docs/test-assertions#expecttopass). By default it has no timeout and doesn't use the assertion timeout, so give it a `timeout` of its own.
 
 - **Page objects never return true or false.**
 - **Where the browser is, and the tab title:** check them with `expect(page).toHaveURL(...)` and `toHaveTitle(...)`. The base page's `getCurrentUrl()` and `getTabTitle()` read once, without waiting.
@@ -118,8 +142,8 @@ How Playwright test automation is written in this repo: the test plans, the test
 
 ## Users, sign-in and passwords
 
-- **Tests ask for users by name,** as fixtures. Each user has their own browser, started from a saved session, with every page object on it, plus `page`, `account` and `keycloakPage`.
-- **Sign in once,** in the setup project, and reuse the saved sessions. `playwright/.auth` is git-ignored and kept out of pipeline artifacts.
+- **Tests ask for users by name,** as fixtures. Each user has their own browser, started from a saved session, with every page object on it, plus `page`, `account` and `keycloakPage`. See Playwright's [Testing multiple roles with POM fixtures](https://playwright.dev/docs/auth#testing-multiple-roles-with-pom-fixtures).
+- **Sign in once,** in the setup project, and reuse the saved sessions, as in Playwright's [Multiple signed in roles](https://playwright.dev/docs/auth#multiple-signed-in-roles). `playwright/.auth` is git-ignored and kept out of pipeline artifacts.
 - **Shared accounts** (`standardUser`, `adminUser`) run in many tests at once. Those tests never change the user's stored data, such as settings, and never sign out.
 - **A test that changes the user's own data** uses `standardSideUser` and is tagged `@side-account`, which runs it on its own.
 - **Passwords live only in environment variables** (`TEST_PASSWORD_<USERNAME>`: `.env` locally, masked variables in a pipeline). Never in repo files, reports or traces.
@@ -138,7 +162,7 @@ How Playwright test automation is written in this repo: the test plans, the test
 - **Every setting is an environment variable,** kept in `.env` locally. A pipeline sets its own.
 - **One app per run:** `TEST_APP_FOLDER` and `TEST_APP_URL` go together.
 - **No named environments** (no `TEST_ENV`): set each app's URL.
-- **Sharding:** keep runs ready to split across machines with Playwright's own `--shard` and blob reports.
+- **Sharding:** keep runs ready to split across machines with Playwright's own `--shard` and blob reports. See Playwright's [Sharding](https://playwright.dev/docs/test-sharding).
 
 ## Formatting
 
