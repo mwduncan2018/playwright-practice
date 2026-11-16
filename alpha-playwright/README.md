@@ -93,6 +93,11 @@ the navbar, alerts, wizards and dialogs. The base page gives each one:
   it, use `await expect(adminUser.page).toHaveTitle(...)`, which waits for it.
 - `takeScreenshot(name)`: a full-page screenshot, added to the test's report under that name. It only
   works while a test is running.
+- `fillSecret(secretInput, secret)`: types a password into a field without it showing in the report. It
+  sets the field's value inside the browser, so the report shows a click and an evaluate, never the
+  password. A trace would still record it, so a test that types a password turns its trace off. Call it
+  on the page object that has the field:
+  `await signedOutUser.keycloakPage.fillSecret(signedOutUser.keycloakPage.passwordInput, password)`.
 
 Each app's page objects go in a `pages` folder in that app's test folder. For example,
 `tests/super-catalog/pages/products.page.ts` is Super Catalog's Products page. Parts that appear on many
@@ -198,11 +203,10 @@ await adminUser.productFormPage.createButton.click();
   return (await standardUser.equipmentWizard.newRequestNumberText.innerText()).trim();
   ```
 
-The base page's three methods are the team's agreed exception.
+The base page's four methods are the team's agreed exception.
 
-Helpers outside page objects are only for tricks and test data: `fillSecret` in `shared/fill-secret.ts`
-types a password without it showing in the report, and the `test-data.ts` files make unique names,
-SKUs, dates and products.
+Helpers outside page objects are only for tricks and test data, such as the `test-data.ts` files, which
+make unique names, SKUs, dates and products.
 
 To check a download, start waiting for it before the click that starts it:
 

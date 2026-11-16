@@ -5,7 +5,6 @@
 import { test as setup } from '@playwright/test';
 
 import { account, ACCOUNT_NAMES, passwordVariable, sessionFile } from './accounts';
-import { fillSecret } from './fill-secret';
 import { KeycloakPage } from './keycloak.page';
 
 // Signing in types passwords, and a trace records what's typed and sent, so this records no trace.
@@ -22,7 +21,7 @@ for (const accountName of ACCOUNT_NAMES) {
       throw new Error(`${baseURL} didn't open Keycloak's sign-in page. Is Keycloak running?`);
     });
     await keycloakPage.usernameInput.fill(username);
-    await fillSecret(keycloakPage.passwordInput, password);
+    await keycloakPage.fillSecret(keycloakPage.passwordInput, password);
     await keycloakPage.signInButton.click();
 
     // Wait to be back on the app, or for Keycloak to say why not, such as a wrong password.

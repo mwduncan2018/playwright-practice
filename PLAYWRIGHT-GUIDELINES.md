@@ -101,7 +101,7 @@ Checks follow Playwright's advice to [use web-first assertions](https://playwrig
 ## Page objects
 
 - **Every page object class extends the base page** (`shared/base.page.ts`), pages and components alike: navbar, alerts, wizards, dialogs.
-- **The base page stays small:** `getCurrentUrl()`, `getTabTitle()` and `takeScreenshot(name)`. No wrappers around click, fill or waiting.
+- **The base page stays small:** `getCurrentUrl()`, `getTabTitle()`, `takeScreenshot(name)` and `fillSecret(secretInput, secret)`. `fillSecret` is its one wrapper around fill, because it keeps a password out of the report, which Playwright's `fill` doesn't. No other wrappers around click, fill or waiting.
 - **One class per file**, named after the class and ending in what it is: `home.page.ts`, `announcement.wizard.ts`, `confirm.dialog.ts`.
 - **Where they live:** page objects go in `tests/<app>/pages`. Each app's `fixtures.ts` puts every page and component on each user.
 - **Shared parts are their own components,** such as `NavbarPage` for the menu and `AlertsPage` for messages, not an abstract layout base class.
@@ -147,7 +147,7 @@ Checks follow Playwright's advice to [use web-first assertions](https://playwrig
 - **Shared accounts** (`standardUser`, `adminUser`) run in many tests at once. Those tests never change the user's stored data, such as settings, and never sign out.
 - **A test that changes the user's own data** uses `standardSideUser` and is tagged `@side-account`, which runs it on its own.
 - **Passwords live only in environment variables** (`TEST_PASSWORD_<USERNAME>`: `.env` locally, masked variables in a pipeline). Never in repo files, reports or traces.
-  - Type passwords with `fillSecret`.
+  - Type passwords with the base page's `fillSecret`, called on the page object that has the field: `await signedOutUser.keycloakPage.fillSecret(signedOutUser.keycloakPage.passwordInput, standardAccount.password);`
   - Turn traces off in a test that types a password: `test.use({ trace: 'off' })`.
 - **Failures:** screenshots are taken on failure, where password fields show as dots. Playwright's text copy of the page is turned off (`PLAYWRIGHT_NO_COPY_PROMPT`), because it shows what's in every field, passwords included.
 
