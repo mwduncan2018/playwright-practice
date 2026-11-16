@@ -82,6 +82,27 @@ Open reports this way, not from the files on disk: traces only load when the rep
 In a GitLab pipeline, where `GITLAB_CI` is `true`, none of this happens. The run writes one HTML report
 to `playwright-report` instead.
 
+## Linting
+
+ESLint checks every `.ts` file with three rules:
+
+- `no-floating-promises`, from typescript-eslint: any Playwright call that isn't awaited, such as a
+  `click()` with no `await`. Playwright's
+  [Lint your tests](https://playwright.dev/docs/best-practices#lint-your-tests) recommends it. It reads
+  the TypeScript project (`tsconfig.json`) to know which calls return promises.
+- `missing-playwright-await`, from `eslint-plugin-playwright`: a retrying check or a `test.step` that
+  isn't awaited, with a clearer message for those two. Without the `await` in front, the test moves on
+  without waiting.
+- `prefer-web-first-assertions`, from `eslint-plugin-playwright`: a check on a value read from the
+  page, such as `expect(await locator.isVisible()).toBe(true)`. Use the retrying check, `toBeVisible()`,
+  instead.
+
+```bash
+npm run lint
+```
+
+`npx eslint . --fix` fixes what it can. The settings are in `eslint.config.mjs`.
+
 ## Page objects
 
 Every page object class extends the base page in `shared/base.page.ts`: pages, and components such as

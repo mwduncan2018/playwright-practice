@@ -164,11 +164,12 @@ Checks follow Playwright's advice to [use web-first assertions](https://playwrig
 - **No named environments** (no `TEST_ENV`): set each app's URL.
 - **Sharding:** keep runs ready to split across machines with Playwright's own `--shard` and blob reports. See Playwright's [Sharding](https://playwright.dev/docs/test-sharding).
 
-## Formatting
+## Formatting and linting
 
 - Prettier with single quotes.
 - Page objects, shared code and the README use a print width of 120.
 - Specs use `--print-width 1000 --object-wrap collapse`, so each statement stays on one line. Never re-wrap specs at 120.
+- **Lint with `npm run lint`** in `alpha-playwright`. It runs typescript-eslint's `no-floating-promises`, which Playwright's [Lint your tests](https://playwright.dev/docs/best-practices#lint-your-tests) recommends, so every Playwright call is awaited. It also runs two rules from `eslint-plugin-playwright`: `missing-playwright-await`, for retrying checks and `test.step`, and `prefer-web-first-assertions`, so no check reads a value from the page.
 
 ## Working on this project
 
