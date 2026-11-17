@@ -1,12 +1,13 @@
 # Super Apps
 
-A practice repo for Playwright test automation: three test projects and two example apps to test,
+A practice repo for Playwright test automation: four test projects and two example apps to test,
 all signing in through Keycloak.
 
 | Folder | What it holds | Status |
 | --- | --- | --- |
 | `alpha-playwright/` | A Playwright test project for exploring ideas | In progress, see [alpha-playwright/README.md](alpha-playwright/README.md) |
 | `beta-playwright/` | A Playwright test project kept close to the setup used at work | In progress, see [beta-playwright/README.md](beta-playwright/README.md) |
+| `charlie-playwright/` | A copy of `alpha-playwright` made on 2026-11-17, where the work continues | In progress, see [charlie-playwright/README.md](charlie-playwright/README.md) |
 | `zed-playwright/` | The test automation, with each app's manual test plan | Ready: 20 tests, see [zed-playwright/README.md](zed-playwright/README.md) |
 | `super-catalog/` | Super Catalog: React front end, FastAPI back end | Ready at http://localhost:3001 |
 | `super-portal/` | Super Portal: React front end, FastAPI back end | Ready at http://localhost:3002 |

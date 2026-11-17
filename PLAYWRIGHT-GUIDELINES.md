@@ -169,12 +169,12 @@ Checks follow Playwright's advice to [use web-first assertions](https://playwrig
 - Prettier with single quotes.
 - Page objects, shared code and the README use a print width of 120.
 - Specs use `--print-width 1000 --object-wrap collapse`, so each statement stays on one line. Never re-wrap specs at 120.
-- **Lint with `npm run lint`** in `alpha-playwright`. It runs typescript-eslint's `no-floating-promises`, which Playwright's [Lint your tests](https://playwright.dev/docs/best-practices#lint-your-tests) recommends, so every Playwright call is awaited. It also runs two rules from `eslint-plugin-playwright`: `missing-playwright-await`, for retrying checks and `test.step`, and `prefer-web-first-assertions`, so no check reads a value from the page.
+- **Lint with `npm run lint`** in `charlie-playwright` or `alpha-playwright`. It runs typescript-eslint's `no-floating-promises`, which Playwright's [Lint your tests](https://playwright.dev/docs/best-practices#lint-your-tests) recommends, so every Playwright call is awaited. It also runs two rules from `eslint-plugin-playwright`: `missing-playwright-await`, for retrying checks and `test.step`, and `prefer-web-first-assertions`, so no check reads a value from the page.
 
 ## Working on this project
 
 - **"Discuss":** answer with options and a recommendation, then wait. Change no files until there's a go-ahead.
-- **Which framework:** "Playwright" means `alpha-playwright`. Touch `beta-playwright` or `zed-playwright` only when they're named.
+- **Which framework:** "Playwright" means `charlie-playwright`, which started on 2026-11-17 as a copy of `alpha-playwright`. Touch `alpha-playwright`, `beta-playwright` or `zed-playwright` only when they're named.
 - **Git:** branch off `master` before committing. Commit, merge, push and delete the branch only when asked. No pull requests.
 - **`.env`:** don't edit it. The user keeps it.
 - **Example apps:** no deliberate gaps or planted bugs.
