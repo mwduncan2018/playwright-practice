@@ -1,6 +1,6 @@
 import path from 'node:path';
 
-import { uniqueSku } from '../../shared/test-data';
+import { uniqueSku, uniqueSuffix } from '../../shared/test-data';
 
 export interface TestProduct {
   sku: string;
@@ -21,6 +21,16 @@ export function newTestProduct(): TestProduct {
     price: '19.99',
     stock: '25',
   };
+}
+
+export interface TestCategory {
+  name: string;
+  newName: string;
+}
+
+export function newTestCategory(): TestCategory {
+  const name = `Test category ${uniqueSuffix()}`;
+  return { name, newName: `${name} (renamed)` };
 }
 
 export const PRODUCT_IMAGE = path.join(__dirname, 'test-files', 'product.png');

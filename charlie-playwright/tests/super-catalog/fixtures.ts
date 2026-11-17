@@ -1,4 +1,4 @@
-import type { Page } from '@playwright/test';
+import type { Download, Page } from '@playwright/test';
 import { createBdd } from 'playwright-bdd';
 
 import { expect, testWithUsers } from '../../shared/fixtures';
@@ -14,7 +14,7 @@ import { NavbarPage } from './pages/navbar.page';
 import { ProductFormPage } from './pages/product-form.page';
 import { ProductPage } from './pages/product.page';
 import { ProductsPage } from './pages/products.page';
-import { newTestProduct, type TestProduct } from './test-data';
+import { newTestCategory, newTestProduct, type TestCategory, type TestProduct } from './test-data';
 
 function createCatalogPages(page: Page) {
   return {
@@ -34,11 +34,28 @@ function createCatalogPages(page: Page) {
   };
 }
 
-export const plan = testPlan('Super Catalog Manual Test Plan', '1.1');
+interface CatalogScenarioContext {
+  csvDownload: Download;
+}
 
-export const test = testWithUsers(createCatalogPages).extend<{ testProduct: TestProduct; testPlanAnnotation: void }>({
+const plan = testPlan('Super Catalog Manual Test Plan', '1.2');
+
+export const test = testWithUsers(createCatalogPages).extend<{
+  testProduct: TestProduct;
+  testCategory: TestCategory;
+  scenarioContext: CatalogScenarioContext;
+  testPlanAnnotation: void;
+}>({
   testProduct: async ({}, use) => {
     await use(newTestProduct());
+  },
+
+  testCategory: async ({}, use) => {
+    await use(newTestCategory());
+  },
+
+  scenarioContext: async ({}, use) => {
+    await use({} as CatalogScenarioContext);
   },
 
   testPlanAnnotation: [

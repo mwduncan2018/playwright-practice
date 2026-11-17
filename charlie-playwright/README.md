@@ -20,8 +20,8 @@ Markdown, so GitHub shows them as pages, and each ID in a plan's Cases table lin
 ## Gherkin scenarios
 
 Some tests are written in Gherkin with [playwright-bdd](https://vitalets.github.io/playwright-bdd/), which runs them
-with Playwright's own test runner. So far these are Super Catalog's SC-001, SC-002 and SC-005, a pilot before the
-rest move over. The other tests are still spec files, and both kinds run together in the same projects.
+with Playwright's own test runner. All of Super Catalog's tests are Gherkin scenarios. Super Portal's are still spec
+files, and both kinds run in the same projects.
 
 - **Features** are in each app's `features` folder, such as `tests/super-catalog/features/dashboard.feature`. Each
   scenario is one case from the plan, named with its ID and title and tagged with its plan tag and its ID, such as
@@ -38,8 +38,14 @@ rest move over. The other tests are still spec files, and both kinds run togethe
 - **A step asks only for the user its text names.** Playwright opens a browser for every user a step asks for, so a
   Then step that asked for a different user would check that user's empty page.
 - **Checks keep their messages**: the plan's expected result, word for word, inside `expect(`.
-- **Test data a scenario needs from the start is a fixture**, such as `testProduct`. Every step in a scenario that
-  asks for it gets the same product.
+- **Test data a scenario needs from the start is a fixture**, such as `testProduct` or `testCategory`. Every step
+  in a scenario that asks for one gets the same one.
+- **A value one step makes for a later step goes in `scenarioContext`**, which starts empty in each scenario. In
+  SC-004, the When step that selects Export CSV keeps the download in `scenarioContext.csvDownload`, and the Then
+  steps check its name and rows.
+- **Brackets and slashes are escaped in a step definition's text**, because Cucumber expressions use `(` and `)`
+  for optional text and `/` for alternatives. The feature says `the next-page arrow (›)` and the step definition
+  says `'… the next-page arrow \\(›\\)'`.
 - **The ID tag adds the plan's annotation**: a scenario tagged `@SC-002` gets the same "Manual test plan" annotation
   that a spec test adds with `plan('SC-002')`.
 - **A scenario that types a password is tagged `@no-trace`**, which runs it in the `no-trace` project with traces
@@ -288,8 +294,9 @@ each session to `playwright/.auth`. That folder is git-ignored; keep it out of p
 since the files hold sign-in cookies. The setup records no traces, and the report shows each sign-in
 as a test, so a failed sign-in is easy to spot.
 
-Super Catalog and Super Portal's tests import `test` and `expect` from their app's `fixtures.ts`. A
-test asks for the users it needs by name, the same way it asks for any fixture:
+Super Portal's spec files import `test` and `expect` from their app's `fixtures.ts`, and Super Catalog's
+step files import `When`, `Then` and `expect` from theirs. A test or a step asks for the users it needs
+by name, the same way it asks for any fixture:
 
 ```ts
 test('SP-006 An admin approves a request', { tag: '@smoke' }, async ({ standardUser, adminUser }) => {
