@@ -1,4 +1,5 @@
-import { type Browser, type Page, expect, test as base } from '@playwright/test';
+import { type Browser, type Page, expect } from '@playwright/test';
+import { test as base } from 'playwright-bdd';
 
 import { type Account, account, type AccountName, sessionFile } from './accounts';
 import { KeycloakPage } from './keycloak.page';

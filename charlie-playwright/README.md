@@ -17,6 +17,47 @@ Keycloak. Start it from the repo root with `docker compose up -d --wait`. Their 
 test plans in their folders, such as `tests/super-catalog/super-catalog-test-plan.md`. The plans are
 Markdown, so GitHub shows them as pages, and each ID in a plan's Cases table links to its case.
 
+## Gherkin scenarios
+
+Some tests are written in Gherkin with [playwright-bdd](https://vitalets.github.io/playwright-bdd/), which runs them
+with Playwright's own test runner. So far these are Super Catalog's SC-001, SC-002 and SC-005, a pilot before the
+rest move over. The other tests are still spec files, and both kinds run together in the same projects.
+
+- **Features** are in each app's `features` folder, such as `tests/super-catalog/features/dashboard.feature`. Each
+  scenario is one case from the plan, named with its ID and title and tagged with its plan tag and its ID, such as
+  `@smoke @SC-002`.
+- **Step definitions** are in the app's `steps` folder, one file per feature, such as `dashboard.steps.ts`. They
+  import `When`, `Then` and `expect` from the app's `fixtures.ts`, and ask for users by name, the same way a test
+  does: `When('the standard user opens the Dashboard', async ({ standardUser }) => { ... })`. Steps never go in page
+  objects.
+- **Each line comes from the plan and names the user.** An action becomes a When line: "Open the Dashboard." is
+  `When the standard user opens the Dashboard`. An expected result becomes a Then or And line that starts with who
+  sees it: "The Suppliers count is 8." is `Then the standard user sees that the Suppliers count is 8`. Steps keep the
+  plan's fixed text. A parameter such as `{string}` comes in only when two scenarios need the same step with
+  different values.
+- **A step asks only for the user its text names.** Playwright opens a browser for every user a step asks for, so a
+  Then step that asked for a different user would check that user's empty page.
+- **Checks keep their messages**: the plan's expected result, word for word, inside `expect(`.
+- **Test data a scenario needs from the start is a fixture**, such as `testProduct`. Every step in a scenario that
+  asks for it gets the same product.
+- **The ID tag adds the plan's annotation**: a scenario tagged `@SC-002` gets the same "Manual test plan" annotation
+  that a spec test adds with `plan('SC-002')`.
+- **A scenario that types a password is tagged `@no-trace`**, which runs it in the `no-trace` project with traces
+  off. A spec file turns its own traces off with `test.use({ trace: 'off' })`, but a feature can't.
+
+Playwright runs specs that bddgen generates from the features, so generate them before each run. `npm test` does
+both, and passes anything after `--` to `playwright test`:
+
+```bash
+npm test
+npm test -- --grep @SC-002
+```
+
+`npx bddgen` on its own regenerates them, after a change to a feature or a step, before running with
+`npx playwright test` or from VS Code's Playwright extension. Each one goes beside its feature, such as
+`features/dashboard.feature.spec.js`. Git and ESLint ignore them, and they're never edited by hand. Before writing
+them, bddgen deletes every `.spec.js` file in the app's folder, so hand-written specs are always `.spec.ts`.
+
 ## Environment variables
 
 Every setting is an environment variable. For local runs, copy `.env.example` to `.env` and put in
@@ -48,7 +89,7 @@ A variable set in the shell overrides `.env`. A pipeline has no `.env`, so it mu
   can block them. Where it's turned on, use `msedge` or `chrome`.
 - Keep real passwords in `.env` or in masked pipeline variables, never in `.env.example`.
 - A trace records what a test typed, passwords included. In a test that types a password, turn traces
-  off with `test.use({ trace: 'off' })`.
+  off with `test.use({ trace: 'off' })`, or in a Gherkin scenario, tag it `@no-trace`.
 - A failing test gets a screenshot of each user's page. Password fields show as dots.
 - A failing test's error context (`error-context.md`, and Error Context in the report) has the error
   and the test's code, but no text copy of the page. Playwright's copy shows what's in each field,

@@ -1,40 +1,6 @@
 import { expect, plan, test } from './fixtures';
 import { newTestProduct, PRODUCT_IMAGE } from './test-data';
 
-test('SC-005 Create a product', { tag: '@smoke', annotation: plan('SC-005') }, async ({ adminUser }) => {
-  const testProduct = newTestProduct();
-
-  await test.step('1. Open the Products page and select New product.', async () => {
-    await adminUser.page.goto(adminUser.productsPage.path);
-    await adminUser.productsPage.newProductLink.click();
-    await expect(adminUser.productFormPage.newProductHeading, 'The New product form opens.').toBeVisible();
-  });
-
-  await test.step('2. Fill in the form with the test data and select Create product.', async () => {
-    await adminUser.productFormPage.skuInput.fill(testProduct.sku);
-    await adminUser.productFormPage.nameInput.fill(testProduct.name);
-    await adminUser.productFormPage.categorySelect.selectOption(testProduct.category);
-    await adminUser.productFormPage.supplierSelect.selectOption(testProduct.supplier);
-    await adminUser.productFormPage.priceInput.fill(testProduct.price);
-    await adminUser.productFormPage.stockInput.fill(testProduct.stock);
-    await adminUser.productFormPage.draftStatusRadio.check();
-    await adminUser.productFormPage.createButton.click();
-    await expect(adminUser.alertsPage.newestAlertMessage, 'The message "Created <SKU> <name>." appears.').toContainText(`Created ${testProduct.sku} ${testProduct.name}.`);
-    await expect(adminUser.productPage.priceValue, "The product's page shows price $19.99, stock 25, status Draft and supplier Granite Works.").toHaveText('$19.99');
-    await expect(adminUser.productPage.stockValue, "The product's page shows price $19.99, stock 25, status Draft and supplier Granite Works.").toHaveText('25');
-    await expect(adminUser.productPage.statusValue, "The product's page shows price $19.99, stock 25, status Draft and supplier Granite Works.").toHaveText('Draft');
-    await expect(adminUser.productPage.supplierValue, "The product's page shows price $19.99, stock 25, status Draft and supplier Granite Works.").toHaveText('Granite Works');
-    await expect(adminUser.productPage.createdValue, "The product's page says it was created by the signed-in admin.").toContainText(`by ${adminUser.account.name}`);
-  });
-
-  await test.step('3. Open the Products page and search for the SKU.', async () => {
-    await adminUser.page.goto(adminUser.productsPage.path);
-    await adminUser.productsPage.searchInput.fill(testProduct.sku);
-    await expect(adminUser.productsPage.productRows, 'Exactly one product is listed: the new one.').toHaveCount(1);
-    await expect(adminUser.productsPage.productRow(testProduct.sku), 'Exactly one product is listed: the new one.').toBeVisible();
-  });
-});
-
 test('SC-006 Product form validation', { tag: '@regression', annotation: plan('SC-006') }, async ({ adminUser }) => {
   await test.step('1. Open the New product form and select Create product without entering anything.', async () => {
     await adminUser.page.goto(adminUser.productFormPage.path);

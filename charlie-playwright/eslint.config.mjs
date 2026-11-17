@@ -3,7 +3,14 @@ import tseslint from 'typescript-eslint';
 
 export default [
   {
-    ignores: ['blob-report/', 'playwright/', 'playwright-history/', 'playwright-report/', 'test-results/'],
+    ignores: [
+      '**/*.feature.spec.js',
+      'blob-report/',
+      'playwright/',
+      'playwright-history/',
+      'playwright-report/',
+      'test-results/',
+    ],
   },
   {
     files: ['**/*.ts'],

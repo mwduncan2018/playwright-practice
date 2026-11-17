@@ -3,6 +3,7 @@ import { existsSync } from 'node:fs';
 import path from 'node:path';
 
 import { defineConfig, devices, type Project, type TraceMode } from '@playwright/test';
+import { defineBddConfig } from 'playwright-bdd';
 
 const envFile = path.join(__dirname, '.env');
 if (existsSync(envFile)) process.loadEnvFile(envFile);
@@ -34,6 +35,21 @@ const BROWSERS: Record<string, Project['use']> = {
 };
 const browserName = process.env.TEST_BROWSER ?? '';
 const browser = BROWSERS[browserName];
+
+// bddgen turns each of the app's Gherkin features into a spec file beside it, such as
+// features/dashboard.feature.spec.js. playwright-bdd needs its output folder to be the projects' test
+// folder, so it's the app's folder, and features and spec files run in the same projects. Before
+// writing, bddgen deletes every .spec.js file in that folder, so hand-written specs stay .spec.ts.
+// Run bddgen before playwright test: npm test does both.
+const appFolder = process.env.TEST_APP_FOLDER;
+if (appFolder) {
+  defineBddConfig({
+    featuresRoot: path.join(__dirname, appFolder),
+    features: `${appFolder}/features/*.feature`,
+    steps: [`${appFolder}/steps/*.steps.ts`, `${appFolder}/fixtures.ts`],
+    outputDir: appFolder,
+  });
+}
 
 export default defineConfig({
   testDir: process.env.TEST_APP_FOLDER,
@@ -79,16 +95,19 @@ export default defineConfig({
     screenshot: 'only-on-failure',
   },
 
-  // All three run in the browser TEST_BROWSER names. Without a known browser there are no projects,
+  // All four run in the browser TEST_BROWSER names. Without a known browser there are no projects,
   // so Playwright says "No tests found".
   projects: browser
     ? [
         // Signs in every account once and saves the sessions the tests start from.
         { name: 'setup', testDir: './shared', testMatch: /auth\.setup\.ts/, use: browser },
         // The tests on shared accounts: fully parallel when TEST_PARALLEL is true.
-        { name: browserName, use: browser, dependencies: ['setup'], grepInvert: /@side-account/ },
+        { name: browserName, use: browser, dependencies: ['setup'], grepInvert: [/@side-account/, /@no-trace/] },
         // The tests on side accounts change the user's own data, so they run one at a time.
         { name: 'side-accounts', use: browser, dependencies: ['setup'], grep: /@side-account/, workers: 1 },
+        // A trace records what's typed, passwords included. A Gherkin scenario can't turn its trace
+        // off the way a spec file can, so a scenario that types a password is tagged @no-trace and runs here.
+        { name: 'no-trace', use: { ...browser, trace: 'off' }, dependencies: ['setup'], grep: /@no-trace/ },
       ]
     : [],
 });

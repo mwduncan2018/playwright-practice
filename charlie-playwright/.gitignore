@@ -8,4 +8,7 @@ node_modules/
 /playwright/.cache/
 /playwright/.auth/
 
+# playwright-bdd's generated spec files
+*.feature.spec.js
+
 .env

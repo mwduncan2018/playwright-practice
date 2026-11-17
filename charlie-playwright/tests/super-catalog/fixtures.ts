@@ -1,4 +1,5 @@
 import type { Page } from '@playwright/test';
+import { createBdd } from 'playwright-bdd';
 
 import { expect, testWithUsers } from '../../shared/fixtures';
 import { testPlan } from '../../shared/test-plan';
@@ -13,6 +14,7 @@ import { NavbarPage } from './pages/navbar.page';
 import { ProductFormPage } from './pages/product-form.page';
 import { ProductPage } from './pages/product.page';
 import { ProductsPage } from './pages/products.page';
+import { newTestProduct, type TestProduct } from './test-data';
 
 function createCatalogPages(page: Page) {
   return {
@@ -32,8 +34,23 @@ function createCatalogPages(page: Page) {
   };
 }
 
-export const test = testWithUsers(createCatalogPages);
+export const plan = testPlan('Super Catalog Manual Test Plan', '1.1');
+
+export const test = testWithUsers(createCatalogPages).extend<{ testProduct: TestProduct; testPlanAnnotation: void }>({
+  testProduct: async ({}, use) => {
+    await use(newTestProduct());
+  },
+
+  testPlanAnnotation: [
+    async ({}, use, testInfo) => {
+      const caseTag = testInfo.tags.find((tag) => /^@SC-\d{3}$/.test(tag));
+      if (caseTag) testInfo.annotations.push(plan(caseTag.slice(1)));
+      await use();
+    },
+    { auto: true },
+  ],
+});
+
+export const { Given, When, Then } = createBdd(test);
 
 export { expect };
-
-export const plan = testPlan('Super Catalog Manual Test Plan', '1.0');

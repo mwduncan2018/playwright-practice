@@ -1,8 +1,8 @@
 # Super Catalog Manual Test Plan
 
 - **Application:** Super Catalog
-- **Version:** 1.0
-- **Date:** 2026-11-06
+- **Version:** 1.1
+- **Date:** 2026-11-17
 - **Automated tests:** charlie-playwright/tests/super-catalog
 
 ## 1. Purpose
@@ -30,7 +30,7 @@ Passwords come from the test team and are never written in this plan or in the r
 - Where test data says Unique, use a value no other record has, such as one with the date and time in it. The automated tests run side by side in one environment, so no two of them may share a record.
 - Tags: Smoke cases are the short check that runs in every environment, including staging, where only Smoke cases run. Regression cases run in dev, test and locally.
 - Record Pass or Fail for each step. When an expected result doesn't happen, write down what did.
-- The automated tests follow this plan. Each test is named with the case's ID and title. Each step in a test's report starts with the step's number and its action exactly as written here, and each check carries the expected result's wording.
+- The automated tests follow this plan, and each test is named with the case's ID and title. In a test written as a spec file, each step in the report starts with the step's number and its action exactly as written here. In a case written as a Gherkin scenario, in the `features` folder, each action is a When line and each expected result a Then line, in the order written here, and each line names the user. Either way, each check carries the expected result's wording.
 
 ## 5. Cases
 
