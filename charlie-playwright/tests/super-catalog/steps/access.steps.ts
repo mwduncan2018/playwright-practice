@@ -1,7 +1,7 @@
 import { expect, Then, When } from '../fixtures';
 
 When('the standard user opens the Products page', async ({ standardUser }) => {
-  await standardUser.page.goto(standardUser.productsPage.path);
+  await standardUser.navbarPage.productsLink.click();
 });
 
 Then("the standard user sees that there's no New product button", async ({ standardUser }) => {

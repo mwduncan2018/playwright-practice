@@ -2,7 +2,7 @@ import { expect, Then, When } from '../fixtures';
 import { PRODUCT_IMAGE } from '../test-data';
 
 When('the admin user opens the Products page and selects New product', async ({ adminUser }) => {
-  await adminUser.page.goto(adminUser.productsPage.path);
+  await adminUser.navbarPage.productsLink.click();
   await adminUser.productsPage.newProductLink.click();
 });
 
@@ -37,7 +37,7 @@ Then("the admin user sees that the product's page says it was created by the sig
 });
 
 When('the admin user opens the Products page and searches for the SKU', async ({ adminUser, testProduct }) => {
-  await adminUser.page.goto(adminUser.productsPage.path);
+  await adminUser.navbarPage.productsLink.click();
   await adminUser.productsPage.searchInput.fill(testProduct.sku);
 });
 
@@ -47,7 +47,8 @@ Then('the admin user sees that exactly one product is listed: the new one', asyn
 });
 
 When('the admin user opens the New product form and selects Create product without entering anything', async ({ adminUser }) => {
-  await adminUser.page.goto(adminUser.productFormPage.path);
+  await adminUser.navbarPage.productsLink.click();
+  await adminUser.productsPage.newProductLink.click();
   await adminUser.productFormPage.createButton.click();
 });
 
@@ -94,7 +95,8 @@ Then('the admin user sees that Stock says "Enter a whole number, 0 or more."', a
 });
 
 When('the admin user creates a product with the test data', async ({ adminUser, testProduct }) => {
-  await adminUser.page.goto(adminUser.productFormPage.path);
+  await adminUser.navbarPage.productsLink.click();
+  await adminUser.productsPage.newProductLink.click();
   await adminUser.productFormPage.skuInput.fill(testProduct.sku);
   await adminUser.productFormPage.nameInput.fill(testProduct.name);
   await adminUser.productFormPage.categorySelect.selectOption(testProduct.category);

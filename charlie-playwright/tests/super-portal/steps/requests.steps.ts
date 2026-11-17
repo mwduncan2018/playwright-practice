@@ -3,7 +3,7 @@ import { expect, Then, When } from '../fixtures';
 const commentText = 'Any full-size keyboard is fine.';
 
 When('the standard user submits the keyboard request in the test data', async ({ standardUser }) => {
-  await standardUser.page.goto(standardUser.newRequestPage.path);
+  await standardUser.navbarPage.newRequestLink.click();
   await standardUser.newRequestPage.requestEquipmentButton.click();
   await standardUser.equipmentWizard.itemSelect.selectOption('Keyboard');
   await standardUser.equipmentWizard.quantityInput.fill('1');

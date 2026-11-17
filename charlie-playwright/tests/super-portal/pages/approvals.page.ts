@@ -3,7 +3,6 @@ import type { Locator, Page } from '@playwright/test';
 import { BasePage } from '../../../shared/base.page';
 
 export class ApprovalsPage extends BasePage {
-  readonly path = '/approvals';
   readonly summaryText: Locator;
 
   constructor(page: Page) {
@@ -13,6 +12,10 @@ export class ApprovalsPage extends BasePage {
 
   requestRow(requestNumber: string): Locator {
     return this.page.getByTestId(`request-row-${requestNumber}`);
+  }
+
+  requestNumberLink(requestNumber: string): Locator {
+    return this.requestRow(requestNumber).getByRole('link', { name: requestNumber, exact: true });
   }
 
   approveButton(requestNumber: string): Locator {

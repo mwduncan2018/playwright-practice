@@ -17,6 +17,7 @@ export class RequestWizard extends BasePage {
   readonly submittedHeading: Locator;
   readonly newRequestNumberText: Locator;
   readonly viewRequestButton: Locator;
+  readonly doneButton: Locator;
   readonly itemSelect: Locator;
   readonly quantityInput: Locator;
   readonly deliveryAddressTextarea: Locator;
@@ -71,6 +72,7 @@ export class RequestWizard extends BasePage {
     this.submittedHeading = this.dialog.getByRole('heading', { name: 'Request submitted' });
     this.newRequestNumberText = this.dialog.getByTestId('new-request-number');
     this.viewRequestButton = this.dialog.getByRole('button', { name: 'View request' });
+    this.doneButton = this.dialog.getByRole('button', { name: 'Done', exact: true });
     this.itemSelect = this.dialog.getByLabel('Item');
     this.quantityInput = this.dialog.getByLabel('Quantity');
     this.deliveryAddressTextarea = this.dialog.getByLabel('Delivery address');

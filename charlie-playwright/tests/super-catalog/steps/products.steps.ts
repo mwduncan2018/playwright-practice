@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { expect, Then, When } from '../fixtures';
 
 When('the standard user opens the Products page and enters "lamp" in Search', async ({ standardUser }) => {
-  await standardUser.page.goto(standardUser.productsPage.path);
+  await standardUser.navbarPage.productsLink.click();
   await standardUser.productsPage.searchInput.fill('lamp');
 });
 
@@ -49,7 +49,7 @@ Then('the standard user sees that only Remote Control Car is listed', async ({ s
 });
 
 When('the standard user opens the Products page and chooses Electronics in Category', async ({ standardUser }) => {
-  await standardUser.page.goto(standardUser.productsPage.path);
+  await standardUser.navbarPage.productsLink.click();
   await standardUser.productsPage.categorySelect.selectOption('Electronics');
 });
 

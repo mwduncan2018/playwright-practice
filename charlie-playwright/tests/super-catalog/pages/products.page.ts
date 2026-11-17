@@ -3,7 +3,6 @@ import type { Locator, Page } from '@playwright/test';
 import { BasePage } from '../../../shared/base.page';
 
 export class ProductsPage extends BasePage {
-  readonly path = '/products';
   readonly heading: Locator;
   readonly newProductLink: Locator;
   readonly exportCsvButton: Locator;

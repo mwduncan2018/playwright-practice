@@ -4,7 +4,7 @@ const deliveryAddress = '500 Market Street, Seattle, WA 98101';
 const monitorRequestReason = 'Two monitors for my new desk in the Seattle office.';
 
 When('the standard user opens New request and selects Request equipment', async ({ standardUser }) => {
-  await standardUser.page.goto(standardUser.newRequestPage.path);
+  await standardUser.navbarPage.newRequestLink.click();
   await standardUser.newRequestPage.requestEquipmentButton.click();
 });
 
@@ -97,7 +97,7 @@ Then('the standard user sees that the page shows the delivery address', async ({
 });
 
 When('the standard user opens New request and selects Request software', async ({ standardUser }) => {
-  await standardUser.page.goto(standardUser.newRequestPage.path);
+  await standardUser.navbarPage.newRequestLink.click();
   await standardUser.newRequestPage.requestSoftwareButton.click();
 });
 
@@ -150,7 +150,7 @@ Then('the standard user sees that the page shows 3 seats', async ({ standardUser
 });
 
 When('the standard user opens New request and selects Request access', async ({ standardUser }) => {
-  await standardUser.page.goto(standardUser.newRequestPage.path);
+  await standardUser.navbarPage.newRequestLink.click();
   await standardUser.newRequestPage.requestAccessButton.click();
 });
 
@@ -209,7 +209,7 @@ Then('the standard user sees that the request shows security training as Complet
 });
 
 When('the standard user opens New request, selects Request equipment, and chooses Laptop in Item', async ({ standardUser }) => {
-  await standardUser.page.goto(standardUser.newRequestPage.path);
+  await standardUser.navbarPage.newRequestLink.click();
   await standardUser.newRequestPage.requestEquipmentButton.click();
   await standardUser.equipmentWizard.itemSelect.selectOption('Laptop');
 });

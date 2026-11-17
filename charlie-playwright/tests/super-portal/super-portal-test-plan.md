@@ -1,7 +1,7 @@
 # Super Portal Manual Test Plan
 
 - **Application:** Super Portal
-- **Version:** 1.3
+- **Version:** 1.4
 - **Date:** 2026-11-17
 - **Automated tests:** charlie-playwright/tests/super-portal
 
@@ -161,7 +161,7 @@ Passwords come from the test team and are never written in this plan or in the r
 
 | Step | Action | Expected result | Pass/Fail |
 | --- | --- | --- | --- |
-| 1 | As the standard user, submit the request in the test data. | The wizard shows the new request's number. | |
+| 1 | As the standard user, submit the request in the test data, then select Done. | The wizard shows the new request's number. | |
 | 2 | As an admin, open Approvals. | The request is listed. | |
 | 3 | Select Approve for the request, enter the note, and select Approve. | The message "Approved \<number>." appears.<br>The request is no longer listed. | |
 | 4 | As the standard user, open the request. | The status is Approved.<br>The page says the admin approved it, with the note.<br>The history ends with Approved. | |
@@ -178,7 +178,7 @@ Passwords come from the test team and are never written in this plan or in the r
 
 | Step | Action | Expected result | Pass/Fail |
 | --- | --- | --- | --- |
-| 1 | As the standard user, submit the request in the test data. | The wizard shows the new request's number. | |
+| 1 | As the standard user, submit the request in the test data, then select Done. | The wizard shows the new request's number. | |
 | 2 | As an admin, open the request and select Reject. | A Reject dialog opens for the request. | |
 | 3 | Select Reject without entering a reason. | The dialog says "Tell the requester why, in at least 5 characters." | |
 | 4 | Enter the rejection reason and select Reject. | The message "Rejected \<number>." appears.<br>The status is Rejected, and the page shows the reason. | |
@@ -195,7 +195,7 @@ Passwords come from the test team and are never written in this plan or in the r
 
 | Step | Action | Expected result | Pass/Fail |
 | --- | --- | --- | --- |
-| 1 | Submit the request in the test data. | The wizard shows the new request's number. | |
+| 1 | Submit the request in the test data, then select Done. | The wizard shows the new request's number. | |
 | 2 | Open Approvals. | The request isn't listed. | |
 | 3 | Open the request. | The page says "You can't approve or reject your own request. Another admin will decide on it."<br>There are no Approve or Reject buttons. | |
 

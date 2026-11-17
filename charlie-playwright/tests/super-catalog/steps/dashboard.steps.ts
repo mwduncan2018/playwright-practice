@@ -1,7 +1,7 @@
 import { expect, Then, When } from '../fixtures';
 
 When('the standard user opens the Dashboard', async ({ standardUser }) => {
-  await standardUser.page.goto(standardUser.dashboardPage.path);
+  await standardUser.navbarPage.dashboardLink.click();
 });
 
 Then('the standard user sees that the browser tab\'s title is "Dashboard · Super Catalog"', async ({ standardUser }) => {

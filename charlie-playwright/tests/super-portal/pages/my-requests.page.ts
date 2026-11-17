@@ -3,7 +3,6 @@ import type { Locator, Page } from '@playwright/test';
 import { BasePage } from '../../../shared/base.page';
 
 export class MyRequestsPage extends BasePage {
-  readonly path = '/requests';
   readonly searchInput: Locator;
   readonly statusSelect: Locator;
   readonly typeSelect: Locator;
@@ -20,5 +19,9 @@ export class MyRequestsPage extends BasePage {
 
   requestRow(requestNumber: string): Locator {
     return this.page.getByTestId(`request-row-${requestNumber}`);
+  }
+
+  requestNumberLink(requestNumber: string): Locator {
+    return this.requestRow(requestNumber).getByRole('link', { name: requestNumber, exact: true });
   }
 }

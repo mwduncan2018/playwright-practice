@@ -1,7 +1,7 @@
 import { expect, Then, When } from '../fixtures';
 
 When('the admin user opens Announcements and selects New announcement', async ({ adminUser }) => {
-  await adminUser.page.goto(adminUser.announcementsPage.path);
+  await adminUser.navbarPage.announcementsLink.click();
   await adminUser.announcementsPage.newAnnouncementButton.click();
 });
 
@@ -52,7 +52,7 @@ Then('the admin user sees that the audience is "Standard users only"', async ({ 
 });
 
 When('the standard user opens Announcements', async ({ standardUser }) => {
-  await standardUser.page.goto(standardUser.announcementsPage.path);
+  await standardUser.navbarPage.announcementsLink.click();
 });
 
 Then("the standard user sees that the announcement isn't listed", async ({ standardUser, testAnnouncement }) => {

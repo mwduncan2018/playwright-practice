@@ -3,7 +3,6 @@ import type { Locator, Page } from '@playwright/test';
 import { BasePage } from '../../../shared/base.page';
 
 export class ProductFormPage extends BasePage {
-  readonly path = '/products/new';
   readonly newProductHeading: Locator;
   readonly skuInput: Locator;
   readonly nameInput: Locator;

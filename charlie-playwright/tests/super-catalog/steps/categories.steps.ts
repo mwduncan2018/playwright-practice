@@ -1,7 +1,7 @@
 import { expect, Then, When } from '../fixtures';
 
 When('the admin user opens Categories and selects New category', async ({ adminUser }) => {
-  await adminUser.page.goto(adminUser.categoriesPage.path);
+  await adminUser.navbarPage.categoriesLink.click();
   await adminUser.categoriesPage.newCategoryButton.click();
 });
 

@@ -56,7 +56,7 @@ interface PortalScenarioContext {
   requestNumber: string;
 }
 
-const plan = testPlan('Super Portal Manual Test Plan', '1.3');
+const plan = testPlan('Super Portal Manual Test Plan', '1.4');
 
 export const test = testWithUsers(createPortalPages).extend<{
   testAnnouncement: TestAnnouncement;

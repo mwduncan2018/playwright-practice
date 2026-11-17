@@ -4,7 +4,7 @@ const defaultColumnNames = ['Number', 'Title', 'Type', 'Requester', 'Priority', 
 const chosenColumnNames = ['Number', 'Title', 'Requester', 'Priority', 'Status', 'Decided by', 'Submitted'];
 
 When('the admin user opens All requests', async ({ adminUser }) => {
-  await adminUser.page.goto(adminUser.allRequestsPage.path);
+  await adminUser.navbarPage.allRequestsLink.click();
 });
 
 Then("the admin user sees that the table's columns are Number, Title, Type, Requester, Priority, Status and Submitted, in that order", async ({ adminUser }) => {
@@ -76,7 +76,7 @@ Then("the admin user sees that the table's columns are Number, Title, Type, Requ
 });
 
 When('the standard user submits the webcam request in the test data', async ({ standardUser }) => {
-  await standardUser.page.goto(standardUser.newRequestPage.path);
+  await standardUser.navbarPage.newRequestLink.click();
   await standardUser.newRequestPage.requestEquipmentButton.click();
   await standardUser.equipmentWizard.itemSelect.selectOption('Webcam');
   await standardUser.equipmentWizard.quantityInput.fill('1');
@@ -89,7 +89,7 @@ When('the standard user submits the webcam request in the test data', async ({ s
 });
 
 When('the admin user opens All requests, selects Columns, checks Decided by, selects the down arrow \\(↓\\) for Requester twice, and selects Save columns', async ({ adminUser }) => {
-  await adminUser.page.goto(adminUser.allRequestsPage.path);
+  await adminUser.navbarPage.allRequestsLink.click();
   await adminUser.allRequestsPage.columnsButton.click();
   await adminUser.columnsDialog.decidedByColumnCheckbox.check();
   await adminUser.columnsDialog.moveRequesterDownButton.click();
@@ -125,7 +125,7 @@ Then('the admin user sees that the status is Approved', async ({ adminUser }) =>
 });
 
 When("the admin user opens All requests and searches for the request's number", async ({ adminUser, scenarioContext }) => {
-  await adminUser.page.goto(adminUser.allRequestsPage.path);
+  await adminUser.navbarPage.allRequestsLink.click();
   await adminUser.allRequestsPage.searchInput.fill(scenarioContext.requestNumber);
 });
 
@@ -135,7 +135,7 @@ Then("the admin user sees that its Status is Approved, and Decided by shows the 
 });
 
 When('the admin user opens All requests and chooses Standard Four in Requester', async ({ adminUser }) => {
-  await adminUser.page.goto(adminUser.allRequestsPage.path);
+  await adminUser.navbarPage.allRequestsLink.click();
   await adminUser.allRequestsPage.requesterSelect.selectOption('Standard Four');
 });
 
@@ -182,7 +182,7 @@ Then('the admin user sees that the page says "Showing 1–10 of" and the total',
 });
 
 When('the standard user opens Home and looks at the menu at the top of the page', async ({ standardUser }) => {
-  await standardUser.page.goto(standardUser.homePage.path);
+  await standardUser.navbarPage.homeLink.click();
 });
 
 Then("the standard user sees that there's no All requests link", async ({ standardUser }) => {
@@ -191,7 +191,7 @@ Then("the standard user sees that there's no All requests link", async ({ standa
 });
 
 When('the standard user goes to the address \\/all-requests', async ({ standardUser }) => {
-  await standardUser.page.goto(standardUser.allRequestsPage.path);
+  await standardUser.page.goto('/all-requests');
 });
 
 Then('the standard user sees that the page says "You don\'t have access to this page"', async ({ standardUser }) => {

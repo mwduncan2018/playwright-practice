@@ -3,7 +3,6 @@ import type { Locator, Page } from '@playwright/test';
 import { BasePage } from '../../../shared/base.page';
 
 export class SettingsPage extends BasePage {
-  readonly path = '/settings';
   readonly usernameValue: Locator;
   readonly rolesValue: Locator;
   readonly defaultPrioritySelect: Locator;

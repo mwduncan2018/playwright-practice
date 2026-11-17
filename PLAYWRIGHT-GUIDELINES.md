@@ -37,7 +37,8 @@ How Playwright test automation is written in this repo: the test plans, the test
 - **No location strategies in steps:** no `getByRole`, `getByLabel`, `getByText`, `locator`, `filter`, `first()` or `last()`. A step only names locators from page objects.
 - **Act on locators with Playwright directly** (`click`, `fill`, `check`, `selectOption`, `setInputFiles`), so every action shows in the step and its report.
 - **Flows are written out in the step**, such as signing in or filling in a form, even when they're long.
-- **Open pages by their `path`:** `await adminUser.page.goto(adminUser.productsPage.path)`. For an address that ends in an ID, add the ID: `standardUser.requestPage.path + scenarioContext.requestNumber`.
+- **Open pages from the navbar,** the way a person moves around the app: `await adminUser.navbarPage.productsLink.click()`. A page the navbar doesn't link to is opened from the page that does, such as the New product form from Products, or a request's page from its number on My requests or Approvals. `page.goto` is only for a plan step that goes to an address, such as "Go to the address /products/new.", and for the signed-out user's first visit.
+- **Close what's still open before using the navbar.** A dialog such as a submitted request wizard blocks the rest of the page, so the plan closes it first, as in "submit the request in the test data, then select Done".
 - **Fixed text first:** a step's text is the plan's. A parameter such as `{string}` or `{word}` comes in only when two scenarios need the same step with different values, and no other step's text would match it too.
 - **Escape brackets and slashes** in a step definition's text, because Cucumber expressions use `(` and `)` for optional text and `/` for alternatives. The feature's `the next-page arrow (›)` is `'… the next-page arrow \\(›\\)'` in the step definition.
 - **Test data:** values that are the same on every run, such as an address or a reason, are constants at the top of the step file. Data made fresh for each run is a fixture, such as `testProduct` or `testAnnouncement`, so every step in a scenario gets the same one.
@@ -125,7 +126,7 @@ Checks follow Playwright's advice to [use web-first assertions](https://playwrig
 - **Shared parts are their own components,** such as `NavbarPage` for the menu and `AlertsPage` for messages, not an abstract layout base class.
 - **Locators are `readonly` properties** set in the constructor. Every location strategy lives in page objects.
 - **Everything that's the same on every run gets its own property,** whole sets included: each radio button (`lowPriorityRadio` to `urgentPriorityRadio`), each review section, each fixed message (`settingsSavedAlert`), each column checkbox and move button.
-- **A page's address is a `path` property.**
+- **No `path` properties:** steps reach pages through the app. Each app's `NavbarPage` has a property for every link in its menu.
 - **Methods are only for dynamic tables and lists:** rows found by a value the test creates or loops over, such as `productRow(sku)` or `approveButton(requestNumber)`. They return a `Locator`.
 - **Lookup methods never read the page:** they build a locator and return it, so they're never `async`. A method that read the page first, such as a column's position from its headings, would fix what it read into the locator, and retrying couldn't correct it.
 - **No methods for flows.**
@@ -162,7 +163,7 @@ Checks follow Playwright's advice to [use web-first assertions](https://playwrig
 
 ## Users, sign-in and passwords
 
-- **Steps ask for users by name,** as fixtures. Each user has their own browser, started from a saved session, with every page object on it, plus `page`, `account` and `keycloakPage`. See Playwright's [Testing multiple roles with POM fixtures](https://playwright.dev/docs/auth#testing-multiple-roles-with-pom-fixtures).
+- **Steps ask for users by name,** as fixtures. Each user has their own browser, started from a saved session, with every page object on it, plus `page`, `account` and `keycloakPage`. A signed-in user's browser opens on the app's home page, so the navbar is there from the first step. The signed-out user's starts empty. See Playwright's [Testing multiple roles with POM fixtures](https://playwright.dev/docs/auth#testing-multiple-roles-with-pom-fixtures).
 - **Sign in once,** in the setup project, and reuse the saved sessions, as in Playwright's [Multiple signed in roles](https://playwright.dev/docs/auth#multiple-signed-in-roles). `playwright/.auth` is git-ignored and kept out of pipeline artifacts.
 - **Shared accounts** (`standardUser`, `adminUser`) run in many tests at once. Those tests never change the user's stored data, such as settings, and never sign out.
 - **A scenario that changes the user's own data** uses `standardSideUser` and is tagged `@side-account`, which runs it on its own.

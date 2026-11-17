@@ -31,6 +31,7 @@ export function testWithUsers<AppPages extends object>(createAppPages: (page: Pa
       storageState: accountName ? sessionFile(accountName) : undefined,
     });
     const page = await browserContext.newPage();
+    if (accountName) await page.goto('/');
     await use(createUser({ page, keycloakPage: new KeycloakPage(page) }));
     await browserContext.close();
   }

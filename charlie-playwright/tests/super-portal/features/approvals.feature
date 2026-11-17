@@ -4,6 +4,7 @@ Feature: Approvals
   Scenario: SP-006 An admin approves a request
     When the standard user submits the Tableau request in the test data
     Then the standard user sees that the wizard shows the new request's number
+    When the standard user selects Done
     When the admin user opens Approvals
     Then the admin user sees that the request is listed
     When the admin user selects Approve for the request, enters the note, and selects Approve
@@ -18,6 +19,7 @@ Feature: Approvals
   Scenario: SP-007 An admin rejects a request
     When the standard user submits the Customer CRM request in the test data
     Then the standard user sees that the wizard shows the new request's number
+    When the standard user selects Done
     When the admin user opens the request and selects Reject
     Then the admin user sees that a Reject dialog opens for the request
     When the admin user selects Reject without entering a reason
@@ -32,6 +34,7 @@ Feature: Approvals
   Scenario: SP-008 Admins can't decide on their own requests
     When the admin user submits the headset request in the test data
     Then the admin user sees that the wizard shows the new request's number
+    When the admin user selects Done
     When the admin user opens Approvals
     Then the admin user sees that the request isn't listed
     When the admin user opens the request

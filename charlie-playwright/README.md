@@ -190,7 +190,8 @@ check shows up in the test and its report. Each line names the user first:
 `<user>.<pageObject>.<locator>.<playwrightMethod>`.
 
 ```ts
-await adminUser.page.goto(adminUser.productFormPage.path);
+await adminUser.navbarPage.productsLink.click();
+await adminUser.productsPage.newProductLink.click();
 await adminUser.productFormPage.nameInput.fill(testProduct.name);
 await adminUser.productFormPage.createButton.click();
 ```
@@ -203,9 +204,14 @@ await adminUser.productFormPage.createButton.click();
   radio button (`highPriorityRadio`, `urgentPriorityRadio`), each Review step section
   (`softwareReviewRegion`), each fixed message (`settingsSavedAlert`), the first row
   (`firstProductRow`).
-- **A page's address is a `path` property**, opened with
-  `adminUser.page.goto(adminUser.productsPage.path)`. A page whose address ends in a number has the
-  start of it: `standardUser.page.goto(standardUser.requestPage.path + requestNumber)`.
+- **Pages are opened from the navbar**, the way a person moves around the app:
+  `await adminUser.navbarPage.productsLink.click()`. Each app's `NavbarPage` has a property for every link in
+  its menu. A page the menu doesn't link to is opened from the page that does: the New product form from
+  Products, and a request's page from its number on My requests or Approvals. Page objects have no `path`.
+  `page.goto` is only for a plan step that goes to an address, such as "Go to the address /products/new.",
+  and for the signed-out user's first visit.
+- **A dialog that's still open blocks the navbar.** A submitted request wizard stays open until it's
+  closed, so the plan selects Done before the user moves on (SP-006, SP-007 and SP-008).
 - **Methods only for dynamic tables and lists**: rows that come and go, found by a value a test
   creates or loops over, such as `adminUser.productsPage.productRow(sku)`,
   `adminUser.approvalsPage.approveButton(requestNumber)` or
@@ -312,7 +318,8 @@ When('the admin user selects Approve for the request, enters the note, and selec
 ```
 
 Each user has a browser of their own, started from their saved session, with every page object for
-the app on it. Each also has their `page`, their `account` (such as `adminUser.account.name`) and
+the app on it. A signed-in user's browser opens on the app's home page, the Dashboard or Home, so the
+navbar is there from the first step. The signed-out user's browser starts empty. Each also has their `page`, their `account` (such as `adminUser.account.name`) and
 `keycloakPage`, Keycloak's sign-in page. Playwright only opens browsers for the users a test asks for, and
 the trace shows every user's page.
 

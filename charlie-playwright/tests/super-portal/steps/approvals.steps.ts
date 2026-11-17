@@ -4,7 +4,7 @@ const approvalNote = 'Approved for this quarter.';
 const rejectionReason = 'Ask your team lead to request access for the whole team.';
 
 When('the standard user submits the Tableau request in the test data', async ({ standardUser }) => {
-  await standardUser.page.goto(standardUser.newRequestPage.path);
+  await standardUser.navbarPage.newRequestLink.click();
   await standardUser.newRequestPage.requestSoftwareButton.click();
   await standardUser.softwareWizard.softwareSelect.selectOption('Tableau');
   await standardUser.softwareWizard.nextButton.click();
@@ -16,8 +16,12 @@ When('the standard user submits the Tableau request in the test data', async ({ 
   await standardUser.softwareWizard.submitButton.click();
 });
 
+When('the standard user selects Done', async ({ standardUser }) => {
+  await standardUser.requestWizard.doneButton.click();
+});
+
 When('the admin user opens Approvals', async ({ adminUser }) => {
-  await adminUser.page.goto(adminUser.approvalsPage.path);
+  await adminUser.navbarPage.approvalsLink.click();
 });
 
 Then('the admin user sees that the request is listed', async ({ adminUser, scenarioContext }) => {
@@ -39,7 +43,9 @@ Then('the admin user sees that the request is no longer listed', async ({ adminU
 });
 
 When('the standard user opens the request', async ({ standardUser, scenarioContext }) => {
-  await standardUser.page.goto(standardUser.requestPage.path + scenarioContext.requestNumber);
+  await standardUser.navbarPage.myRequestsLink.click();
+  await standardUser.myRequestsPage.searchInput.fill(scenarioContext.requestNumber);
+  await standardUser.myRequestsPage.requestNumberLink(scenarioContext.requestNumber).click();
 });
 
 Then('the standard user sees that the page says the admin approved it, with the note', async ({ standardUser, adminUser }) => {
@@ -52,7 +58,7 @@ Then('the standard user sees that the history ends with Approved', async ({ stan
 });
 
 When('the standard user submits the Customer CRM request in the test data', async ({ standardUser }) => {
-  await standardUser.page.goto(standardUser.newRequestPage.path);
+  await standardUser.navbarPage.newRequestLink.click();
   await standardUser.newRequestPage.requestAccessButton.click();
   await standardUser.accessWizard.systemSelect.selectOption('Customer CRM');
   await standardUser.accessWizard.readOnlyAccessRadio.check();
@@ -63,7 +69,8 @@ When('the standard user submits the Customer CRM request in the test data', asyn
 });
 
 When('the admin user opens the request and selects Reject', async ({ adminUser, scenarioContext }) => {
-  await adminUser.page.goto(adminUser.requestPage.path + scenarioContext.requestNumber);
+  await adminUser.navbarPage.approvalsLink.click();
+  await adminUser.approvalsPage.requestNumberLink(scenarioContext.requestNumber).click();
   await adminUser.requestPage.rejectButton.click();
 });
 
@@ -95,7 +102,7 @@ Then('the admin user sees that the status is Rejected, and the page shows the re
 });
 
 When('the standard user opens My requests and chooses Rejected in Status', async ({ standardUser }) => {
-  await standardUser.page.goto(standardUser.myRequestsPage.path);
+  await standardUser.navbarPage.myRequestsLink.click();
   await standardUser.myRequestsPage.statusSelect.selectOption('Rejected');
 });
 
@@ -104,7 +111,7 @@ Then('the standard user sees that the request is listed as Rejected', async ({ s
 });
 
 When('the admin user submits the headset request in the test data', async ({ adminUser }) => {
-  await adminUser.page.goto(adminUser.newRequestPage.path);
+  await adminUser.navbarPage.newRequestLink.click();
   await adminUser.newRequestPage.requestEquipmentButton.click();
   await adminUser.equipmentWizard.itemSelect.selectOption('Headset');
   await adminUser.equipmentWizard.quantityInput.fill('1');
@@ -121,13 +128,19 @@ Then("the admin user sees that the wizard shows the new request's number", async
   scenarioContext.requestNumber = (await adminUser.equipmentWizard.newRequestNumberText.innerText()).trim();
 });
 
+When('the admin user selects Done', async ({ adminUser }) => {
+  await adminUser.equipmentWizard.doneButton.click();
+});
+
 Then("the admin user sees that the request isn't listed", async ({ adminUser, scenarioContext }) => {
   await expect(adminUser.approvalsPage.summaryText).toBeVisible();
   await expect(adminUser.approvalsPage.requestRow(scenarioContext.requestNumber), "The request isn't listed.").toHaveCount(0);
 });
 
 When('the admin user opens the request', async ({ adminUser, scenarioContext }) => {
-  await adminUser.page.goto(adminUser.requestPage.path + scenarioContext.requestNumber);
+  await adminUser.navbarPage.myRequestsLink.click();
+  await adminUser.myRequestsPage.searchInput.fill(scenarioContext.requestNumber);
+  await adminUser.myRequestsPage.requestNumberLink(scenarioContext.requestNumber).click();
 });
 
 Then('the admin user sees that the page says "You can\'t approve or reject your own request. Another admin will decide on it."', async ({ adminUser }) => {

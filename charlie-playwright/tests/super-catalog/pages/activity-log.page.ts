@@ -3,7 +3,6 @@ import type { Locator, Page } from '@playwright/test';
 import { BasePage } from '../../../shared/base.page';
 
 export class ActivityLogPage extends BasePage {
-  readonly path = '/activity';
   readonly userSelect: Locator;
   readonly actionSelect: Locator;
   readonly typeSelect: Locator;

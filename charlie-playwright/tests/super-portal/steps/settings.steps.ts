@@ -1,7 +1,6 @@
 import { expect, Then, When } from '../fixtures';
 
 When('the standard side user opens the user menu and selects Settings', async ({ standardSideUser }) => {
-  await standardSideUser.page.goto(standardSideUser.homePage.path);
   await standardSideUser.navbarPage.userMenuButton.click();
   await standardSideUser.navbarPage.settingsLink.click();
 });
@@ -29,7 +28,7 @@ Then('the standard side user sees that Default priority for new requests still s
 });
 
 When('the standard side user opens New request, selects Request access, chooses HR records and Read only, and selects Next', async ({ standardSideUser }) => {
-  await standardSideUser.page.goto(standardSideUser.newRequestPage.path);
+  await standardSideUser.navbarPage.newRequestLink.click();
   await standardSideUser.newRequestPage.requestAccessButton.click();
   await standardSideUser.accessWizard.systemSelect.selectOption('HR records');
   await standardSideUser.accessWizard.readOnlyAccessRadio.check();
@@ -50,7 +49,8 @@ Then('the standard side user sees that the wizard closes', async ({ standardSide
 });
 
 When('the standard side user opens Settings, chooses Normal in Default priority for new requests, and selects Save settings', async ({ standardSideUser }) => {
-  await standardSideUser.page.goto(standardSideUser.settingsPage.path);
+  await standardSideUser.navbarPage.userMenuButton.click();
+  await standardSideUser.navbarPage.settingsLink.click();
   await standardSideUser.settingsPage.defaultPrioritySelect.selectOption('Normal');
   await standardSideUser.settingsPage.saveButton.click();
 });

@@ -3,7 +3,6 @@ import type { Locator, Page } from '@playwright/test';
 import { BasePage } from '../../../shared/base.page';
 
 export class AllRequestsPage extends BasePage {
-  readonly path = '/all-requests';
   readonly searchInput: Locator;
   readonly statusSelect: Locator;
   readonly typeSelect: Locator;
