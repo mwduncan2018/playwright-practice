@@ -38,8 +38,7 @@ const browser = BROWSERS[browserName];
 
 // bddgen turns each of the app's Gherkin features into a spec file beside it, such as
 // features/dashboard.feature.spec.js. playwright-bdd needs its output folder to be the projects' test
-// folder, so it's the app's folder, and features and spec files run in the same projects. Before
-// writing, bddgen deletes every .spec.js file in that folder, so hand-written specs stay .spec.ts.
+// folder, so it's the app's folder. Before writing, bddgen deletes every .spec.js file in that folder.
 // Run bddgen before playwright test: npm test does both.
 const appFolder = process.env.TEST_APP_FOLDER;
 if (appFolder) {

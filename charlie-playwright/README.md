@@ -19,9 +19,8 @@ Markdown, so GitHub shows them as pages, and each ID in a plan's Cases table lin
 
 ## Gherkin scenarios
 
-Some tests are written in Gherkin with [playwright-bdd](https://vitalets.github.io/playwright-bdd/), which runs them
-with Playwright's own test runner. All of Super Catalog's tests are Gherkin scenarios. Super Portal's are still spec
-files, and both kinds run in the same projects.
+The tests are written in Gherkin with [playwright-bdd](https://vitalets.github.io/playwright-bdd/), which runs them
+with Playwright's own test runner.
 
 - **Features** are in each app's `features` folder, such as `tests/super-catalog/features/dashboard.feature`. Each
   scenario is one case from the plan, named with its ID and title and tagged with its plan tag and its ID, such as
@@ -30,24 +29,33 @@ files, and both kinds run in the same projects.
   import `When`, `Then` and `expect` from the app's `fixtures.ts`, and ask for users by name, the same way a test
   does: `When('the standard user opens the Dashboard', async ({ standardUser }) => { ... })`. Steps never go in page
   objects.
-- **Each line comes from the plan and names the user.** An action becomes a When line: "Open the Dashboard." is
+- **Each line comes from the plan and names the user**: the standard user, the admin user, the standard side user
+  or the signed-out user. An action becomes a When line: "Open the Dashboard." is
   `When the standard user opens the Dashboard`. An expected result becomes a Then or And line that starts with who
-  sees it: "The Suppliers count is 8." is `Then the standard user sees that the Suppliers count is 8`. Steps keep the
-  plan's fixed text. A parameter such as `{string}` comes in only when two scenarios need the same step with
-  different values.
+  sees it: "The Suppliers count is 8." is `Then the standard user sees that the Suppliers count is 8`.
+- **Steps keep the plan's fixed text.** A parameter such as `{string}` or `{word}` comes in only when two scenarios
+  need the same step with different values, and the check's message then uses it:
+  `Then('the standard user sees that the status is {word}', …)` checks with the message
+  `` `The status is ${requestStatus}.` ``.
+- **An action in two parts with a result to check between them is two When lines.** The plan's "Select Submit
+  request, then select View request." becomes `When the standard user selects Submit request`, the Then line for the
+  new request's number, and `When the standard user selects View request`.
+- **"Submit the request in the test data" names the request**, because several cases say it about different
+  requests: `When the standard user submits the keyboard request in the test data`.
 - **A step asks only for the user its text names.** Playwright opens a browser for every user a step asks for, so a
   Then step that asked for a different user would check that user's empty page.
 - **Checks keep their messages**: the plan's expected result, word for word, inside `expect(`.
-- **Test data a scenario needs from the start is a fixture**, such as `testProduct` or `testCategory`. Every step
-  in a scenario that asks for one gets the same one.
+- **Test data a scenario needs from the start is a fixture**, such as `testProduct`, `testCategory` or
+  `testAnnouncement`. Every step in a scenario that asks for one gets the same one.
 - **A value one step makes for a later step goes in `scenarioContext`**, which starts empty in each scenario. In
   SC-004, the When step that selects Export CSV keeps the download in `scenarioContext.csvDownload`, and the Then
-  steps check its name and rows.
+  steps check its name and rows. In Super Portal, the step that checks a new request's number keeps it in
+  `scenarioContext.requestNumber`.
 - **Brackets and slashes are escaped in a step definition's text**, because Cucumber expressions use `(` and `)`
   for optional text and `/` for alternatives. The feature says `the next-page arrow (›)` and the step definition
   says `'… the next-page arrow \\(›\\)'`.
-- **The ID tag adds the plan's annotation**: a scenario tagged `@SC-002` gets the same "Manual test plan" annotation
-  that a spec test adds with `plan('SC-002')`.
+- **The ID tag adds the plan's annotation**: a scenario tagged `@SC-002` or `@SP-006` gets a "Manual test plan"
+  annotation with the plan's name, its version and the case's ID.
 - **A scenario that types a password is tagged `@no-trace`**, which runs it in the `no-trace` project with traces
   off. A spec file turns its own traces off with `test.use({ trace: 'off' })`, but a feature can't.
 
@@ -62,7 +70,7 @@ npm test -- --grep @SC-002
 `npx bddgen` on its own regenerates them, after a change to a feature or a step, before running with
 `npx playwright test` or from VS Code's Playwright extension. Each one goes beside its feature, such as
 `features/dashboard.feature.spec.js`. Git and ESLint ignore them, and they're never edited by hand. Before writing
-them, bddgen deletes every `.spec.js` file in the app's folder, so hand-written specs are always `.spec.ts`.
+them, bddgen deletes every `.spec.js` file in the app's folder, so never keep a hand-written one there.
 
 ## Environment variables
 
@@ -94,8 +102,8 @@ A variable set in the shell overrides `.env`. A pipeline has no `.env`, so it mu
   three are browsers Playwright downloads, which aren't digitally signed, so Windows Smart App Control
   can block them. Where it's turned on, use `msedge` or `chrome`.
 - Keep real passwords in `.env` or in masked pipeline variables, never in `.env.example`.
-- A trace records what a test typed, passwords included. In a test that types a password, turn traces
-  off with `test.use({ trace: 'off' })`, or in a Gherkin scenario, tag it `@no-trace`.
+- A trace records what a test typed, passwords included. Tag a scenario that types a password `@no-trace`,
+  which turns its traces off.
 - A failing test gets a screenshot of each user's page. Password fields show as dots.
 - A failing test's error context (`error-context.md`, and Error Context in the report) has the error
   and the test's code, but no text copy of the page. Playwright's copy shows what's in each field,
@@ -212,7 +220,8 @@ await adminUser.productFormPage.createButton.click();
   `adminUser.announcementWizard.titleInput`, `adminUser.rejectDialog.confirmButton` or
   `adminUser.deleteProductDialog.confirmButton`. Only one dialog is open at a time, so a dialog titled
   with a name or number, such as "Edit Electronics" or "Reject REQ-1016", matches whichever is open:
-  `adminUser.editCategoryDialog`.
+  `adminUser.editCategoryDialog`. In the same way, `standardUser.requestWizard` is whichever request wizard is
+  open, for the steps the plan writes the same way for all three, such as "Select View request.".
 - **One class per file**: every page object, dialog, wizard or other component has a file of its own,
   named after it and ending in what it is: `home.page.ts` for a page, `announcement.wizard.ts` for a
   wizard, and `confirm.dialog.ts` for a dialog.
@@ -265,13 +274,13 @@ await adminUser.productFormPage.createButton.click();
   `await expect(adminUser.requestPage.statusValue, 'The status is Approved.').toHaveText('Approved')`.
   It's never kept in a variable. When several checks share an expected result, each one repeats it.
 - **A value for a later step is checked, then read**: when a later step needs a value, such as a
-  new request's number, the step first checks that the page shows it, then reads it and returns
-  it. A read such as `innerText()` waits for the element, not for its text.
+  new request's number, the step first checks that the page shows it, then reads it and keeps it in
+  `scenarioContext`. A read such as `innerText()` waits for the element, not for its text.
 
   <!-- prettier-ignore -->
   ```ts
-  await expect(standardUser.equipmentWizard.newRequestNumberText, "The wizard shows the new request's number.").toHaveText(/^REQ-\d{4,}$/);
-  return (await standardUser.equipmentWizard.newRequestNumberText.innerText()).trim();
+  await expect(standardUser.requestWizard.newRequestNumberText, "The wizard shows the new request's number.").toHaveText(/^REQ-\d{4,}$/);
+  scenarioContext.requestNumber = (await standardUser.requestWizard.newRequestNumberText.innerText()).trim();
   ```
 
 The base page's four methods are the team's agreed exception.
@@ -294,12 +303,12 @@ each session to `playwright/.auth`. That folder is git-ignored; keep it out of p
 since the files hold sign-in cookies. The setup records no traces, and the report shows each sign-in
 as a test, so a failed sign-in is easy to spot.
 
-Super Portal's spec files import `test` and `expect` from their app's `fixtures.ts`, and Super Catalog's
-step files import `When`, `Then` and `expect` from theirs. A test or a step asks for the users it needs
-by name, the same way it asks for any fixture:
+Each app's step files import `When`, `Then` and `expect` from the app's `fixtures.ts`. A step asks for
+the users it needs by name, the same way it asks for any fixture:
 
+<!-- prettier-ignore -->
 ```ts
-test('SP-006 An admin approves a request', { tag: '@smoke' }, async ({ standardUser, adminUser }) => {
+When('the admin user selects Approve for the request, enters the note, and selects Approve', async ({ adminUser, scenarioContext }) => {
 ```
 
 Each user has a browser of their own, started from their saved session, with every page object for

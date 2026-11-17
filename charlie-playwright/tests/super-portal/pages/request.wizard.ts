@@ -55,7 +55,7 @@ export class RequestWizard extends BasePage {
   readonly editSecurityReviewButton: Locator;
   readonly editPriorityAndReasonButton: Locator;
 
-  constructor(page: Page, title: 'Request equipment' | 'Request software' | 'Request access') {
+  constructor(page: Page, title: 'Request equipment' | 'Request software' | 'Request access' | RegExp) {
     super(page);
     this.dialog = page.getByRole('dialog', { name: title });
     this.progressText = this.dialog.getByText(/^Step \d+ of \d+$/);
