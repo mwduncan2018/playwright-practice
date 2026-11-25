@@ -71,7 +71,12 @@ export function AnnouncementWizard({ show, onClose, onCreated }: { show: boolean
       content: (
         <>
           <Field id="announcement-title" label="Title" error={errors.title}>
-            <Form.Control value={values.title} maxLength={120} onChange={(event) => set('title', event.target.value)} />
+            <Form.Control
+              value={values.title}
+              maxLength={120}
+              onChange={(event) => set('title', event.target.value)}
+              data-testid="announcement-title-input"
+            />
           </Field>
           <Field id="announcement-body" label="Message" error={errors.body} help="Up to 2,000 characters. Start a new paragraph on a new line.">
             <Form.Control
@@ -80,6 +85,7 @@ export function AnnouncementWizard({ show, onClose, onCreated }: { show: boolean
               value={values.body}
               maxLength={2000}
               onChange={(event) => set('body', event.target.value)}
+              data-testid="announcement-body-textarea"
             />
           </Field>
         </>
@@ -125,6 +131,7 @@ export function AnnouncementWizard({ show, onClose, onCreated }: { show: boolean
                 value={values.publishOn}
                 onChange={(event) => set('publishOn', event.target.value)}
                 style={{ maxWidth: 220 }}
+                data-testid="announcement-publish-on-input"
               />
             </Field>
           )}
@@ -133,6 +140,7 @@ export function AnnouncementWizard({ show, onClose, onCreated }: { show: boolean
             label="Pin it to the top of Home and Announcements"
             checked={values.pinned}
             onChange={(event) => set('pinned', event.target.checked)}
+            data-testid="announcement-pinned-checkbox"
           />
         </>
       ),
@@ -157,7 +165,7 @@ export function AnnouncementWizard({ show, onClose, onCreated }: { show: boolean
     title: 'Review',
     content: (
       <>
-        <p>Check the announcement, then {later ? 'schedule' : 'publish'} it.</p>
+        <p data-testid="announcement-wizard-review-text">Check the announcement, then {later ? 'schedule' : 'publish'} it.</p>
         {answered.map((item, index) => (
           <ReviewSection key={item.key} title={item.title} rows={rows[item.key]} onEdit={() => setStep(index)} />
         ))}
@@ -190,6 +198,7 @@ export function AnnouncementWizard({ show, onClose, onCreated }: { show: boolean
 
   return (
     <WizardDialog
+      testId="announcement-wizard"
       show={show}
       title="New announcement"
       itemName="announcement"
@@ -209,8 +218,10 @@ export function AnnouncementWizard({ show, onClose, onCreated }: { show: boolean
             <p className="display-6 text-success-emphasis mb-2" aria-hidden="true">
               ✓
             </p>
-            <h2 className="h4">{created.scheduled ? 'Announcement scheduled' : 'Announcement published'}</h2>
-            <p>
+            <h2 className="h4" data-testid="announcement-wizard-created-heading">
+              {created.scheduled ? 'Announcement scheduled' : 'Announcement published'}
+            </h2>
+            <p data-testid="announcement-wizard-created-text">
               {created.scheduled
                 ? `“${created.title}” appears on ${values.publishOn} at 09:00 UTC.`
                 : `“${created.title}” is live now.`}
@@ -220,6 +231,7 @@ export function AnnouncementWizard({ show, onClose, onCreated }: { show: boolean
                 onClose();
                 navigate(`/announcements/${created.id}`);
               }}
+              data-testid="announcement-wizard-view-announcement-button"
             >
               View announcement
             </Button>

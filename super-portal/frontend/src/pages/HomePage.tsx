@@ -18,8 +18,12 @@ export default function HomePage() {
 
   return (
     <>
-      <h1 className="h3">Home</h1>
-      <p className="text-body-secondary">Welcome, {user.name}.</p>
+      <h1 className="h3" data-testid="home-heading">
+        Home
+      </h1>
+      <p className="text-body-secondary" data-testid="home-welcome-text">
+        Welcome, {user.name}.
+      </p>
       {error && <ErrorMessage error={error} onRetry={reload} />}
       {loading && !data && <Loading />}
       {data && (
@@ -28,8 +32,14 @@ export default function HomePage() {
             <Col md={4}>
               <Card className="h-100" data-testid="home-open-requests">
                 <Card.Body>
-                  <div className="stat-value">{data.open_count}</div>
-                  <Link to="/requests?status=Submitted" className="stretched-link text-body-secondary text-decoration-none">
+                  <div className="stat-value" data-testid="home-open-requests-value">
+                    {data.open_count}
+                  </div>
+                  <Link
+                    to="/requests?status=Submitted"
+                    className="stretched-link text-body-secondary text-decoration-none"
+                    data-testid="home-open-requests-link"
+                  >
                     My open requests
                   </Link>
                 </Card.Body>
@@ -39,8 +49,14 @@ export default function HomePage() {
               <Col md={4}>
                 <Card className="h-100" data-testid="home-approvals-waiting">
                   <Card.Body>
-                    <div className="stat-value">{data.approvals_waiting}</div>
-                    <Link to="/approvals" className="stretched-link text-body-secondary text-decoration-none">
+                    <div className="stat-value" data-testid="home-approvals-waiting-value">
+                      {data.approvals_waiting}
+                    </div>
+                    <Link
+                      to="/approvals"
+                      className="stretched-link text-body-secondary text-decoration-none"
+                      data-testid="home-approvals-waiting-link"
+                    >
                       Waiting for my approval
                     </Link>
                   </Card.Body>
@@ -48,19 +64,19 @@ export default function HomePage() {
               </Col>
             )}
             <Col md={admin ? 4 : 8}>
-              <Card className="h-100">
+              <Card className="h-100" data-testid="home-start-request-card">
                 <Card.Body>
-                  <Card.Title as="h2" className="h6">
+                  <Card.Title as="h2" className="h6" data-testid="home-start-request-heading">
                     Start a request
                   </Card.Title>
                   <div className="d-flex flex-wrap gap-2">
-                    <LinkButton to="/catalog?new=Equipment" variant="outline-primary">
+                    <LinkButton to="/catalog?new=Equipment" variant="outline-primary" data-testid="home-request-equipment-link">
                       Request equipment
                     </LinkButton>
-                    <LinkButton to="/catalog?new=Software" variant="outline-primary">
+                    <LinkButton to="/catalog?new=Software" variant="outline-primary" data-testid="home-request-software-link">
                       Request software
                     </LinkButton>
-                    <LinkButton to="/catalog?new=Access" variant="outline-primary">
+                    <LinkButton to="/catalog?new=Access" variant="outline-primary" data-testid="home-request-access-link">
                       Request access
                     </LinkButton>
                   </div>
@@ -70,18 +86,32 @@ export default function HomePage() {
           </Row>
           <Row className="g-4">
             <Col lg={7}>
-              <h2 className="h5">My recent requests</h2>
+              <h2 className="h5" data-testid="home-recent-requests-heading">
+                My recent requests
+              </h2>
               {data.recent.length > 0 ? (
-                <RequestsTable requests={data.recent} label="My recent requests" />
+                <RequestsTable testId="home-recent-requests-table" requests={data.recent} label="My recent requests" />
               ) : (
-                <p className="text-body-secondary">You haven't made any requests yet.</p>
+                <p className="text-body-secondary" data-testid="home-no-requests-text">
+                  You haven't made any requests yet.
+                </p>
               )}
-              <Link to="/requests">See all my requests</Link>
+              <Link to="/requests" data-testid="home-see-all-requests-link">
+                See all my requests
+              </Link>
             </Col>
             <Col lg={5}>
-              <h2 className="h5">Announcements</h2>
-              <AnnouncementList announcements={data.announcements} label="Latest announcements" />
-              <Link to="/announcements">See all announcements</Link>
+              <h2 className="h5" data-testid="home-announcements-heading">
+                Announcements
+              </h2>
+              <AnnouncementList
+                testId="home-announcements-list"
+                announcements={data.announcements}
+                label="Latest announcements"
+              />
+              <Link to="/announcements" data-testid="home-see-all-announcements-link">
+                See all announcements
+              </Link>
             </Col>
           </Row>
         </>

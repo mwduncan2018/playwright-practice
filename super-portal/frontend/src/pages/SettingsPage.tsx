@@ -43,11 +43,13 @@ export default function SettingsPage() {
 
   return (
     <>
-      <h1 className="h3 mb-3">Settings</h1>
+      <h1 className="h3 mb-3" data-testid="settings-heading">
+        Settings
+      </h1>
       <Row className="g-4">
         <Col lg={5}>
-          <Card>
-            <Card.Header as="h2" className="h6 py-3 mb-0">
+          <Card data-testid="account-card">
+            <Card.Header as="h2" className="h6 py-3 mb-0" data-testid="account-heading">
               Your account
             </Card.Header>
             <Card.Body>
@@ -63,7 +65,13 @@ export default function SettingsPage() {
                 </Detail>
                 <Detail label="Roles" testId="account-roles">
                   {user.roles.map((role) => (
-                    <Badge key={role} bg={role === 'admin' ? 'info' : 'secondary'} text={role === 'admin' ? 'dark' : undefined} className="me-1">
+                    <Badge
+                      key={role}
+                      bg={role === 'admin' ? 'info' : 'secondary'}
+                      text={role === 'admin' ? 'dark' : undefined}
+                      className="me-1"
+                      data-testid="account-role-badge"
+                    >
                       {role}
                     </Badge>
                   ))}
@@ -71,10 +79,16 @@ export default function SettingsPage() {
               </dl>
             </Card.Body>
             <Card.Footer className="d-flex flex-wrap gap-2">
-              <Button href={accountUrl} target="_blank" rel="noreferrer" variant="outline-secondary">
+              <Button
+                href={accountUrl}
+                target="_blank"
+                rel="noreferrer"
+                variant="outline-secondary"
+                data-testid="manage-account-link"
+              >
                 Manage your account in Keycloak
               </Button>
-              <Button variant="outline-danger" onClick={signOut}>
+              <Button variant="outline-danger" onClick={signOut} data-testid="settings-sign-out-button">
                 Sign out
               </Button>
             </Card.Footer>
@@ -84,9 +98,9 @@ export default function SettingsPage() {
           {loaded.error && <ErrorMessage error={loaded.error} onRetry={loaded.reload} />}
           {!values && !loaded.error && <Loading />}
           {values && (
-            <Form onSubmit={save} aria-label="Settings">
-              <Card className="mb-3">
-                <Card.Header as="h2" className="h6 py-3 mb-0">
+            <Form onSubmit={save} aria-label="Settings" data-testid="settings-form">
+              <Card className="mb-3" data-testid="email-notifications-card">
+                <Card.Header as="h2" className="h6 py-3 mb-0" data-testid="email-notifications-heading">
                   Email notifications
                 </Card.Header>
                 <Card.Body>
@@ -97,6 +111,7 @@ export default function SettingsPage() {
                     label="Email me when my request is approved or rejected"
                     checked={values.email_on_decision}
                     onChange={(event) => change('email_on_decision', event.target.checked)}
+                    data-testid="setting-decision-switch"
                   />
                   <Form.Check
                     type="switch"
@@ -105,6 +120,7 @@ export default function SettingsPage() {
                     label="Email me when someone comments on my request"
                     checked={values.email_on_comment}
                     onChange={(event) => change('email_on_comment', event.target.checked)}
+                    data-testid="setting-comment-switch"
                   />
                   <Form.Check
                     type="switch"
@@ -112,11 +128,12 @@ export default function SettingsPage() {
                     label="Send me a weekly summary"
                     checked={values.weekly_summary}
                     onChange={(event) => change('weekly_summary', event.target.checked)}
+                    data-testid="setting-weekly-switch"
                   />
                 </Card.Body>
               </Card>
-              <Card className="mb-3">
-                <Card.Header as="h2" className="h6 py-3 mb-0">
+              <Card className="mb-3" data-testid="request-settings-card">
+                <Card.Header as="h2" className="h6 py-3 mb-0" data-testid="request-settings-heading">
                   Requests
                 </Card.Header>
                 <Card.Body>
@@ -126,6 +143,7 @@ export default function SettingsPage() {
                         <Form.Select
                           value={values.default_priority}
                           onChange={(event) => change('default_priority', event.target.value as Priority)}
+                          data-testid="setting-priority-select"
                         >
                           {PRIORITIES.map((priority) => (
                             <option key={priority}>{priority}</option>
@@ -135,7 +153,11 @@ export default function SettingsPage() {
                     </Col>
                     <Col md={6}>
                       <Field id="setting-page-size" label="Rows per page in request lists">
-                        <Form.Select value={values.page_size} onChange={(event) => change('page_size', Number(event.target.value))}>
+                        <Form.Select
+                          value={values.page_size}
+                          onChange={(event) => change('page_size', Number(event.target.value))}
+                          data-testid="setting-page-size-select"
+                        >
                           {PAGE_SIZES.map((size) => (
                             <option key={size} value={size}>
                               {size}
@@ -147,8 +169,12 @@ export default function SettingsPage() {
                   </Row>
                 </Card.Body>
               </Card>
-              {error && <Alert variant="danger">{error}</Alert>}
-              <Button type="submit" disabled={saving}>
+              {error && (
+                <Alert variant="danger" data-testid="settings-error-alert">
+                  {error}
+                </Alert>
+              )}
+              <Button type="submit" disabled={saving} data-testid="save-settings-button">
                 {saving ? 'Saving…' : 'Save settings'}
               </Button>
             </Form>

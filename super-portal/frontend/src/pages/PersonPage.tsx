@@ -25,14 +25,18 @@ export default function PersonPage() {
 
   return (
     <>
-      <Breadcrumb>
-        <Breadcrumb.Item linkAs={Link} linkProps={{ to: '/people' }}>
+      <Breadcrumb data-testid="breadcrumb">
+        <Breadcrumb.Item linkAs={Link} linkProps={{ to: '/people', 'data-testid': 'breadcrumb-people-link' }}>
           People
         </Breadcrumb.Item>
-        <Breadcrumb.Item active>{person.name}</Breadcrumb.Item>
+        <Breadcrumb.Item active data-testid="breadcrumb-current-item">
+          {person.name}
+        </Breadcrumb.Item>
       </Breadcrumb>
-      <h1 className="h3 mb-3">{person.name}</h1>
-      <Card className="mb-4" style={{ maxWidth: 720 }}>
+      <h1 className="h3 mb-3" data-testid="person-heading">
+        {person.name}
+      </h1>
+      <Card className="mb-4" style={{ maxWidth: 720 }} data-testid="person-card">
         <Card.Body>
           <dl className="row mb-0">
             <Detail label="Username" testId="person-username">
@@ -48,7 +52,9 @@ export default function PersonPage() {
               {person.location}
             </Detail>
             <Detail label="Email" testId="person-email">
-              <a href={`mailto:${person.email}`}>{person.email}</a>
+              <a href={`mailto:${person.email}`} data-testid="person-email-link">
+                {person.email}
+              </a>
             </Detail>
             <Detail label="Phone" testId="person-phone">
               {person.phone}
@@ -61,13 +67,21 @@ export default function PersonPage() {
       </Card>
       {user.isAdmin && (
         <>
-          <h2 className="h5">Requests by {person.name}</h2>
+          <h2 className="h5" data-testid="person-requests-heading">
+            Requests by {person.name}
+          </h2>
           {requests.error && <ErrorMessage error={requests.error} onRetry={requests.reload} />}
           {requests.data &&
             (requests.data.items.length > 0 ? (
-              <RequestsTable requests={requests.data.items} label={`Requests by ${person.name}`} />
+              <RequestsTable
+                testId="person-requests-table"
+                requests={requests.data.items}
+                label={`Requests by ${person.name}`}
+              />
             ) : (
-              <p className="text-body-secondary">{person.name} hasn't made any requests.</p>
+              <p className="text-body-secondary" data-testid="person-no-requests-text">
+                {person.name} hasn't made any requests.
+              </p>
             ))}
         </>
       )}

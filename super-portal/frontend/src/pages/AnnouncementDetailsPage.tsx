@@ -46,18 +46,25 @@ export default function AnnouncementDetailsPage() {
 
   return (
     <>
-      <Breadcrumb>
-        <Breadcrumb.Item linkAs={Link} linkProps={{ to: '/announcements' }}>
+      <Breadcrumb data-testid="breadcrumb">
+        <Breadcrumb.Item
+          linkAs={Link}
+          linkProps={{ to: '/announcements', 'data-testid': 'breadcrumb-announcements-link' }}
+        >
           Announcements
         </Breadcrumb.Item>
-        <Breadcrumb.Item active>{announcement.title}</Breadcrumb.Item>
+        <Breadcrumb.Item active data-testid="breadcrumb-current-item">
+          {announcement.title}
+        </Breadcrumb.Item>
       </Breadcrumb>
       <div className="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
         <div>
-          <h1 className="h3 mb-1">{announcement.title}</h1>
+          <h1 className="h3 mb-1" data-testid="announcement-heading">
+            {announcement.title}
+          </h1>
           <div className="d-flex flex-wrap gap-2 align-items-center">
             {announcement.pinned && (
-              <Badge bg="warning" text="dark">
+              <Badge bg="warning" text="dark" data-testid="pinned-badge">
                 Pinned
               </Badge>
             )}
@@ -65,7 +72,7 @@ export default function AnnouncementDetailsPage() {
               {labelFor(AUDIENCES, announcement.audience)}
             </Badge>
             {announcement.scheduled && (
-              <Badge bg="info" text="dark">
+              <Badge bg="info" text="dark" data-testid="scheduled-badge">
                 Scheduled
               </Badge>
             )}
@@ -78,23 +85,27 @@ export default function AnnouncementDetailsPage() {
               setDeleteError(undefined);
               setConfirmOpen(true);
             }}
+            data-testid="delete-announcement-button"
           >
             Delete
           </Button>
         )}
       </div>
-      <Card style={{ maxWidth: 800 }}>
+      <Card style={{ maxWidth: 800 }} data-testid="announcement-card">
         <Card.Body>
           <p className="small text-body-secondary" data-testid="announcement-meta">
             {announcement.scheduled ? 'Scheduled for' : 'Posted'} {formatDateTime(announcement.publish_at)} by{' '}
             {announcement.author_name}
           </p>
           {announcement.body.split('\n').map((paragraph, index) => (
-            <p key={index}>{paragraph}</p>
+            <p key={index} data-testid="announcement-paragraph">
+              {paragraph}
+            </p>
           ))}
         </Card.Body>
       </Card>
       <ConfirmDialog
+        testId="delete-announcement-dialog"
         show={confirmOpen}
         title="Delete announcement"
         confirmLabel="Delete"

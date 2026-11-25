@@ -4,6 +4,7 @@ import { Link } from 'react-router';
 import { useLoad } from '../api';
 import { ErrorMessage, Loading } from '../components/Feedback';
 import { waitingTime } from '../format';
+import { testIdPart } from '../testIds';
 import type { Count, Reports } from '../types';
 import { usePageTitle } from '../usePageTitle';
 
@@ -17,7 +18,9 @@ export default function ReportsPage() {
 
   return (
     <>
-      <h1 className="h3 mb-3">Reports</h1>
+      <h1 className="h3 mb-3" data-testid="reports-heading">
+        Reports
+      </h1>
       {error && <ErrorMessage error={error} onRetry={reload} />}
       {loading && !data && <Loading />}
       {data && (
@@ -36,7 +39,7 @@ export default function ReportsPage() {
           {data.oldest_waiting && (
             <Alert variant="warning" data-testid="report-oldest">
               Oldest waiting:{' '}
-              <Link to={`/requests/${data.oldest_waiting.number}`}>
+              <Link to={`/requests/${data.oldest_waiting.number}`} data-testid="report-oldest-link">
                 {data.oldest_waiting.number} {data.oldest_waiting.title}
               </Link>{' '}
               from {data.oldest_waiting.requester_name}, waiting {waitingTime(data.oldest_waiting.created_at).toLowerCase()}.
@@ -64,30 +67,39 @@ function Stat({ testId, label, value }: { testId: string; label: string; value: 
     <Col>
       <Card className="h-100" data-testid={testId}>
         <Card.Body>
-          <div className="stat-value">{value}</div>
-          <div className="text-body-secondary">{label}</div>
+          <div className="stat-value" data-testid={`${testId}-value`}>
+            {value}
+          </div>
+          <div className="text-body-secondary" data-testid={`${testId}-label-text`}>
+            {label}
+          </div>
         </Card.Body>
       </Card>
     </Col>
   );
 }
 
+/**
+ * A table of counts, such as "By status". Its test IDs start with "report-" and the title, such as
+ * "report-by-status-table". Each row's test ID ends in its label, such as "count-row-submitted".
+ */
 function CountTable({ title, column, counts, total }: { title: string; column: string; counts: Count[]; total: number }) {
+  const testId = `report-${testIdPart(title)}`;
   return (
-    <Card>
-      <Card.Header as="h2" className="h6 py-3 mb-0">
+    <Card data-testid={`${testId}-card`}>
+      <Card.Header as="h2" className="h6 py-3 mb-0" data-testid={`${testId}-heading`}>
         {title}
       </Card.Header>
-      <Table size="sm" className="mb-0 align-middle" aria-label={`Requests ${title.toLowerCase()}`}>
+      <Table size="sm" className="mb-0 align-middle" aria-label={`Requests ${title.toLowerCase()}`} data-testid={`${testId}-table`}>
         <thead>
-          <tr>
-            <th scope="col" className="ps-3">
+          <tr data-testid={`${testId}-table-header-row`}>
+            <th scope="col" className="ps-3" data-testid={`${testId}-table-${testIdPart(column)}-header`}>
               {column}
             </th>
-            <th scope="col" className="text-end">
+            <th scope="col" className="text-end" data-testid={`${testId}-table-requests-header`}>
               Requests
             </th>
-            <th scope="col" className="pe-3" style={{ width: '45%' }}>
+            <th scope="col" className="pe-3" style={{ width: '45%' }} data-testid={`${testId}-table-share-header`}>
               Share
             </th>
           </tr>
@@ -96,11 +108,21 @@ function CountTable({ title, column, counts, total }: { title: string; column: s
           {counts.map(({ label, count }) => {
             const share = total ? Math.round((count / total) * 100) : 0;
             return (
-              <tr key={label}>
-                <td className="ps-3">{label}</td>
-                <td className="text-end">{count}</td>
-                <td className="pe-3">
-                  <ProgressBar now={share} label={`${share}%`} visuallyHidden={share < 15} aria-label={`${label}: ${share}%`} />
+              <tr key={label} data-testid={`count-row-${testIdPart(label)}`}>
+                <td className="ps-3" data-testid="label-cell">
+                  {label}
+                </td>
+                <td className="text-end" data-testid="count-cell">
+                  {count}
+                </td>
+                <td className="pe-3" data-testid="share-cell">
+                  <ProgressBar
+                    now={share}
+                    label={`${share}%`}
+                    visuallyHidden={share < 15}
+                    aria-label={`${label}: ${share}%`}
+                    data-testid="share-progress-bar"
+                  />
                 </td>
               </tr>
             );

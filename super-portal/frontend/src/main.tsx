@@ -30,11 +30,11 @@ startAuth().then(
   (error: unknown) =>
     root.render(
       <Container className="py-5">
-        <Alert variant="danger">
-          <Alert.Heading as="h1" className="h4">
+        <Alert variant="danger" data-testid="startup-error-alert">
+          <Alert.Heading as="h1" className="h4" data-testid="startup-error-heading">
             Super Portal couldn't sign you in
           </Alert.Heading>
-          <p className="mb-0">
+          <p className="mb-0" data-testid="startup-error-text">
             {error instanceof Error ? error.message : 'Keycloak did not respond.'} Reload the page to try again.
           </p>
         </Alert>

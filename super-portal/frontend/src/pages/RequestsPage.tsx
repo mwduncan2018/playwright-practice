@@ -31,6 +31,7 @@ export function AllRequestsPage() {
 function RequestsList({ scope }: { scope: 'mine' | 'all' }) {
   const everyone = scope === 'all';
   const title = everyone ? 'All requests' : 'My requests';
+  const pageTestId = everyone ? 'all-requests' : 'my-requests';
   usePageTitle(title);
   const { user } = useAuth();
   const [columnChoices, setColumnChoices] = useState(() => loadColumnChoices(user.username));
@@ -67,13 +68,24 @@ function RequestsList({ scope }: { scope: 'mine' | 'all' }) {
   return (
     <>
       <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-        <h1 className="h3 mb-0">{title}</h1>
-        {!everyone && <LinkButton to="/catalog">New request</LinkButton>}
+        <h1 className="h3 mb-0" data-testid={`${pageTestId}-heading`}>
+          {title}
+        </h1>
+        {!everyone && (
+          <LinkButton to="/catalog" data-testid="my-requests-new-request-link">
+            New request
+          </LinkButton>
+        )}
       </div>
 
-      <Card className="mb-3">
+      <Card className="mb-3" data-testid="requests-filter-card">
         <Card.Body>
-          <Form role="search" aria-label="Filter requests" onSubmit={(event) => event.preventDefault()}>
+          <Form
+            role="search"
+            aria-label="Filter requests"
+            onSubmit={(event) => event.preventDefault()}
+            data-testid="requests-filter-form"
+          >
             <Row className="g-3 align-items-end">
               <Col md={everyone ? 3 : 5}>
                 <Form.Group controlId="filter-search">
@@ -83,13 +95,18 @@ function RequestsList({ scope }: { scope: 'mine' | 'all' }) {
                     placeholder="Number or title"
                     value={search}
                     onChange={(event) => setSearch(event.target.value)}
+                    data-testid="requests-search-input"
                   />
                 </Form.Group>
               </Col>
               <Col sm={6} md={2}>
                 <Form.Group controlId="filter-status">
                   <Form.Label>Status</Form.Label>
-                  <Form.Select value={status} onChange={(event) => setStatus(event.target.value)}>
+                  <Form.Select
+                    value={status}
+                    onChange={(event) => setStatus(event.target.value)}
+                    data-testid="requests-status-select"
+                  >
                     <option value="">All statuses</option>
                     {STATUSES.map((item) => (
                       <option key={item}>{item}</option>
@@ -100,7 +117,11 @@ function RequestsList({ scope }: { scope: 'mine' | 'all' }) {
               <Col sm={6} md={2}>
                 <Form.Group controlId="filter-type">
                   <Form.Label>Type</Form.Label>
-                  <Form.Select value={type} onChange={(event) => setType(event.target.value)}>
+                  <Form.Select
+                    value={type}
+                    onChange={(event) => setType(event.target.value)}
+                    data-testid="requests-type-select"
+                  >
                     <option value="">All types</option>
                     {REQUEST_TYPES.map((item) => (
                       <option key={item}>{item}</option>
@@ -113,7 +134,11 @@ function RequestsList({ scope }: { scope: 'mine' | 'all' }) {
                   <Col sm={6} md={2}>
                     <Form.Group controlId="filter-priority">
                       <Form.Label>Priority</Form.Label>
-                      <Form.Select value={priority} onChange={(event) => setPriority(event.target.value)}>
+                      <Form.Select
+                        value={priority}
+                        onChange={(event) => setPriority(event.target.value)}
+                        data-testid="requests-priority-select"
+                      >
                         <option value="">All priorities</option>
                         {PRIORITIES.map((item) => (
                           <option key={item}>{item}</option>
@@ -124,7 +149,11 @@ function RequestsList({ scope }: { scope: 'mine' | 'all' }) {
                   <Col sm={6} md={3}>
                     <Form.Group controlId="filter-requester">
                       <Form.Label>Requester</Form.Label>
-                      <Form.Select value={requester} onChange={(event) => setRequester(event.target.value)}>
+                      <Form.Select
+                        value={requester}
+                        onChange={(event) => setRequester(event.target.value)}
+                        data-testid="requests-requester-select"
+                      >
                         <option value="">Everyone</option>
                         {people.data?.map((person) => (
                           <option key={person.username} value={person.username}>
@@ -141,6 +170,7 @@ function RequestsList({ scope }: { scope: 'mine' | 'all' }) {
                   variant="outline-secondary"
                   onClick={() => update(Object.fromEntries(filters.map((key) => [key, null])))}
                   disabled={!hasFilters}
+                  data-testid="requests-clear-filters-button"
                 >
                   Clear filters
                 </Button>
@@ -151,7 +181,7 @@ function RequestsList({ scope }: { scope: 'mine' | 'all' }) {
       </Card>
 
       <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
-        <p role="status" className="text-body-secondary mb-0">
+        <p role="status" className="text-body-secondary mb-0" data-testid="requests-summary-text">
           {result.data &&
             showing(result.data.page, result.data.page_size, result.data.total, 'request', 'No requests match these filters.')}
         </p>
@@ -160,6 +190,7 @@ function RequestsList({ scope }: { scope: 'mine' | 'all' }) {
             variant="outline-secondary"
             size="sm"
             onClick={() => setColumnsDialog({ show: true, key: columnsDialog.key + 1 })}
+            data-testid="columns-button"
           >
             Columns
           </Button>
@@ -179,6 +210,7 @@ function RequestsList({ scope }: { scope: 'mine' | 'all' }) {
       {result.data && (
         <>
           <RequestsTable
+            testId={`${pageTestId}-table`}
             requests={result.data.items}
             label={title}
             columns={everyone ? shownColumns(columnChoices) : OWN_REQUEST_COLUMNS}

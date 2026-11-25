@@ -32,22 +32,33 @@ export default function CatalogPage() {
 
   return (
     <>
-      <h1 className="h3">New request</h1>
-      <p className="text-body-secondary">Choose what you need. Each request takes a few short steps, and an admin approves it.</p>
+      <h1 className="h3" data-testid="new-request-heading">
+        New request
+      </h1>
+      <p className="text-body-secondary" data-testid="new-request-intro-text">
+        Choose what you need. Each request takes a few short steps, and an admin approves it.
+      </p>
       <Row xs={1} md={3} className="g-3">
-        {OFFERS.map(({ type, button, description }) => (
-          <Col key={type}>
-            <Card className="h-100">
-              <Card.Body className="d-flex flex-column">
-                <Card.Title as="h2" className="h5">
-                  {type}
-                </Card.Title>
-                <Card.Text className="flex-grow-1">{description}</Card.Text>
-                <Button onClick={() => update({ new: type })}>{button}</Button>
-              </Card.Body>
-            </Card>
-          </Col>
-        ))}
+        {OFFERS.map(({ type, button, description }) => {
+          const typeId = type.toLowerCase();
+          return (
+            <Col key={type}>
+              <Card className="h-100" data-testid={`${typeId}-offer-card`}>
+                <Card.Body className="d-flex flex-column">
+                  <Card.Title as="h2" className="h5" data-testid={`${typeId}-offer-heading`}>
+                    {type}
+                  </Card.Title>
+                  <Card.Text className="flex-grow-1" data-testid={`${typeId}-offer-text`}>
+                    {description}
+                  </Card.Text>
+                  <Button onClick={() => update({ new: type })} data-testid={`request-${typeId}-button`}>
+                    {button}
+                  </Button>
+                </Card.Body>
+              </Card>
+            </Col>
+          );
+        })}
       </Row>
       <RequestWizard
         type={open ?? shown}

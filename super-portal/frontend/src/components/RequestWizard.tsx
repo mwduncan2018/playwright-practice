@@ -80,6 +80,7 @@ export function RequestWizard({ type, show, defaultPriority, onClose }: Props) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string>();
   const [created, setCreated] = useState<RequestSummary>();
+  const testId = `${type.toLowerCase()}-wizard`;
 
   // Changing a field clears its error; the rest wait for the next Next.
   function set<K extends keyof Values>(key: K, value: Values[K]) {
@@ -117,7 +118,11 @@ export function RequestWizard({ type, show, defaultPriority, onClose }: Props) {
           <Row>
             <Col md={8}>
               <Field id="wizard-item" label="Item" error={errors.item}>
-                <Form.Select value={values.item} onChange={(event) => set('item', event.target.value)}>
+                <Form.Select
+                  value={values.item}
+                  onChange={(event) => set('item', event.target.value)}
+                  data-testid="wizard-item-select"
+                >
                   <option value="">Choose an item</option>
                   {EQUIPMENT_ITEMS.map((item) => (
                     <option key={item}>{item}</option>
@@ -133,6 +138,7 @@ export function RequestWizard({ type, show, defaultPriority, onClose }: Props) {
                   max="10"
                   value={values.quantity}
                   onChange={(event) => set('quantity', event.target.value)}
+                  data-testid="wizard-quantity-input"
                 />
               </Field>
             </Col>
@@ -159,7 +165,13 @@ export function RequestWizard({ type, show, defaultPriority, onClose }: Props) {
             />
             {values.delivery === 'Ship' && (
               <Field id="wizard-address" label="Delivery address" error={errors.address} help="Street, city, state and ZIP code.">
-                <Form.Control as="textarea" rows={2} value={values.address} onChange={(event) => set('address', event.target.value)} />
+                <Form.Control
+                  as="textarea"
+                  rows={2}
+                  value={values.address}
+                  onChange={(event) => set('address', event.target.value)}
+                  data-testid="wizard-address-textarea"
+                />
               </Field>
             )}
           </>
@@ -188,7 +200,11 @@ export function RequestWizard({ type, show, defaultPriority, onClose }: Props) {
         title: 'Software',
         content: (
           <Field id="wizard-software" label="Software" error={errors.software}>
-            <Form.Select value={values.software} onChange={(event) => set('software', event.target.value)}>
+            <Form.Select
+              value={values.software}
+              onChange={(event) => set('software', event.target.value)}
+              data-testid="wizard-software-select"
+            >
               <option value="">Choose the software</option>
               {SOFTWARE.map((name) => (
                 <option key={name}>{name}</option>
@@ -219,6 +235,7 @@ export function RequestWizard({ type, show, defaultPriority, onClose }: Props) {
                 value={values.seats}
                 onChange={(event) => set('seats', event.target.value)}
                 style={{ maxWidth: 160 }}
+                data-testid="wizard-seats-input"
               />
             </Field>
           </>
@@ -244,7 +261,11 @@ export function RequestWizard({ type, show, defaultPriority, onClose }: Props) {
       content: (
         <>
           <Field id="wizard-system" label="System" error={errors.system}>
-            <Form.Select value={values.system} onChange={(event) => set('system', event.target.value)}>
+            <Form.Select
+              value={values.system}
+              onChange={(event) => set('system', event.target.value)}
+              data-testid="wizard-system-select"
+            >
               <option value="">Choose a system</option>
               {SYSTEMS.map((system) => (
                 <option key={system}>{system}</option>
@@ -289,6 +310,7 @@ export function RequestWizard({ type, show, defaultPriority, onClose }: Props) {
                 rows={3}
                 value={values.securityReason}
                 onChange={(event) => set('securityReason', event.target.value)}
+                data-testid="wizard-security-reason-textarea"
               />
             </Field>
             <Form.Check
@@ -299,9 +321,10 @@ export function RequestWizard({ type, show, defaultPriority, onClose }: Props) {
               aria-invalid={errors.trainingCompleted ? true : undefined}
               aria-errormessage={errors.trainingCompleted ? 'wizard-training-error' : undefined}
               onChange={(event) => set('trainingCompleted', event.target.checked)}
+              data-testid="wizard-training-checkbox"
             />
             {errors.trainingCompleted && (
-              <div id="wizard-training-error" className="invalid-feedback d-block">
+              <div id="wizard-training-error" className="invalid-feedback d-block" data-testid="wizard-training-error">
                 {errors.trainingCompleted}
               </div>
             )}
@@ -342,10 +365,17 @@ export function RequestWizard({ type, show, defaultPriority, onClose }: Props) {
             value={values.neededBy}
             onChange={(event) => set('neededBy', event.target.value)}
             style={{ maxWidth: 220 }}
+            data-testid="wizard-needed-by-input"
           />
         </Field>
         <Field id="wizard-reason" label="Why do you need this?" error={errors.reason} help="At least 10 characters.">
-          <Form.Control as="textarea" rows={3} value={values.reason} onChange={(event) => set('reason', event.target.value)} />
+          <Form.Control
+            as="textarea"
+            rows={3}
+            value={values.reason}
+            onChange={(event) => set('reason', event.target.value)}
+            data-testid="wizard-reason-textarea"
+          />
         </Field>
       </>
     ),
@@ -367,7 +397,7 @@ export function RequestWizard({ type, show, defaultPriority, onClose }: Props) {
     title: 'Review',
     content: (
       <>
-        <p>Check your request, then submit it. An admin will approve or reject it.</p>
+        <p data-testid={`${testId}-review-text`}>Check your request, then submit it. An admin will approve or reject it.</p>
         {answered.map((item, index) => (
           <ReviewSection key={item.key} title={item.title} rows={review[item.key]} onEdit={() => setStep(index)} />
         ))}
@@ -421,6 +451,7 @@ export function RequestWizard({ type, show, defaultPriority, onClose }: Props) {
 
   return (
     <WizardDialog
+      testId={testId}
       show={show}
       title={TITLES[type]}
       itemName="request"
@@ -440,8 +471,10 @@ export function RequestWizard({ type, show, defaultPriority, onClose }: Props) {
             <p className="display-6 text-success-emphasis mb-2" aria-hidden="true">
               ✓
             </p>
-            <h2 className="h4">Request submitted</h2>
-            <p>
+            <h2 className="h4" data-testid={`${testId}-submitted-heading`}>
+              Request submitted
+            </h2>
+            <p data-testid={`${testId}-submitted-text`}>
               Your request number is <strong data-testid="new-request-number">{created.number}</strong>.
               <br />
               An admin will review it, and you can follow it on My requests.
@@ -451,6 +484,7 @@ export function RequestWizard({ type, show, defaultPriority, onClose }: Props) {
                 onClose();
                 navigate(`/requests/${created.number}`);
               }}
+              data-testid={`${testId}-view-request-button`}
             >
               View request
             </Button>

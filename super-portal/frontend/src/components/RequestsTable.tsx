@@ -3,6 +3,7 @@ import { Table } from 'react-bootstrap';
 import { Link } from 'react-router';
 
 import { formatDate } from '../format';
+import { testIdPart } from '../testIds';
 import type { RequestSummary } from '../types';
 import { PriorityBadge, RequestStatusBadge } from './Feedback';
 
@@ -31,7 +32,11 @@ export const REQUEST_COLUMNS: RequestColumn[] = [
     key: 'number',
     label: 'Number',
     className: 'text-nowrap',
-    render: (request) => <Link to={`/requests/${request.number}`}>{request.number}</Link>,
+    render: (request) => (
+      <Link to={`/requests/${request.number}`} data-testid="request-number-link">
+        {request.number}
+      </Link>
+    ),
   },
   { key: 'title', label: 'Title', render: (request) => request.title },
   { key: 'type', label: 'Type', render: (request) => request.type },
@@ -53,6 +58,8 @@ export const REQUEST_COLUMNS: RequestColumn[] = [
 export const OWN_REQUEST_COLUMNS: RequestColumnKey[] = ['number', 'title', 'type', 'priority', 'status', 'submitted'];
 
 interface Props {
+  /** The table's test ID, such as "my-requests-table". Its column headings' test IDs start with it. */
+  testId: string;
   requests: RequestSummary[];
   /** The table's accessible name, for example "My requests". */
   label: string;
@@ -60,15 +67,18 @@ interface Props {
   columns?: RequestColumnKey[];
 }
 
-/** Requests in a table. Each row carries a test ID with its request number. */
-export function RequestsTable({ requests, label, columns = OWN_REQUEST_COLUMNS }: Props) {
+/**
+ * Requests in a table. Each row carries a test ID with its request number, such as
+ * "request-row-REQ-1001", and each cell in it a test ID for its column, such as "status-cell".
+ */
+export function RequestsTable({ testId, requests, label, columns = OWN_REQUEST_COLUMNS }: Props) {
   const shown = columns.flatMap((key) => REQUEST_COLUMNS.filter((column) => column.key === key));
   return (
-    <Table striped hover responsive className="align-middle" aria-label={label}>
+    <Table striped hover responsive className="align-middle" aria-label={label} data-testid={testId}>
       <thead>
-        <tr>
+        <tr data-testid={`${testId}-header-row`}>
           {shown.map((column) => (
-            <th key={column.key} scope="col">
+            <th key={column.key} scope="col" data-testid={`${testId}-${testIdPart(column.key)}-header`}>
               {column.label}
             </th>
           ))}
@@ -78,7 +88,7 @@ export function RequestsTable({ requests, label, columns = OWN_REQUEST_COLUMNS }
         {requests.map((request) => (
           <tr key={request.number} data-testid={`request-row-${request.number}`}>
             {shown.map((column) => (
-              <td key={column.key} className={column.className}>
+              <td key={column.key} className={column.className} data-testid={`${testIdPart(column.key)}-cell`}>
                 {column.render(request)}
               </td>
             ))}

@@ -32,18 +32,29 @@ export default function ApprovalsPage() {
 
   return (
     <>
-      <h1 className="h3">Approvals</h1>
-      <p className="text-body-secondary">
+      <h1 className="h3" data-testid="approvals-heading">
+        Approvals
+      </h1>
+      <p className="text-body-secondary" data-testid="approvals-intro-text">
         Requests waiting for a decision, oldest first. Your own requests aren't listed: another admin decides on them.
       </p>
-      <Card className="mb-3">
+      <Card className="mb-3" data-testid="approvals-filter-card">
         <Card.Body>
-          <Form role="search" aria-label="Filter approvals" onSubmit={(event) => event.preventDefault()}>
+          <Form
+            role="search"
+            aria-label="Filter approvals"
+            onSubmit={(event) => event.preventDefault()}
+            data-testid="approvals-filter-form"
+          >
             <Row className="g-3 align-items-end">
               <Col sm={6} md={3}>
                 <Form.Group controlId="filter-type">
                   <Form.Label>Type</Form.Label>
-                  <Form.Select value={type} onChange={(event) => setType(event.target.value)}>
+                  <Form.Select
+                    value={type}
+                    onChange={(event) => setType(event.target.value)}
+                    data-testid="approvals-type-select"
+                  >
                     <option value="">All types</option>
                     {REQUEST_TYPES.map((item) => (
                       <option key={item}>{item}</option>
@@ -56,22 +67,41 @@ export default function ApprovalsPage() {
         </Card.Body>
       </Card>
 
-      <p role="status" className="text-body-secondary mb-2">
+      <p role="status" className="text-body-secondary mb-2" data-testid="approvals-summary-text">
         {data && (data.length > 0 ? `${plural(data.length, 'request')} waiting` : 'Nothing is waiting for approval.')}
       </p>
       {error && <ErrorMessage error={error} onRetry={reload} />}
       {loading && !data && <Loading />}
       {data && data.length > 0 && (
-        <Table striped hover responsive className="align-middle" aria-label="Waiting for approval">
+        <Table
+          striped
+          hover
+          responsive
+          className="align-middle"
+          aria-label="Waiting for approval"
+          data-testid="approvals-table"
+        >
           <thead>
-            <tr>
-              <th scope="col">Number</th>
-              <th scope="col">Title</th>
-              <th scope="col">Requester</th>
-              <th scope="col">Priority</th>
-              <th scope="col">Waiting</th>
-              <th scope="col">Needed by</th>
-              <th scope="col">
+            <tr data-testid="approvals-table-header-row">
+              <th scope="col" data-testid="approvals-table-number-header">
+                Number
+              </th>
+              <th scope="col" data-testid="approvals-table-title-header">
+                Title
+              </th>
+              <th scope="col" data-testid="approvals-table-requester-header">
+                Requester
+              </th>
+              <th scope="col" data-testid="approvals-table-priority-header">
+                Priority
+              </th>
+              <th scope="col" data-testid="approvals-table-waiting-header">
+                Waiting
+              </th>
+              <th scope="col" data-testid="approvals-table-needed-by-header">
+                Needed by
+              </th>
+              <th scope="col" data-testid="approvals-table-actions-header">
                 <span className="visually-hidden">Actions</span>
               </th>
             </tr>
@@ -79,23 +109,32 @@ export default function ApprovalsPage() {
           <tbody>
             {data.map((request) => (
               <tr key={request.number} data-testid={`request-row-${request.number}`}>
-                <td className="text-nowrap">
-                  <Link to={`/requests/${request.number}`}>{request.number}</Link>
+                <td className="text-nowrap" data-testid="number-cell">
+                  <Link to={`/requests/${request.number}`} data-testid="request-number-link">
+                    {request.number}
+                  </Link>
                 </td>
-                <td>{request.title}</td>
-                <td className="text-nowrap">{request.requester_name}</td>
-                <td>
+                <td data-testid="title-cell">{request.title}</td>
+                <td className="text-nowrap" data-testid="requester-cell">
+                  {request.requester_name}
+                </td>
+                <td data-testid="priority-cell">
                   <PriorityBadge priority={request.priority} />
                 </td>
-                <td className="text-nowrap">{waitingTime(request.created_at)}</td>
-                <td className="text-nowrap">{request.needed_by ?? '—'}</td>
-                <td className="text-end text-nowrap">
+                <td className="text-nowrap" data-testid="waiting-cell">
+                  {waitingTime(request.created_at)}
+                </td>
+                <td className="text-nowrap" data-testid="needed-by-cell">
+                  {request.needed_by ?? '—'}
+                </td>
+                <td className="text-end text-nowrap" data-testid="actions-cell">
                   <Button
                     size="sm"
                     variant="success"
                     className="me-2"
                     aria-label={`Approve ${request.number}`}
                     onClick={() => open(request, 'approve')}
+                    data-testid="approve-button"
                   >
                     Approve
                   </Button>
@@ -104,6 +143,7 @@ export default function ApprovalsPage() {
                     variant="outline-danger"
                     aria-label={`Reject ${request.number}`}
                     onClick={() => open(request, 'reject')}
+                    data-testid="reject-button"
                   >
                     Reject
                   </Button>

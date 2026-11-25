@@ -3,7 +3,7 @@ import { Form, Pagination } from 'react-bootstrap';
 import { PAGE_SIZES } from '../choices';
 
 interface Props {
-  /** Used for element IDs, for example "products". */
+  /** Used for element IDs and test IDs, for example "requests": "requests-next-page-button". */
   name: string;
   /** The navigation's accessible name, for example "Product pages". */
   label: string;
@@ -30,6 +30,7 @@ export function TablePagination({ name, label, page, pageSize, total, onPage, on
             value={pageSize}
             onChange={(event) => onPageSize(Number(event.target.value))}
             style={{ width: 'auto' }}
+            data-testid={`${name}-page-size-select`}
           >
             {PAGE_SIZES.map((size) => (
               <option key={size} value={size}>
@@ -41,15 +42,28 @@ export function TablePagination({ name, label, page, pageSize, total, onPage, on
       ) : (
         <span />
       )}
-      <nav aria-label={label}>
+      <nav aria-label={label} data-testid={`${name}-pagination`}>
         <Pagination className="mb-0">
-          <Pagination.Prev disabled={page <= 1} onClick={() => onPage(page - 1)} />
+          <Pagination.Prev
+            disabled={page <= 1}
+            onClick={() => onPage(page - 1)}
+            data-testid={`${name}-previous-page-button`}
+          />
           {numbers.map((number) => (
-            <Pagination.Item key={number} active={number === page} onClick={() => onPage(number)}>
+            <Pagination.Item
+              key={number}
+              active={number === page}
+              onClick={() => onPage(number)}
+              data-testid={`${name}-page-${number}-button`}
+            >
               {number}
             </Pagination.Item>
           ))}
-          <Pagination.Next disabled={page >= pages} onClick={() => onPage(page + 1)} />
+          <Pagination.Next
+            disabled={page >= pages}
+            onClick={() => onPage(page + 1)}
+            data-testid={`${name}-next-page-button`}
+          />
         </Pagination>
       </nav>
     </div>

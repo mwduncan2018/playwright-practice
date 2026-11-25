@@ -19,15 +19,21 @@ export default function AnnouncementsPage() {
   return (
     <>
       <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-        <h1 className="h3 mb-0">Announcements</h1>
-        {user.isAdmin && <Button onClick={() => setWizardOpen(true)}>New announcement</Button>}
+        <h1 className="h3 mb-0" data-testid="announcements-heading">
+          Announcements
+        </h1>
+        {user.isAdmin && (
+          <Button onClick={() => setWizardOpen(true)} data-testid="new-announcement-button">
+            New announcement
+          </Button>
+        )}
       </div>
-      <p role="status" className="text-body-secondary mb-2">
+      <p role="status" className="text-body-secondary mb-2" data-testid="announcements-summary-text">
         {data && plural(data.length, 'announcement')}
       </p>
       {error && <ErrorMessage error={error} onRetry={reload} />}
       {loading && !data && <Loading />}
-      {data && <AnnouncementList announcements={data} label="Announcements" />}
+      {data && <AnnouncementList testId="announcements-list" announcements={data} label="Announcements" />}
       {user.isAdmin && (
         <AnnouncementWizard show={wizardOpen} onClose={() => setWizardOpen(false)} onCreated={reload} />
       )}

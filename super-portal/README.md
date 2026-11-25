@@ -90,6 +90,56 @@ down buttons:
 - Announcements for admins only are hidden from standard users. A scheduled announcement is visible
   only to admins until its date.
 
+## Test IDs
+
+Every element a test acts on or checks has a `data-testid`, so `page.getByTestId()` finds it:
+
+- buttons, links, menu items, fields, checkboxes, radios, switches and paging controls
+- dialogs, alerts, toasts, tables, rows, cells, badges, cards, headings and lists
+- the text and values a test reads
+
+Super Catalog is different. It has no test IDs on its controls, so its tests find them by role and
+label. Only its displayed values, stat cards and product rows have test IDs.
+
+How the IDs are named:
+
+- Lowercase words joined by hyphens. Each ID ends in the kind of element, for example `-button`,
+  `-link`, `-input`, `-textarea`, `-select`, `-checkbox`, `-radio`, `-switch`, `-dialog`,
+  `-alert`, `-badge`, `-heading`, `-table`, `-header`, `-row`, `-cell`, `-list`, `-item`,
+  `-card`, `-form`, `-text` or `-value`. Test IDs from before this convention keep their names,
+  such as `request-status`, `report-total` and `new-request-number`.
+- Each ID is unique on its page. The parts of a dialog or wizard start with its ID, for example:
+  - `approve-dialog-submit-button`
+  - `cancel-request-dialog-confirm-button`
+  - `equipment-wizard-next-button`
+  - `access-wizard-security-step-item`
+- A repeated row or list item has an ID that ends in its key, for example `request-row-REQ-1096`,
+  `person-row-standard1`, `announcement-item-3` or `count-row-submitted`. The elements inside
+  share IDs, so a test finds the row first:
+  `page.getByTestId('request-row-REQ-1096').getByTestId('status-cell')`. The history entries on a
+  request's page are all `history-item`, oldest first.
+- A table's column headers are its ID, the column and `-header`, such as
+  `all-requests-table-status-header`. Its cells are the column and `-cell`, such as `status-cell`.
+- A field's error message is its ID and `-error`, and its help text is its ID and `-help`, for
+  example `wizard-quantity-error`. A radio is its group's name, the choice and `-radio`, such as
+  `level-administrator-radio`, inside `level-radio-group`.
+
+Where they come from in the code:
+
+- `testIdPart()` in `frontend/src/testIds.ts` turns a label or key into part of an ID. For example,
+  "Needed by" becomes `needed-by`.
+- `WizardDialog`, `ConfirmDialog`, `RequestsTable` and `AnnouncementList` take a `testId` and
+  build their parts' IDs from it. `Field`, `RadioGroup`, `ReviewSection`, `ColumnsDialog` and
+  `TablePagination` build theirs from the field's ID, the group's name, the section's title or the
+  table's name.
+- React Bootstrap puts some test IDs somewhere other than the element:
+  - The X on dialogs and toasts is a separate `CloseButton`, because the built-in X can't carry a
+    test ID.
+  - The user menu is a `Dropdown` with a `Nav.Link` toggle, because `NavDropdown` puts the ID on
+    its wrapper rather than the toggle.
+  - A dialog's ID lands on its `.modal-dialog` element, which holds the title, body and buttons.
+  - On a `Form.Check` the ID lands on the input. A breadcrumb link gets its ID through `linkProps`.
+
 ## Sample data
 
 - 100 requests from the past year, REQ-1001 to REQ-1100: 73 approved, 11 rejected, 10 cancelled

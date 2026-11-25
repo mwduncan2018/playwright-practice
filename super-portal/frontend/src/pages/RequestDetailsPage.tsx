@@ -117,15 +117,20 @@ export default function RequestDetailsPage() {
 
   return (
     <>
-      <Breadcrumb>
-        <Breadcrumb.Item linkAs={Link} linkProps={{ to: own ? '/requests' : '/all-requests' }}>
+      <Breadcrumb data-testid="breadcrumb">
+        <Breadcrumb.Item
+          linkAs={Link}
+          linkProps={{ to: own ? '/requests' : '/all-requests', 'data-testid': 'breadcrumb-requests-link' }}
+        >
           {own ? 'My requests' : 'All requests'}
         </Breadcrumb.Item>
-        <Breadcrumb.Item active>{request.number}</Breadcrumb.Item>
+        <Breadcrumb.Item active data-testid="breadcrumb-current-item">
+          {request.number}
+        </Breadcrumb.Item>
       </Breadcrumb>
       <div className="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
         <div>
-          <h1 className="h3 mb-1">
+          <h1 className="h3 mb-1" data-testid="request-heading">
             {request.number} {request.title}
           </h1>
           <div className="d-flex gap-2">
@@ -136,10 +141,10 @@ export default function RequestDetailsPage() {
         <div className="d-flex gap-2">
           {request.can_decide && (
             <>
-              <Button variant="success" onClick={() => decide('approve')}>
+              <Button variant="success" onClick={() => decide('approve')} data-testid="approve-button">
                 Approve
               </Button>
-              <Button variant="outline-danger" onClick={() => decide('reject')}>
+              <Button variant="outline-danger" onClick={() => decide('reject')} data-testid="reject-button">
                 Reject
               </Button>
             </>
@@ -151,6 +156,7 @@ export default function RequestDetailsPage() {
                 setCancelError(undefined);
                 setCancelOpen(true);
               }}
+              data-testid="cancel-request-button"
             >
               Cancel request
             </Button>
@@ -158,14 +164,16 @@ export default function RequestDetailsPage() {
         </div>
       </div>
       {request.decide_blocked_reason && (
-        <Alert variant="info">{request.decide_blocked_reason} Another admin will decide on it.</Alert>
+        <Alert variant="info" data-testid="decide-blocked-alert">
+          {request.decide_blocked_reason} Another admin will decide on it.
+        </Alert>
       )}
       <DecisionSummary request={request} />
 
       <Row className="g-4">
         <Col lg={7}>
-          <Card className="mb-4">
-            <Card.Header as="h2" className="h6 py-3 mb-0">
+          <Card className="mb-4" data-testid="request-summary-card">
+            <Card.Header as="h2" className="h6 py-3 mb-0" data-testid="request-summary-heading">
               Request
             </Card.Header>
             <Card.Body>
@@ -194,8 +202,8 @@ export default function RequestDetailsPage() {
               </dl>
             </Card.Body>
           </Card>
-          <Card>
-            <Card.Header as="h2" className="h6 py-3 mb-0">
+          <Card data-testid="request-type-details-card">
+            <Card.Header as="h2" className="h6 py-3 mb-0" data-testid="request-type-details-heading">
               {request.type} details
             </Card.Header>
             <Card.Body>
@@ -210,16 +218,26 @@ export default function RequestDetailsPage() {
           </Card>
         </Col>
         <Col lg={5}>
-          <h2 className="h5">History</h2>
-          <ListGroup as="ol" aria-label="History" className="mb-3">
+          <h2 className="h5" data-testid="history-heading">
+            History
+          </h2>
+          <ListGroup as="ol" aria-label="History" className="mb-3" data-testid="history-list">
             {request.events.map((event, index) => (
-              <ListGroup.Item as="li" key={index}>
+              <ListGroup.Item as="li" key={index} data-testid="history-item">
                 <div className="d-flex justify-content-between gap-2">
-                  <strong>{event.kind}</strong>
-                  <span className="small text-body-secondary text-nowrap">{formatDateTime(event.at)}</span>
+                  <strong data-testid="history-event-text">{event.kind}</strong>
+                  <span className="small text-body-secondary text-nowrap" data-testid="history-time-text">
+                    {formatDateTime(event.at)}
+                  </span>
                 </div>
-                <div className="small text-body-secondary">{event.name}</div>
-                {event.text && <p className="mb-0 mt-1">{event.text}</p>}
+                <div className="small text-body-secondary" data-testid="history-name-text">
+                  {event.name}
+                </div>
+                {event.text && (
+                  <p className="mb-0 mt-1" data-testid="history-comment-text">
+                    {event.text}
+                  </p>
+                )}
               </ListGroup.Item>
             ))}
           </ListGroup>
@@ -234,6 +252,7 @@ export default function RequestDetailsPage() {
       </Row>
 
       <ConfirmDialog
+        testId="cancel-request-dialog"
         show={cancelOpen}
         title="Cancel request"
         confirmLabel="Cancel request"
@@ -286,11 +305,17 @@ function CommentForm({ number, onPosted }: { number: string; onPosted(): void })
   }
 
   return (
-    <Form noValidate onSubmit={submit} aria-label="New comment">
+    <Form noValidate onSubmit={submit} aria-label="New comment" data-testid="comment-form">
       <Field id="comment-text" label="Add a comment" error={error}>
-        <Form.Control as="textarea" rows={2} value={text} onChange={(event) => setText(event.target.value)} />
+        <Form.Control
+          as="textarea"
+          rows={2}
+          value={text}
+          onChange={(event) => setText(event.target.value)}
+          data-testid="comment-text-textarea"
+        />
       </Field>
-      <Button type="submit" variant="outline-primary" disabled={busy}>
+      <Button type="submit" variant="outline-primary" disabled={busy} data-testid="post-comment-button">
         Post comment
       </Button>
     </Form>
